@@ -128,10 +128,10 @@ DEPENDENCIES:
   - Firebase/RemoteConfig
   - FirebaseAnalytics
   - FirebaseCrashlytics
-  - Google-Mobile-Ads-SDK (~> 9.14.0)
-  - SkeletonView (~> 1.29.2)
-  - SnapKit (~> 5.6.0)
-  - Toast-Swift (~> 5.0.1)
+  - Google-Mobile-Ads-SDK
+  - SkeletonView
+  - SnapKit
+  - Toast-Swift
 
 SPEC REPOS:
   trunk:
@@ -180,6 +180,6 @@ SPEC CHECKSUMS:
   SnapKit: e01d52ebb8ddbc333eefe2132acf85c8227d9c25
   Toast-Swift: 9b6a70f28b3bf0b96c40d46c0c4b9d6639846711
 
-PODFILE CHECKSUM: a939537522ca8e5f5076e77206afb459e20d4702
+PODFILE CHECKSUM: 36caa9a3ba83bb5e17af3c00b07423740a8f349e
 
-COCOAPODS: 1.12.0
+COCOAPODS: 1.15.2
