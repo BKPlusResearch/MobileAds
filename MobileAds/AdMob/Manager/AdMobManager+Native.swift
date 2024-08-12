@@ -55,9 +55,9 @@ extension AdMobManager {
         return []
     }
     
-    public func createAdNativeView(unitId: AdUnitID, type: NativeAdType = .small, views: [UIView]) {
-        let adNativeViews = getAdNative(unitId: unitId.rawValue)
-        removeAd(unitId: unitId.rawValue)
+    public func createAdNativeView(unitId: String, type: NativeAdType = .small, views: [UIView]) {
+        let adNativeViews = getAdNative(unitId: unitId)
+        removeAd(unitId: unitId)
         if !adNativeViews.isEmpty {
             adNativeViews.forEach { adNativeView in
                 adNativeView.removeFromSuperview()
@@ -78,7 +78,7 @@ extension AdMobManager {
             nativeViews.append(adNativeView)
         }
         
-        listAd.setObject(nativeViews, forKey: unitId.rawValue as NSCopying)
+        listAd.setObject(nativeViews, forKey: unitId as NSCopying)
     }
     
     public func reloadAdNative(unitId: AdUnitID) {
@@ -87,22 +87,56 @@ extension AdMobManager {
         }
     }
     
-    public func addAdNative(unitId: AdUnitID, rootVC: UIViewController, views: [UIView], type: NativeAdType = .small) {
+    public func addAdNative(unitId: String, rootVC: UIViewController, views: [UIView], type: NativeAdType = .small) {
         views.forEach{$0.tag = 0}
         createAdNativeView(unitId: unitId, type: type, views: views)
         loadAdNative(unitId: unitId, rootVC: rootVC, numberOfAds: views.count)
     }
     
-    public func loadAdNative(unitId: AdUnitID, rootVC: UIViewController, numberOfAds: Int) {
+    public func addAdNativeWithPreloadedAds(unitId: String, preloadedAds: GADNativeAd, rootVC: UIViewController, views: [UIView], type: NativeAdType = .small) {
+        views.forEach{$0.tag = 0}
+        createAdNativeView(unitId: unitId, type: type, views: views)
+        renderAdNative(adUnitID: unitId, ads: preloadedAds)
+    }
+    
+    public func loadAdNative(unitId: String, rootVC: UIViewController, numberOfAds: Int) {
         let multipleAdsOptions = GADMultipleAdsAdLoaderOptions()
         multipleAdsOptions.numberOfAds = numberOfAds
-        let adLoader = GADAdLoader(adUnitID: unitId.rawValue,
+        let adLoader = GADAdLoader(adUnitID: unitId,
             rootViewController: rootVC,
             adTypes: [ .native ],
             options: [multipleAdsOptions])
-        listLoader.setObject(adLoader, forKey: unitId.rawValue as NSCopying)
+        listLoader.setObject(adLoader, forKey: unitId as NSCopying)
         adLoader.delegate = self
         adLoader.load(GADRequest())
+    }
+    
+    public func renderAdNative(adUnitID: String, ads: GADNativeAd) {
+        guard let nativeAdView = self.getAdNative(unitId: adUnitID).first(where: {$0.tag == 0}) else {return}
+        nativeAdView.tag = 2
+        ads.mediaContent.videoController.delegate = self
+        if let nativeAdView = nativeAdView as? UnifiedNativeAdView {
+            nativeAdView.adUnitID = adUnitID
+//            nativeAdView.hideSkeleton()
+            nativeAdView.hideLoadingView()
+            nativeAdView.bindingData(nativeAd: ads)
+        } else if let nativeAdView = nativeAdView as? UnifiedNativeAdView_2 {
+            nativeAdView.adUnitID = adUnitID
+//            nativeAdView.hideSkeleton()
+            nativeAdView.bindingData(nativeAd: ads)
+        } else if let nativeAdView = nativeAdView as? SmallNativeAdView {
+            nativeAdView.adUnitID = adUnitID
+//            nativeAdView.hideSkeleton()
+            nativeAdView.hideLoadingView()
+            nativeAdView.bindingData(nativeAd: ads)
+        } else if let nativeAdView = nativeAdView as? MediumNativeAdView {
+            nativeAdView.adUnitID = adUnitID
+//            nativeAdView.hideSkeleton()
+            nativeAdView.bindingData(nativeAd: ads)
+        } else if let nativeAdView = nativeAdView as? FreeSizeNativeAdView {
+            nativeAdView.adUnitID = adUnitID
+            nativeAdView.bindingData(nativeAd: ads)
+        }
     }
 }
 
@@ -140,31 +174,7 @@ extension AdMobManager: GADNativeAdLoaderDelegate {
                                              responseInfo?.adSourceID ?? "",
                                              responseInfo?.adSourceName ?? "")
         }
-        guard let nativeAdView = self.getAdNative(unitId: adLoader.adUnitID).first(where: {$0.tag == 0}) else {return}
-        nativeAdView.tag = 2
-        nativeAd.mediaContent.videoController.delegate = self
-        if let nativeAdView = nativeAdView as? UnifiedNativeAdView {
-            nativeAdView.adUnitID = adLoader.adUnitID
-//            nativeAdView.hideSkeleton()
-            nativeAdView.hideLoadingView()
-            nativeAdView.bindingData(nativeAd: nativeAd)
-        } else if let nativeAdView = nativeAdView as? UnifiedNativeAdView_2 {
-            nativeAdView.adUnitID = adLoader.adUnitID
-//            nativeAdView.hideSkeleton()
-            nativeAdView.bindingData(nativeAd: nativeAd)
-        } else if let nativeAdView = nativeAdView as? SmallNativeAdView {
-            nativeAdView.adUnitID = adLoader.adUnitID
-//            nativeAdView.hideSkeleton()
-            nativeAdView.hideLoadingView()
-            nativeAdView.bindingData(nativeAd: nativeAd)
-        } else if let nativeAdView = nativeAdView as? MediumNativeAdView {
-            nativeAdView.adUnitID = adLoader.adUnitID
-//            nativeAdView.hideSkeleton()
-            nativeAdView.bindingData(nativeAd: nativeAd)
-        } else if let nativeAdView = nativeAdView as? FreeSizeNativeAdView {
-            nativeAdView.adUnitID = adLoader.adUnitID
-            nativeAdView.bindingData(nativeAd: nativeAd)
-        }
+        self.renderAdNative(adUnitID: adLoader.adUnitID, ads: nativeAd)
     }
     
     public func nativeAdDidRecordImpression(_ nativeAd: GADNativeAd) {
