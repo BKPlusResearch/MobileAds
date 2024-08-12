@@ -13,6 +13,7 @@ open class NativeAdsServices: NSObject {
     var onFailed: AdsNativeLoadFailure?
     
     public func loadAdsNative(with normalAdsID: String, rootVC: UIViewController, numberOfAds: Int, onSuccess: AdsNativeLoadSuccess?, onFail: AdsNativeLoadFailure?) {
+        print("Diepnn \(#function)")
         self.onSuccessed = onSuccess
         self.onFailed = onFail
         let multipleAdsOptions = GADMultipleAdsAdLoaderOptions()
@@ -29,6 +30,7 @@ open class NativeAdsServices: NSObject {
 extension NativeAdsServices: GADNativeAdLoaderDelegate {
     
     public func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
+        print("Diepnn \(#function)")
         onSuccessed?(adLoader.adUnitID, nativeAd)
     }
     
@@ -37,6 +39,7 @@ extension NativeAdsServices: GADNativeAdLoaderDelegate {
     }
     
     public func adLoader(_ adLoader: GADAdLoader, didFailToReceiveAdWithError error: any Error) {
+        print("Diepnn \(#function)")
         onFailed?(adLoader.adUnitID, error)
     }
 }
