@@ -65,6 +65,7 @@
 		76DF878C28A3B59A0078B20E /* SKProductDiscount+LocalizedPrice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76DF877D28A3B59A0078B20E /* SKProductDiscount+LocalizedPrice.swift */; };
 		76DF878D28A3B59A0078B20E /* AppleReceiptValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 76DF877E28A3B59A0078B20E /* AppleReceiptValidator.swift */; };
 		9518C34C82D27DEB7F343B3D /* Pods_MobileAds.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFA7FFED897F79E7EE95595D /* Pods_MobileAds.framework */; };
+		95BADBBE2C69F7F000F3BF7C /* NativeAdsServices.swift in Sources */ = {isa = PBXBuildFile; fileRef = 95BADBBD2C69F7F000F3BF7C /* NativeAdsServices.swift */; };
 		9AF73B2D283CF2F60084DDDF /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9AF73B2C283CF2F60084DDDF /* Utils.swift */; };
 /* End PBXBuildFile section */
 
@@ -131,6 +132,7 @@
 		76DF877D28A3B59A0078B20E /* SKProductDiscount+LocalizedPrice.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "SKProductDiscount+LocalizedPrice.swift"; sourceTree = "<group>"; };
 		76DF877E28A3B59A0078B20E /* AppleReceiptValidator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppleReceiptValidator.swift; sourceTree = "<group>"; };
 		81C375E0FFD76EAD714F0329 /* Pods-MobileAds.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileAds.debug.xcconfig"; path = "Target Support Files/Pods-MobileAds/Pods-MobileAds.debug.xcconfig"; sourceTree = "<group>"; };
+		95BADBBD2C69F7F000F3BF7C /* NativeAdsServices.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdsServices.swift; sourceTree = "<group>"; };
 		9AF73B2C283CF2F60084DDDF /* Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
 		DFA7FFED897F79E7EE95595D /* Pods_MobileAds.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileAds.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -235,6 +237,7 @@
 		762F5519281A709E0000FB10 /* AdMob */ = {
 			isa = PBXGroup;
 			children = (
+				95BADBBC2C69F7D800F3BF7C /* Service */,
 				764A7CAA281B7AB5008EF803 /* Enum */,
 				762F5551281A75780000FB10 /* Manager */,
 				762F551E281A709E0000FB10 /* Extension */,
@@ -447,6 +450,14 @@
 			path = SwiftyStoreKit;
 			sourceTree = "<group>";
 		};
+		95BADBBC2C69F7D800F3BF7C /* Service */ = {
+			isa = PBXGroup;
+			children = (
+				95BADBBD2C69F7F000F3BF7C /* NativeAdsServices.swift */,
+			);
+			path = Service;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -651,6 +662,7 @@
 				762F5550281A709E0000FB10 /* ConstantsAds.swift in Sources */,
 				76DF878728A3B59A0078B20E /* PaymentsController.swift in Sources */,
 				505353622A4DE84400F4E564 /* AdsLoadingView.swift in Sources */,
+				95BADBBE2C69F7F000F3BF7C /* NativeAdsServices.swift in Sources */,
 				76DF878D28A3B59A0078B20E /* AppleReceiptValidator.swift in Sources */,
 				762F5542281A709E0000FB10 /* MediumNativeAdView.swift in Sources */,
 				7660A7E8283742C400262745 /* UnifiedNativeAdView.swift in Sources */,
