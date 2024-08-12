@@ -12,7 +12,7 @@ open class NativeAdsServices: NSObject {
     var onSuccessed: AdsNativeLoadSuccess?
     var onFailed: AdsNativeLoadFailure?
     
-    func loadAdsNative(with normalAdsID: String, rootVC: UIViewController, numberOfAds: Int, onSuccess: AdsNativeLoadSuccess?, onFail: AdsNativeLoadFailure?) {
+    public func loadAdsNative(with normalAdsID: String, rootVC: UIViewController, numberOfAds: Int, onSuccess: AdsNativeLoadSuccess?, onFail: AdsNativeLoadFailure?) {
         self.onSuccessed = onSuccess
         self.onFailed = onFail
         let multipleAdsOptions = GADMultipleAdsAdLoaderOptions()
