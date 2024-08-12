@@ -11,6 +11,7 @@ import GoogleMobileAds
 open class NativeAdsServices: NSObject {
     var onSuccessed: AdsNativeLoadSuccess?
     var onFailed: AdsNativeLoadFailure?
+    var adLoader: GADAdLoader!
     
     public func loadAdsNative(with normalAdsID: String, rootVC: UIViewController, numberOfAds: Int, onSuccess: AdsNativeLoadSuccess?, onFail: AdsNativeLoadFailure?) {
         print("Diepnn \(#function)")
@@ -18,7 +19,7 @@ open class NativeAdsServices: NSObject {
         self.onFailed = onFail
         let multipleAdsOptions = GADMultipleAdsAdLoaderOptions()
         multipleAdsOptions.numberOfAds = numberOfAds
-        let adLoader = GADAdLoader(adUnitID: normalAdsID,
+        adLoader = GADAdLoader(adUnitID: normalAdsID,
             rootViewController: rootVC,
             adTypes: [ .native ],
             options: [multipleAdsOptions])
