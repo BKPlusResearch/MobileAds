@@ -8,7 +8,7 @@
 import Foundation
 import GoogleMobileAds
 
-public struct MobocoNativeAds {
+public struct MobocoNativeAds: Hashable {
     public var isHighfloor: Bool = false
     public var adsNative: GADNativeAd
     public var isShowed: Bool = false
