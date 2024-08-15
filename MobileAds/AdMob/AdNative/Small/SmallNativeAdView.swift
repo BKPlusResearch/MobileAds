@@ -31,7 +31,6 @@ class SmallNativeAdView: GADNativeAdView, NativeAdProtocol {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        lblAds.layer.cornerRadius = 4
         borderView.layer.cornerRadius = 8
         borderView.clipsToBounds = true
     }
