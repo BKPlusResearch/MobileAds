@@ -11,10 +11,11 @@ import GoogleMobileAds
 class MediumNativeAdView: GADNativeAdView, NativeAdProtocol {
     
     @IBOutlet weak var lblAds: UILabel!
-    @IBOutlet weak var ratingStackView: UIStackView!
-    @IBOutlet weak var starNumberLabel: UILabel!
     @IBOutlet weak var actionButtonHeightConstraint: NSLayoutConstraint!
-    
+    @IBOutlet weak var lblRateCount: UILabel!
+    @IBOutlet weak var starRatingImageView: UIImageView!
+    @IBOutlet weak var priceLabel: UILabel!
+
     let (viewBackgroundColor, titleColor, vertiserColor, contenColor, actionColor, backgroundAction) = AdMobManager.shared.adsNativeColor.colors
     var adUnitID: String?
     
@@ -42,18 +43,21 @@ class MediumNativeAdView: GADNativeAdView, NativeAdProtocol {
         mediaView?.isHidden = true
         
         if let star = nativeAd.starRating, let image = imageOfStars(from: star) {
-            (starRatingView as? UIImageView)?.image = image
-            starNumberLabel.text = "\(star)"
+            starRatingImageView.image = image
+            lblRateCount.text = "\(star)"
+            starRatingImageView.isHidden = false
+            lblRateCount.isHidden = false
         } else {
-            ratingStackView?.isHidden = true
+            starRatingImageView.isHidden = true
+            lblRateCount.isHidden = true
         }
         
         (bodyView as? UILabel)?.text = nativeAd.body
         bodyView?.isHidden = nativeAd.body == nil
         
-        (priceView as? UILabel)?.text = nativeAd.price
-        priceView?.isHidden = nativeAd.price == nil
-        
+        priceLabel.text = nativeAd.price
+        priceLabel.isHidden = nativeAd.price == nil
+
         (advertiserView as? UILabel)?.text = nativeAd.advertiser
         advertiserView?.isHidden = nativeAd.advertiser == nil
                 
@@ -66,7 +70,7 @@ class MediumNativeAdView: GADNativeAdView, NativeAdProtocol {
         }
         (self.bodyView as? UILabel)?.textColor = contenColor
         (self.advertiserView as? UILabel)?.textColor = vertiserColor
-        starNumberLabel.textColor = contenColor
+        lblRateCount.textColor = contenColor
         (self.headlineView as? UILabel)?.textColor = titleColor
         (priceView as? UILabel)?.textColor = contenColor
         lblAds.textColor = AdMobManager.shared.adNativeAdsLabelColor
