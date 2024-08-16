@@ -16,13 +16,15 @@ class MediumNativeAdView: GADNativeAdView, NativeAdProtocol {
     @IBOutlet weak var lblRateCount: UILabel!
     @IBOutlet weak var starRatingImageView: UIImageView!
     @IBOutlet weak var priceLabel: UILabel!
-
+    @IBOutlet weak var loadingView: UIView!
+    @IBOutlet weak var loadingLabel: UILabel!
     let (viewBackgroundColor, titleColor, vertiserColor, contenColor, actionColor, backgroundAction) = AdMobManager.shared.adsNativeColor.colors
     var adUnitID: String?
 
     override func awakeFromNib() {
         super.awakeFromNib()
         self.backgroundColor = viewBackgroundColor
+        loadingLabel.text = AdMobManager.shared.loadingAdsString
     }
 
     override func layoutSubviews() {
@@ -84,4 +86,7 @@ class MediumNativeAdView: GADNativeAdView, NativeAdProtocol {
         self.nativeAd = nativeAd
     }
 
+    func hideLoadingView() {
+        loadingView.isHidden = true
+    }
 }
