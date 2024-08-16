@@ -12,29 +12,30 @@ import SkeletonView
 
 protocol NativeAdProtocol {
     var adUnitID: String? {get set}
-    
+
     func bindingData(nativeAd: GADNativeAd)
 }
 
 class UnifiedNativeAdView_2: GADNativeAdView, NativeAdProtocol {
-    
+
     @IBOutlet weak var lblAds: UILabel!
+    @IBOutlet weak var adsView: UIView!
     @IBOutlet weak var bannerImageView: UIImageView!
     @IBOutlet weak var lblRateCount: UILabel!
-    
+    @IBOutlet weak var starRatingImageView: UIImageView!
+    @IBOutlet weak var priceLabel: UILabel!
     let (viewBackgroundColor, titleColor, vertiserColor, contenColor, actionColor, backgroundAction) = AdMobManager.shared.adsNativeColor.colors
     var adUnitID: String?
-    
+
     override func awakeFromNib() {
         super.awakeFromNib()
         self.backgroundColor = viewBackgroundColor
     }
-    
+
     override func layoutSubviews() {
         super.layoutSubviews()
-        lblAds.roundCorners(corners: [.topLeft, .bottomRight], radius: 6)
     }
-    
+
     func bindingData(nativeAd: GADNativeAd) {
         self.hideSkeleton()
         (self.headlineView as? UILabel)?.text = nativeAd.headline
@@ -47,34 +48,39 @@ class UnifiedNativeAdView_2: GADNativeAdView, NativeAdProtocol {
         } else {
             //videoStatusLabel.text = "Ad does not contain a video."
         }
-        
+
         (self.bodyView as? UILabel)?.text = nativeAd.body
         self.bodyView?.isHidden = nativeAd.body == nil
 //        bannerImageView.image = nativeAd.images?.first?.image
         (self.callToActionView as? UIButton)?.setTitle(nativeAd.callToAction, for: .normal)
         self.callToActionView?.isHidden = nativeAd.callToAction == nil
-        
-        
+
+
         (self.iconView as? UIImageView)?.image = nativeAd.icon?.image
         self.iconView?.isHidden = nativeAd.icon == nil
 
-        (self.starRatingView as? UIImageView)?.image = self.imageOfStars(from: nativeAd.starRating)
-        self.starRatingView?.isHidden = nativeAd.starRating == nil || nativeAd.starRating == 0
-        self.lblRateCount.isHidden = nativeAd.starRating == nil || nativeAd.starRating == 0
-        self.lblRateCount.text = "\(nativeAd.starRating ?? 0)"
+        if let starRating = nativeAd.starRating, starRating != 0 {
+            starRatingImageView.image = imageOfStars(from: starRating)
+            lblRateCount.text = "\(starRating)"
+            lblRateCount.isHidden = false
+            starRatingImageView.isHidden = false
+        } else {
+            lblRateCount.isHidden = true
+            starRatingImageView.isHidden = true
+        }
         (self.storeView as? UILabel)?.text = nativeAd.store
         self.storeView?.isHidden = nativeAd.store == nil
 
-        (self.priceView as? UILabel)?.text = nativeAd.price
-        self.priceView?.isHidden = nativeAd.price == nil
-
+        priceLabel.isHidden = nativeAd.price == nil
+        priceLabel.text = nativeAd.price
         (self.advertiserView as? UILabel)?.text = nativeAd.advertiser
         self.advertiserView?.isHidden = nativeAd.advertiser == nil
         if backgroundAction.count > 1 {
-            self.callToActionView?.gradient(startColor: backgroundAction.first!, endColor: backgroundAction.last!, cornerRadius: AdMobManager.shared.nativeButtonCornerRadius)
+            self.callToActionView?.gradient(startColor: backgroundAction.first!, endColor: backgroundAction.last!, cornerRadius: 20)
+            adsView.gradient(startColor: backgroundAction.first!, endColor: backgroundAction.last!, cornerRadius: 2)
         } else {
             (self.callToActionView as? UIButton)?.backgroundColor = backgroundAction.first
-            self.callToActionView?.layer.cornerRadius = AdMobManager.shared.nativeButtonCornerRadius
+            self.callToActionView?.layer.cornerRadius = 20
         }
         (self.callToActionView as? UIButton)?.setTitleColor(actionColor, for: .normal)
         (self.bodyView as? UILabel)?.textColor = contenColor
@@ -85,7 +91,7 @@ class UnifiedNativeAdView_2: GADNativeAdView, NativeAdProtocol {
         (self.headlineView as? UILabel)?.textColor = titleColor
         (self.headlineView as? UILabel)?.font = UIFont.systemFont(ofSize: 14, weight: .medium)
         lblAds.textColor = AdMobManager.shared.adNativeAdsLabelColor
-        lblAds.backgroundColor = AdMobManager.shared.adNativeBackgroundAdsLabelColor
+//        lblAds.backgroundColor = AdMobManager.shared.adNativeBackgroundAdsLabelColor
         self.backgroundColor = viewBackgroundColor
         layer.borderWidth = AdMobManager.shared.adsNativeBorderWidth
         layer.borderColor = AdMobManager.shared.adsNativeBorderColor.cgColor
