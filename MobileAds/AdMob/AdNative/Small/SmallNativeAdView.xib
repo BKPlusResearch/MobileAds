@@ -241,11 +241,19 @@
                         <constraint firstItem="k8k-FG-vew" firstAttribute="centerX" secondItem="lRA-Aw-apZ" secondAttribute="centerX" id="csq-3t-KCl"/>
                     </constraints>
                 </view>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="ic_info.png" translatesAutoresizingMaskIntoConstraints="NO" id="ZtP-cp-0BV">
+                    <rect key="frame" x="344" y="0.0" width="14" height="14"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="14" id="8Qg-4c-gI0"/>
+                        <constraint firstAttribute="height" constant="14" id="mKu-gC-BQp"/>
+                    </constraints>
+                </imageView>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
                 <constraint firstItem="lRA-Aw-apZ" firstAttribute="top" secondItem="q9C-Mp-S06" secondAttribute="top" id="08D-Zi-jCB"/>
                 <constraint firstAttribute="trailing" secondItem="lRA-Aw-apZ" secondAttribute="trailing" id="1SJ-qv-tZh"/>
+                <constraint firstItem="ZtP-cp-0BV" firstAttribute="top" secondItem="q9C-Mp-S06" secondAttribute="top" id="3Se-jV-yRd"/>
                 <constraint firstAttribute="bottom" secondItem="lRA-Aw-apZ" secondAttribute="bottom" id="4Jh-jP-ICm"/>
                 <constraint firstItem="yk9-Yl-359" firstAttribute="leading" secondItem="q9C-Mp-S06" secondAttribute="leading" constant="16" id="Ei4-U0-Owb"/>
                 <constraint firstItem="B5v-SA-Shf" firstAttribute="leading" secondItem="q9C-Mp-S06" secondAttribute="leading" id="Oas-Xp-BeB"/>
@@ -254,6 +262,7 @@
                 <constraint firstAttribute="bottom" secondItem="yk9-Yl-359" secondAttribute="bottom" constant="4" id="aKQ-KX-AaK"/>
                 <constraint firstItem="yk9-Yl-359" firstAttribute="top" secondItem="q9C-Mp-S06" secondAttribute="top" constant="4" id="dbo-oO-M0M"/>
                 <constraint firstItem="B5v-SA-Shf" firstAttribute="top" secondItem="q9C-Mp-S06" secondAttribute="top" id="jmP-KY-FgZ"/>
+                <constraint firstAttribute="trailing" secondItem="ZtP-cp-0BV" secondAttribute="trailing" id="kJ8-TB-nsr"/>
                 <constraint firstItem="lRA-Aw-apZ" firstAttribute="leading" secondItem="q9C-Mp-S06" secondAttribute="leading" id="yD8-Qt-fBf"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
@@ -276,6 +285,7 @@
         </view>
     </objects>
     <resources>
+        <image name="ic_info.png" width="16" height="16"/>
         <image name="stars_4_5" width="76" height="12"/>
     </resources>
 </document>
