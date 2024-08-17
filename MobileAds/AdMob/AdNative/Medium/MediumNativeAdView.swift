@@ -16,15 +16,37 @@ class MediumNativeAdView: GADNativeAdView, NativeAdProtocol {
     @IBOutlet weak var lblRateCount: UILabel!
     @IBOutlet weak var starRatingImageView: UIImageView!
     @IBOutlet weak var priceLabel: UILabel!
-    @IBOutlet weak var loadingView: UIView!
-    @IBOutlet weak var loadingLabel: UILabel!
+    @IBOutlet weak var infoImageView: UIImageView!
+    @IBOutlet weak var adsContentStackView: UIStackView!
+
     let (viewBackgroundColor, titleColor, vertiserColor, contenColor, actionColor, backgroundAction) = AdMobManager.shared.adsNativeColor.colors
     var adUnitID: String?
 
     override func awakeFromNib() {
         super.awakeFromNib()
         self.backgroundColor = viewBackgroundColor
-        loadingLabel.text = AdMobManager.shared.loadingAdsString
+        (self.callToActionView as? UIButton)?.setTitleColor(actionColor, for: .normal)
+        if backgroundAction.count > 1 {
+            self.callToActionView?.gradient(startColor: backgroundAction.first!, endColor: backgroundAction.last!, cornerRadius: AdMobManager.shared.adsNativeCornerRadiusButton)
+            adsView.gradient(startColor: backgroundAction.first!, endColor: backgroundAction.last!, cornerRadius: 2)
+        } else {
+            self.callToActionView?.layer.backgroundColor = backgroundAction.first?.cgColor
+            self.callToActionView?.layer.cornerRadius = AdMobManager.shared.adsNativeCornerRadiusButton
+        }
+        (self.bodyView as? UILabel)?.textColor = contenColor
+        (self.advertiserView as? UILabel)?.textColor = vertiserColor
+        lblRateCount.textColor = contenColor
+        (self.headlineView as? UILabel)?.textColor = titleColor
+        (priceView as? UILabel)?.textColor = contenColor
+        lblAds.textColor = AdMobManager.shared.adNativeAdsLabelColor
+        self.backgroundColor = viewBackgroundColor
+        layer.borderWidth = AdMobManager.shared.adsNativeBorderWidth
+        layer.borderColor = AdMobManager.shared.adsNativeBorderColor.cgColor
+        layer.cornerRadius = AdMobManager.shared.adsNativeCornerRadius
+        clipsToBounds = true
+        infoImageView.isHidden = true
+        adsContentStackView.showAnimatedSkeleton()
+
     }
 
     override func layoutSubviews() {
@@ -63,30 +85,7 @@ class MediumNativeAdView: GADNativeAdView, NativeAdProtocol {
         (advertiserView as? UILabel)?.text = nativeAd.advertiser
         advertiserView?.isHidden = nativeAd.advertiser == nil
 
-        (self.callToActionView as? UIButton)?.setTitleColor(actionColor, for: .normal)
-        if backgroundAction.count > 1 {
-            self.callToActionView?.gradient(startColor: backgroundAction.first!, endColor: backgroundAction.last!, cornerRadius: AdMobManager.shared.adsNativeCornerRadiusButton)
-            adsView.gradient(startColor: backgroundAction.first!, endColor: backgroundAction.last!, cornerRadius: 2)
-        } else {
-            self.callToActionView?.layer.backgroundColor = backgroundAction.first?.cgColor
-            self.callToActionView?.layer.cornerRadius = AdMobManager.shared.adsNativeCornerRadiusButton
-        }
-        (self.bodyView as? UILabel)?.textColor = contenColor
-        (self.advertiserView as? UILabel)?.textColor = vertiserColor
-        lblRateCount.textColor = contenColor
-        (self.headlineView as? UILabel)?.textColor = titleColor
-        (priceView as? UILabel)?.textColor = contenColor
-        lblAds.textColor = AdMobManager.shared.adNativeAdsLabelColor
-        self.backgroundColor = viewBackgroundColor
-        layer.borderWidth = AdMobManager.shared.adsNativeBorderWidth
-        layer.borderColor = AdMobManager.shared.adsNativeBorderColor.cgColor
-        layer.cornerRadius = AdMobManager.shared.adsNativeCornerRadius
-        clipsToBounds = true
-
+        infoImageView.isHidden = false
         self.nativeAd = nativeAd
-    }
-
-    func hideLoadingView() {
-        loadingView.isHidden = true
     }
 }

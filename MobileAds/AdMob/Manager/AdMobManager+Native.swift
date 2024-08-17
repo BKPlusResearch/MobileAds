@@ -130,8 +130,6 @@ extension AdMobManager {
             nativeAdView.bindingData(nativeAd: ads)
         } else if let nativeAdView = nativeAdView as? MediumNativeAdView {
             nativeAdView.adUnitID = adUnitID
-//            nativeAdView.hideSkeleton()
-            nativeAdView.hideLoadingView()
             nativeAdView.bindingData(nativeAd: ads)
         } else if let nativeAdView = nativeAdView as? FreeSizeNativeAdView {
             nativeAdView.adUnitID = adUnitID
