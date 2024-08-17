@@ -210,6 +210,9 @@
                                     </userDefinedRuntimeAttributes>
                                 </button>
                             </subviews>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
+                            </userDefinedRuntimeAttributes>
                         </stackView>
                         <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Store" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="L01-kq-cJA">
                             <rect key="frame" x="0.0" y="302" width="365" height="0.0"/>
@@ -231,51 +234,31 @@
                         </mask>
                     </variation>
                 </stackView>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CIO-CX-GUr">
-                    <rect key="frame" x="0.0" y="0.0" width="405" height="330"/>
-                    <subviews>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Ads loading..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jz7-x5-Y2c">
-                            <rect key="frame" x="164" y="158" width="77" height="14.5"/>
-                            <fontDescription key="fontDescription" type="system" pointSize="12"/>
-                            <color key="textColor" red="0.2901960784" green="0.2901960784" blue="0.2901960784" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                            <nil key="highlightedColor"/>
-                        </label>
-                    </subviews>
-                    <color key="backgroundColor" red="0.77647058820000003" green="0.77647058820000003" blue="0.77647058820000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                    <constraints>
-                        <constraint firstItem="jz7-x5-Y2c" firstAttribute="centerY" secondItem="CIO-CX-GUr" secondAttribute="centerY" id="puF-vd-nrQ"/>
-                        <constraint firstItem="jz7-x5-Y2c" firstAttribute="centerX" secondItem="CIO-CX-GUr" secondAttribute="centerX" id="x8X-JJ-Hyg"/>
-                    </constraints>
-                </view>
             </subviews>
             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
                 <constraint firstItem="vva-6h-EZV" firstAttribute="centerX" secondItem="MW3-75-Vrl" secondAttribute="centerX" id="2rs-mq-pu2"/>
-                <constraint firstAttribute="trailing" secondItem="CIO-CX-GUr" secondAttribute="trailing" id="9M6-uK-u7N"/>
                 <constraint firstItem="vva-6h-EZV" firstAttribute="leading" secondItem="MW3-75-Vrl" secondAttribute="leading" constant="12" id="AAg-yB-oF2"/>
-                <constraint firstItem="CIO-CX-GUr" firstAttribute="top" secondItem="MW3-75-Vrl" secondAttribute="top" id="LDh-Wv-Ox8"/>
                 <constraint firstItem="vva-6h-EZV" firstAttribute="top" secondItem="MW3-75-Vrl" secondAttribute="top" constant="8" id="QWT-Id-QmC"/>
                 <constraint firstAttribute="bottom" secondItem="vva-6h-EZV" secondAttribute="bottom" constant="8" id="dUL-uv-zdI"/>
-                <constraint firstAttribute="bottom" secondItem="CIO-CX-GUr" secondAttribute="bottom" id="dp8-9n-6un"/>
                 <constraint firstAttribute="trailing" secondItem="Gaz-up-xSH" secondAttribute="trailing" constant="2" id="f3r-dU-cUZ"/>
                 <constraint firstItem="Gaz-up-xSH" firstAttribute="top" secondItem="MW3-75-Vrl" secondAttribute="top" constant="2" id="l7F-Da-0YN"/>
-                <constraint firstItem="CIO-CX-GUr" firstAttribute="leading" secondItem="MW3-75-Vrl" secondAttribute="leading" id="zWQ-3U-W3r"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <userDefinedRuntimeAttributes>
                 <userDefinedRuntimeAttribute type="boolean" keyPath="isSkeletonable" value="YES"/>
             </userDefinedRuntimeAttributes>
             <connections>
+                <outlet property="adsContentStackView" destination="vva-6h-EZV" id="afv-Sp-Nad"/>
                 <outlet property="adsView" destination="jWy-Sn-83S" id="yYl-hc-PTU"/>
                 <outlet property="bannerImageView" destination="TKi-Ge-c9c" id="FuF-Il-tav"/>
                 <outlet property="bodyView" destination="3qR-61-goz" id="A2d-QW-Znb"/>
                 <outlet property="callToActionView" destination="xbh-yS-W7I" id="yYZ-lc-heC"/>
                 <outlet property="headlineView" destination="RlG-KP-x4n" id="O5o-If-JQa"/>
                 <outlet property="iconView" destination="f4D-Gz-Oa5" id="WmB-qL-4vz"/>
+                <outlet property="infoImageView" destination="Gaz-up-xSH" id="2Jf-Ko-QaS"/>
                 <outlet property="lblAds" destination="vns-4J-mFO" id="hNT-PQ-YkV"/>
                 <outlet property="lblRateCount" destination="Bsi-LL-363" id="Qco-ZA-6ZS"/>
-                <outlet property="loadingLabel" destination="jz7-x5-Y2c" id="lDb-Vx-lQT"/>
-                <outlet property="loadingView" destination="CIO-CX-GUr" id="Oq7-RU-MX5"/>
                 <outlet property="mediaView" destination="BZl-1d-H9q" id="8QE-Gd-khi"/>
                 <outlet property="priceLabel" destination="fLn-UD-BlC" id="onD-9y-Jol"/>
                 <outlet property="starRatingImageView" destination="U7n-7f-HvY" id="oBA-Ze-5a7"/>
@@ -290,7 +273,7 @@
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="linkColor">
-            <color red="0.0" green="0.47843137254901963" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.0" green="0.47843137250000001" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
