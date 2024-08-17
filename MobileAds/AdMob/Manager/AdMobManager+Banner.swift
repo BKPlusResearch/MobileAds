@@ -57,7 +57,10 @@ extension AdMobManager: GADBannerViewDelegate {
     }
     
     // quảng có thích ứng với chiều cao không cố định
-    public func addAdBannerAdaptive(unitId: AdUnitID, rootVC: UIViewController, view: UIView) {
+    public func addAdBannerAdaptive(unitId: AdUnitID, 
+                                    rootVC: UIViewController,
+                                    view: UIView,
+                                    isCollapsible: Bool = true) {
         let adBannerView = self.createAdBannerIfNeed(unitId: unitId)
         adBannerView.rootViewController = rootVC
         view.addSubview(adBannerView)
@@ -69,16 +72,18 @@ extension AdMobManager: GADBannerViewDelegate {
             make.edges.equalToSuperview()
         }
 
-        if view.subviews.filter({ $0 is AdsLoadingView }).isEmpty {
-            let loadingView = AdsLoadingView()
-            view.addSubview(loadingView)
-            loadingView.snp.makeConstraints { make in
-                make.edges.equalToSuperview()
-            }
+        if view.isSkeletonable == false {
+            adBannerView.isSkeletonable = true
+            adBannerView.showAnimatedGradientSkeleton()
         }
 
         adBannerView.adSize =  GADCurrentOrientationAnchoredAdaptiveBannerAdSizeWithWidth(screenWidthAds)
         let request = GADRequest()
+        if isCollapsible {
+            let extras = GADExtras()
+            extras.additionalParameters = ["collapsible" : "bottom"]
+            request.register(extras)
+        }
         adBannerView.load(request)
     }
     
