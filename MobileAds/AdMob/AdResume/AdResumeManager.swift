@@ -8,6 +8,7 @@
 import GoogleMobileAds
 import UIKit
 import FirebaseAnalytics
+import Adjust
 
 protocol AdResumeManagerDelegate: AnyObject {
     func appOpenAdManagerAdDidComplete(_ appOpenAdManager: AdResumeManager)
@@ -56,7 +57,7 @@ open class AdResumeManager: NSObject {
             return
         }
         isLoadingAd = true
-        GADAppOpenAd.load(withAdUnitID: resumeAdId?.rawValue ?? "", request: GADRequest(), orientation: .portrait) { ad, error in
+        GADAppOpenAd.load(withAdUnitID: resumeAdId?.rawValue ?? "", request: GADRequest()) { ad, error in
             self.isLoadingAd = false
             if let error = error {
                 self.appOpenAd = nil
@@ -106,12 +107,7 @@ open class AdResumeManager: NSObject {
             }
             
             ad.paidEventHandler = { [weak self] value in
-                let responseInfo = ad.responseInfo.loadedAdNetworkResponseInfo
-                self?.blockLoadAdsOpenSuccess?(self?.resumeAdId?.rawValue ?? "",
-                                               value.precision.rawValue,
-                                               Int(truncating: value.value),
-                                               responseInfo?.adSourceID ?? "",
-                                               responseInfo?.adSourceName ?? "")
+                self?.trackAdRevenue(value: value)
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -151,7 +147,7 @@ open class AdResumeManager: NSObject {
         }
 
         GADAppOpenAd.load(withAdUnitID: adId.rawValue,
-                          request: GADRequest(), orientation: .portrait) { ad, error in
+                          request: GADRequest()) { ad, error in
             self.isLoadingAd = false
             guard let _ad = ad, error == nil else {
                 loadAppOpenFail?()
@@ -163,12 +159,7 @@ open class AdResumeManager: NSObject {
             self.loadTime = Date()
             self.isShowingAd = true
             _ad.paidEventHandler = { [weak self] value in
-                let responseInfo = _ad.responseInfo.loadedAdNetworkResponseInfo
-                self?.blockLoadAdsOpenSuccess?(adId.rawValue,
-                                               value.precision.rawValue,
-                                               Int(truncating: value.value),
-                                               responseInfo?.adSourceID ?? "",
-                                               responseInfo?.adSourceName ?? "")
+                self?.trackAdRevenue(value: value)
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -230,3 +221,11 @@ extension AdResumeManager: GADFullScreenContentDelegate {
     }
 }
 
+extension AdResumeManager {
+    func trackAdRevenue(value: GADAdValue) {
+        if let adRevenue = ADJAdRevenue(source: ADJAdRevenueSourceAdMob) {
+            adRevenue.setRevenue(value.value.doubleValue, currency: value.currencyCode)
+            Adjust.trackAdRevenue(adRevenue)
+        }
+    }
+}

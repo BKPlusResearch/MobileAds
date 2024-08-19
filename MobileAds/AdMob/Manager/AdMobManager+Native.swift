@@ -163,12 +163,7 @@ extension AdMobManager: GADNativeAdLoaderDelegate {
     public func adLoader(_ adLoader: GADAdLoader, didReceive nativeAd: GADNativeAd) {
         nativeAd.delegate = self
         nativeAd.paidEventHandler = {[weak self] value in
-            let responseInfo = nativeAd.responseInfo.loadedAdNetworkResponseInfo
-            self?.blockLogNativeLoadSuccess?(adLoader.adUnitID,
-                                             value.precision.rawValue,
-                                             Int(truncating: value.value),
-                                             responseInfo?.adSourceID ?? "",
-                                             responseInfo?.adSourceName ?? "")
+            self?.trackAdRevenue(value: value)
         }
         self.renderAdNative(adUnitID: adLoader.adUnitID, ads: nativeAd)
     }
