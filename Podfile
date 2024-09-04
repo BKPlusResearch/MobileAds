@@ -14,5 +14,5 @@ pod 'Google-Mobile-Ads-SDK'
 pod 'SkeletonView'
 pod 'SnapKit'
 pod 'Toast-Swift'
-pod 'Adjust', '~> 5.0.0'
+pod 'Adjust', '~> 4.38.4'
 end

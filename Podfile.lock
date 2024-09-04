@@ -1,9 +1,7 @@
 PODS:
-  - Adjust (5.0.0):
-    - Adjust/Adjust (= 5.0.0)
-  - Adjust/Adjust (5.0.0):
-    - AdjustSignature (~> 3.18)
-  - AdjustSignature (3.20.1)
+  - Adjust (4.38.4):
+    - Adjust/Core (= 4.38.4)
+  - Adjust/Core (4.38.4)
   - Firebase (11.1.0):
     - Firebase/Core (= 11.1.0)
   - Firebase/Core (11.1.0):
@@ -141,7 +139,7 @@ PODS:
   - Toast-Swift (5.1.1)
 
 DEPENDENCIES:
-  - Adjust (~> 5.0.0)
+  - Adjust (~> 4.38.4)
   - Firebase
   - Firebase/RemoteConfig
   - FirebaseAnalytics
@@ -154,7 +152,6 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - Adjust
-    - AdjustSignature
     - Firebase
     - FirebaseABTesting
     - FirebaseAnalytics
@@ -180,8 +177,7 @@ SPEC REPOS:
     - Toast-Swift
 
 SPEC CHECKSUMS:
-  Adjust: a1421f630c529258d7e170a8a76647f9721f7fbd
-  AdjustSignature: cd0263e5672da024e8671888ea164c9c7496fe3b
+  Adjust: afda46df69f035fd216310fb85f399c40c61830a
   Firebase: fdb3bd378401f26a7adfcf446b0a630f8c20c0e8
   FirebaseABTesting: c2e22c3aab99afa81d0561708b2c1c356c556976
   FirebaseAnalytics: 9fcdb2e9844174bb405b34cc47092c9b91993d83
@@ -206,6 +202,6 @@ SPEC CHECKSUMS:
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
   Toast-Swift: 7a03a532afe3a560d4044bc7c237e2864d295173
 
-PODFILE CHECKSUM: 82f05e0f43cb9a12acd4d5c3176da11803a1c1ca
+PODFILE CHECKSUM: 03797ba3dc1874d71a2358323ef1de3be7699cbe
 
 COCOAPODS: 1.15.2
