@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "MobileAds"
-  spec.version      = "1.1.4"
+  spec.version      = "1.1.5"
   spec.summary      = "A small framework extending from Google-Mobile-Ads-SDK"
 
   # This description is used to generate tags and improve search results.
@@ -53,7 +53,7 @@ Pod::Spec.new do |spec|
   #  profile URL.
   #
 
-  spec.author             = { "vunk" => "vunk@apero.vn" }
+  spec.author             = { "vunk" => "frankie@bkplussoft.com" }
   # Or just: spec.author    = "vunk"
   # spec.authors            = { "vunk" => "vunk@apero.vn" }
   # spec.social_media_url   = "https://twitter.com/vunk"
@@ -152,9 +152,9 @@ Pod::Spec.new do |spec|
   spec.dependency 'FirebaseAnalytics', '~> 11.0.0'
   spec.dependency 'Firebase/RemoteConfig', '~> 11.0.0'
   spec.dependency "Google-Mobile-Ads-SDK", '~> 11.8.0'
-  spec.dependency "SnapKit", '~> 5.6.0'
+  spec.dependency "SnapKit", '~> 5.7.1'
   spec.dependency "SkeletonView", '~> 1.29.2'
   spec.dependency 'Toast-Swift', '~> 5.0.1'
-  spec.dependency "Adjust", '~> 4.29.2'
+  spec.dependency "Adjust", '~> 5.0.0'
 
 end
