@@ -107,6 +107,11 @@ open class AdMobManager: NSObject {
         listAd.removeObject(forKey: unitId)
     }
     
+    public func trackAdjustEvent(token: String) {
+        let adjEvent = ADJEvent(token: token)
+        Adjust.trackEvent(adjEvent)
+    }
+    
     //    MARK: - Track Ad Revenue
     func trackAdRevenue(value: GADAdValue) {
         if let adRevenue = ADJAdRevenue(source: ADJAdRevenueSourceAdMob) {
