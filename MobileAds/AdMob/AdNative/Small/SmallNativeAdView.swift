@@ -55,6 +55,7 @@ class SmallNativeAdView: GADNativeAdView, NativeAdProtocol {
 
     func bindingData(nativeAd: GADNativeAd) {
         self.hideSkeleton()
+        stopSkeletonAnimation()
         (self.headlineView as? UILabel)?.text = nativeAd.headline
 
         (self.callToActionView as? UIButton)?.setTitle(nativeAd.callToAction, for: .normal)

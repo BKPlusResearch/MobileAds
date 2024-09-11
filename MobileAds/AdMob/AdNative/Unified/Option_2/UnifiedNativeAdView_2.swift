@@ -64,6 +64,7 @@ class UnifiedNativeAdView_2: GADNativeAdView, NativeAdProtocol {
     }
 
     func bindingData(nativeAd: GADNativeAd) {
+        self.stopSkeletonAnimation()
         self.hideSkeleton()
         (self.headlineView as? UILabel)?.text = nativeAd.headline
         self.mediaView?.mediaContent = nativeAd.mediaContent

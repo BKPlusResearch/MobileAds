@@ -52,14 +52,16 @@ extension UIView {
     }
     
     func gradient(startColor: UIColor = UIColor(hex: 0xE2465C), endColor: UIColor = UIColor(hex: 0xFFC370), cornerRadius: CGFloat = 0, startPoint: GradientDirection = .left, endPoint: GradientDirection = .right) {
-        let gradient = CAGradientLayer()
-        gradient.colors = [startColor.cgColor, endColor.cgColor]
-        gradient.startPoint = startPoint.point
-        gradient.endPoint = endPoint.point
-        gradient.frame = bounds
-        gradient.cornerRadius = cornerRadius
-        layer.insertSublayer(gradient, at: 0)
-        layer.cornerRadius = cornerRadius
+        DispatchQueue.main.async {
+            let gradient = CAGradientLayer()
+            gradient.colors = [startColor.cgColor, endColor.cgColor]
+            gradient.startPoint = startPoint.point
+            gradient.endPoint = endPoint.point
+            gradient.frame = self.bounds
+            gradient.cornerRadius = cornerRadius
+            self.layer.insertSublayer(gradient, at: 0)
+            self.layer.cornerRadius = cornerRadius
+        }
     }
 }
 
