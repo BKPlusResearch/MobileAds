@@ -108,7 +108,7 @@ open class AdMobManager: NSObject {
     }
     
     public func trackAdjustEvent(token: String) {
-        let adjEvent = ADJEvent(token: token)
+        let adjEvent = ADJEvent(eventToken: token)
         Adjust.trackEvent(adjEvent)
     }
     
