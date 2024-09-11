@@ -70,6 +70,7 @@ extension AdMobManager: GADFullScreenContentDelegate {
     
     public func showIntertitial(unitId: AdUnitID, isSplash: Bool = false, blockWillDismiss: VoidBlockAds? = nil, blockDidDismiss: VoidBlockAds? = nil) {
         if isSplash {
+            print("Diepnn ---- show inter splash")
             AdResumeManager.shared.isShowingAd = true // kiểm tra nếu show inter thì ko show resume
             createAdInterstitialIfNeed(unitId: unitId) { [weak self] result in
                 if result {
@@ -84,6 +85,7 @@ extension AdMobManager: GADFullScreenContentDelegate {
         }
         
         if AdMobManager.shared.getAdInterstitial(unitId: unitId) != nil {
+            print("Diepnn ---- show inter existed ads")
             AdResumeManager.shared.isShowingAd = true // kiểm tra nếu show inter thì ko show resume
             var rootVC = UIApplication.getTopViewController()
             if rootVC?.navigationController != nil {
@@ -108,6 +110,7 @@ extension AdMobManager: GADFullScreenContentDelegate {
                 make.edges.equalToSuperview()
             }
         } else {
+            print("Diepnn ---- create a new one and show inter ")
             createAdInterstitialIfNeed(unitId: unitId)
             blockWillDismiss?()
             blockDidDismiss?()
