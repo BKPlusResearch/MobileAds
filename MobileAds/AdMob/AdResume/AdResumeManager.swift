@@ -107,7 +107,7 @@ open class AdResumeManager: NSObject {
             }
             
             ad.paidEventHandler = { [weak self] value in
-                self?.trackAdRevenue(value: value)
+                AdMobManager.shared.log(adType: .appOpen, adValue: value)
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -159,7 +159,7 @@ open class AdResumeManager: NSObject {
             self.loadTime = Date()
             self.isShowingAd = true
             _ad.paidEventHandler = { [weak self] value in
-                self?.trackAdRevenue(value: value)
+                AdMobManager.shared.log(adType: .appOpen, adValue: value)
             }
 
             DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
@@ -217,15 +217,6 @@ extension AdResumeManager: GADFullScreenContentDelegate {
         blockAdResumeClick?()
         if ad is GADAppOpenAd {
             AdMobManager.shared.logEvenClick(format: "ad_open_ads_resume")
-        }
-    }
-}
-
-extension AdResumeManager {
-    func trackAdRevenue(value: GADAdValue) {
-        if let adRevenue = ADJAdRevenue(source: ADJAdRevenueSourceAdMob) {
-            adRevenue.setRevenue(value.value.doubleValue, currency: value.currencyCode)
-            Adjust.trackAdRevenue(adRevenue)
         }
     }
 }

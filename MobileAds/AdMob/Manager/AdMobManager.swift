@@ -24,6 +24,15 @@ public struct SampleAdUnitID {
     public static let adFormatNativeAdvancedVideo  = "ca-app-pub-3940256099942544/1044960115"
 }
 
+//    MARK: -
+public struct AppADJustConfig {
+    public let impressionToken: String?
+
+    public init(impressionToken: String?) {
+        self.impressionToken = impressionToken
+    }
+}
+
 //    MARK: - Enum AdUnitID
 public struct AdUnitID {
     public var rawValue: String = ""
@@ -60,7 +69,9 @@ open class AdMobManager: NSObject {
     public var showAdRewardCount = 0
     public var listAd: NSMutableDictionary = NSMutableDictionary()
     public var listLoader: NSMutableDictionary = NSMutableDictionary()
-    
+    // MARK: - Config Adjust
+    public var adjConfig: AppADJustConfig?
+
     //    MARK: - Type Theme color
     public var adsNativeColor: ThemeStyleAds = .origin
     
@@ -106,22 +117,64 @@ open class AdMobManager: NSObject {
     public func removeAd(unitId: String) {
         listAd.removeObject(forKey: unitId)
     }
-    
+
+    func logEvenClick(format: String) {
+        Analytics.logEvent("ad_click_custom", parameters: ["ad_format" : format])
+    }
     public func trackAdjustEvent(token: String) {
         let adjEvent = ADJEvent(eventToken: token)
         Adjust.trackEvent(adjEvent)
     }
-    
-    //    MARK: - Track Ad Revenue
-    func trackAdRevenue(value: GADAdValue) {
-        if let adRevenue = ADJAdRevenue(source: ADJAdRevenueSourceAdMob) {
-            adRevenue.setRevenue(value.value.doubleValue, currency: value.currencyCode)
-            Adjust.trackAdRevenue(adRevenue)
+}
+
+//    MARK: - Track Ad Revenue
+extension AdMobManager {
+
+    public func log(adType: ADJAdType, adValue: GADAdValue) {
+        let valueMicros = Double(truncating: adValue.value)
+        let currency = adValue.currencyCode
+        let revenueUSD = valueMicros
+
+        trackAdRevenue(adType: adType, revenueUSD: revenueUSD, currency: currency)
+
+        trackAdjustEvent(revenueUSD: revenueUSD, currency: currency)
+
+        Task { @MainActor in
+            logRevenue(value: revenueUSD)
         }
     }
-    
-    func logEvenClick(format: String) {
-        Analytics.logEvent("ad_click_custom", parameters: ["ad_format" : format])
+
+    private func trackAdRevenue(adType: ADJAdType, revenueUSD: Double, currency: String) {
+        debugPrint("💰 [AdRevenue] \(#function) \(adType.rawValue) - \(revenueUSD) \(currency)")
+        let adjustAdRevenue = ADJAdRevenue(source: "admob_sdk")
+        adjustAdRevenue?.setRevenue(revenueUSD, currency: currency)
+        adjustAdRevenue?.setAdImpressionsCount(1)
+        adjustAdRevenue?.setAdRevenueNetwork("AdMob")
+        adjustAdRevenue?.setAdRevenueUnit(adType.rawValue)
+        adjustAdRevenue?.setAdRevenuePlacement("default")
+
+        if let adjustAdRevenue = adjustAdRevenue {
+            Adjust.trackAdRevenue(adjustAdRevenue)
+        }
+
     }
-    
+
+    private func trackAdjustEvent(revenueUSD: Double, currency: String) {
+        debugPrint("💰 [AdRevenue] \(#function) - \(revenueUSD) \(currency)")
+        if let token = adjConfig?.impressionToken {
+            let event = ADJEvent(eventToken: token)
+            event?.setRevenue(revenueUSD, currency: currency)
+            Adjust.trackEvent(event)
+        }
+    }
+
+    private func logRevenue(value: Double) {
+        debugPrint("💰 [AdRevenue] \(#function) - \(value)")
+        let safeRevenue = Double(String(format: "%.6f", value)) ?? 0.0
+        Analytics.logEvent("ad_impression_ios", parameters: [
+            AnalyticsParameterAdPlatform: "AdMob",
+            AnalyticsParameterCurrency: "USD",
+            AnalyticsParameterValue: safeRevenue
+        ])
+    }
 }

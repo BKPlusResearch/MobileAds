@@ -10,6 +10,7 @@
 		042F528227D8E09E008D5330 /* MobileAds.docc in Sources */ = {isa = PBXBuildFile; fileRef = 042F528127D8E09E008D5330 /* MobileAds.docc */; };
 		042F528327D8E09E008D5330 /* MobileAds.h in Headers */ = {isa = PBXBuildFile; fileRef = 042F528027D8E09E008D5330 /* MobileAds.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0E7215CB2A36224700759DCA /* close.png in Resources */ = {isa = PBXBuildFile; fileRef = 0E7215CA2A36224700759DCA /* close.png */; };
+		5015F2562EDFC128001FE6A7 /* ADJAdType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5015F2552EDFC126001FE6A7 /* ADJAdType.swift */; };
 		505353622A4DE84400F4E564 /* AdsLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 505353612A4DE84300F4E564 /* AdsLoadingView.swift */; };
 		508D29432C6F2E5B005801DA /* ic_info.png in Resources */ = {isa = PBXBuildFile; fileRef = 508D29422C6F2E5B005801DA /* ic_info.png */; };
 		508D29482C6F3202005801DA /* stars_3_5.png in Resources */ = {isa = PBXBuildFile; fileRef = 508D29442C6F3202005801DA /* stars_3_5.png */; };
@@ -77,6 +78,7 @@
 		042F528127D8E09E008D5330 /* MobileAds.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = MobileAds.docc; sourceTree = "<group>"; };
 		0E7215CA2A36224700759DCA /* close.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close.png; sourceTree = "<group>"; };
 		3D6191E3A787BACD7741EE30 /* Pods-MobileAds.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileAds.release.xcconfig"; path = "Target Support Files/Pods-MobileAds/Pods-MobileAds.release.xcconfig"; sourceTree = "<group>"; };
+		5015F2552EDFC126001FE6A7 /* ADJAdType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADJAdType.swift; sourceTree = "<group>"; };
 		505353612A4DE84300F4E564 /* AdsLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdsLoadingView.swift; sourceTree = "<group>"; };
 		508D29422C6F2E5B005801DA /* ic_info.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ic_info.png; sourceTree = "<group>"; };
 		508D29442C6F3202005801DA /* stars_3_5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stars_3_5.png; sourceTree = "<group>"; };
@@ -355,6 +357,7 @@
 		764A7CAA281B7AB5008EF803 /* Enum */ = {
 			isa = PBXGroup;
 			children = (
+				5015F2552EDFC126001FE6A7 /* ADJAdType.swift */,
 				762F551B281A709E0000FB10 /* AdMobFullScreenType.swift */,
 			);
 			path = Enum;
@@ -630,9 +633,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MobileAds/Pods-MobileAds-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MobileAds/Pods-MobileAds-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -708,6 +715,7 @@
 				76BDA4C52952B609005D7FBA /* FreeSizeNativeAdView.swift in Sources */,
 				76DF878928A3B59A0078B20E /* RestorePurchasesController.swift in Sources */,
 				76DF878428A3B59A0078B20E /* SwiftyStoreKit.swift in Sources */,
+				5015F2562EDFC128001FE6A7 /* ADJAdType.swift in Sources */,
 				762F554C281A709E0000FB10 /* UIViewControll+Extension+Ads.swift in Sources */,
 				762F5553281A81D50000FB10 /* UIApplication+Extension.swift in Sources */,
 				762F5549281A709E0000FB10 /* AdMobManager+Interstitial.swift in Sources */,

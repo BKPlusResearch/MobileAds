@@ -27,7 +27,7 @@ extension AdMobManager: GADBannerViewDelegate {
         let adBannerView = GADBannerView()
         adBannerView.adUnitID = unitId.rawValue
         adBannerView.paidEventHandler = {[weak self] value in
-            self?.trackAdRevenue(value: value)
+            self?.log(adType: .banner, adValue: value)
         }
        listAd.setObject(adBannerView, forKey: unitId.rawValue as NSCopying)
         return adBannerView
