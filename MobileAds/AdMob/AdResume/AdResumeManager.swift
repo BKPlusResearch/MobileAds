@@ -203,6 +203,7 @@ extension AdResumeManager: GADFullScreenContentDelegate {
     public func adWillPresentFullScreenContent(_ ad: GADFullScreenPresentingAd) {
         isShowingAd = true
         print("App open ad is presented.")
+        blockLoadAdsOpenSuccess?(appOpenAd?.adUnitID ?? "")
     }
     
     public func ad(_ ad: GADFullScreenPresentingAd, didFailToPresentFullScreenContentWithError error: Error) {
