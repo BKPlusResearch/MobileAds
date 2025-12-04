@@ -13,4 +13,6 @@ pod 'Firebase/RemoteConfig'
 pod 'Google-Mobile-Ads-SDK'
 pod 'SnapKit'
 pod 'Adjust'
+pod 'SkeletonView'
+pod 'Toast-Swift'
 end

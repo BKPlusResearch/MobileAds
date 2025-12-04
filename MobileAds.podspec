@@ -160,5 +160,8 @@ Pod::Spec.new do |spec|
   spec.dependency "GoogleUserMessagingPlatform", '~> 3.0.0'
   spec.dependency "SnapKit", '~> 5.7.1'
   spec.dependency "Adjust", '~> 5.0.0'
+  spec.dependency "SkeletonView", '~> 1.29.2'
+  spec.dependency 'Toast-Swift', '~> 5.0.1'
+
 
 end

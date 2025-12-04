@@ -81,6 +81,15 @@ public class AdMobHelper: NSObject {
     /// Keeps track of if an app open ad is showing.
     public private(set) var isAppOpenShowing = false
 
+    /// The banner ad view.
+    public private(set) var bannerAd: BannerView?
+    
+    /// Keeps track of if a banner ad is loading.
+    public private(set) var isBannerLoading = false
+    
+    /// Callback for banner ad status events
+    private var bannerAdStatusCallback: ((BannerAdStatus) -> Void)?
+
     /// Keeps track of the time when an app open ad was loaded to discard expired ad.
     private var appOpenLoadTime: Date?
 
@@ -143,23 +152,32 @@ public class AdMobHelper: NSObject {
     /// - Parameters:
     ///   - adUnitID: The Ad Unit ID enum for banner ads.
     ///   - rootViewController: The view controller that will present the ad.
-    ///   - delegate: Optional banner view delegate.
+    ///   - statusCallback: Optional callback to receive ad status events (didLoad, didFailToLoad, didRecordImpression, etc.).
     /// - Returns: A configured BannerView ready to load ads.
     public func loadBannerAd(
         adUnitID: AdUnitID,
         rootViewController: UIViewController,
-        delegate: BannerViewDelegate? = nil
+        statusCallback: ((BannerAdStatus) -> Void)? = nil
     ) -> BannerView {
         let bannerView = BannerView(adSize: currentOrientationAnchoredAdaptiveBanner(width: 375))
         bannerView.adUnitID = adUnitID.rawValue
         bannerView.rootViewController = rootViewController
-        bannerView.delegate = delegate
+        
+        // Store banner view and callbacks
+        self.bannerAd = bannerView
+        self.bannerAdStatusCallback = statusCallback
+        
+        // Set self as delegate to track events
+        bannerView.delegate = self
 
         guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
             print("Cannot load banner ad: Consent not granted")
+            isBannerLoading = false
+            statusCallback?(.didFailToLoad)
             return bannerView
         }
 
+        isBannerLoading = true
         initializeSDK()
         bannerView.load(Request())
         return bannerView
@@ -553,6 +571,7 @@ public class AdMobHelper: NSObject {
         rewardedInterstitialAd = nil
         appOpenAd = nil
         appOpenLoadTime = nil
+        bannerAd = nil
 
         isInterstitialLoading = false
         isInterstitialShowing = false
@@ -562,6 +581,10 @@ public class AdMobHelper: NSObject {
         isRewardedInterstitialShowing = false
         isAppOpenLoading = false
         isAppOpenShowing = false
+        isBannerLoading = false
+        
+        // Clear callbacks
+        bannerAdStatusCallback = nil
         
         // Hide loading views if showing
         hideAppOpenAdLoadingView()
@@ -696,6 +719,47 @@ extension AdMobHelper: FullScreenContentDelegate {
     }
 }
 
+// MARK: - BannerViewDelegate
+
+extension AdMobHelper: BannerViewDelegate {
+    public func bannerViewDidReceiveAd(_ bannerView: BannerView) {
+        print("Banner ad loaded successfully")
+        isBannerLoading = false
+        bannerAdStatusCallback?(.didLoad)
+    }
+    
+    public func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: Error) {
+        print("Banner ad failed to load with error: \(error.localizedDescription)")
+        isBannerLoading = false
+        bannerAdStatusCallback?(.didFailToLoad)
+    }
+    
+    public func bannerViewDidRecordImpression(_ bannerView: BannerView) {
+        print("Banner ad recorded an impression")
+        bannerAdStatusCallback?(.didRecordImpression)
+    }
+    
+    public func bannerViewDidRecordClick(_ bannerView: BannerView) {
+        print("Banner ad recorded a click")
+        bannerAdStatusCallback?(.didRecordClick)
+    }
+    
+    public func bannerViewWillPresentScreen(_ bannerView: BannerView) {
+        print("Banner ad will present screen")
+        bannerAdStatusCallback?(.willPresentScreen)
+    }
+    
+    public func bannerViewWillDismissScreen(_ bannerView: BannerView) {
+        print("Banner ad will dismiss screen")
+        bannerAdStatusCallback?(.willDismissScreen)
+    }
+    
+    public func bannerViewDidDismissScreen(_ bannerView: BannerView) {
+        print("Banner ad dismissed screen")
+        bannerAdStatusCallback?(.didDismissScreen)
+    }
+}
+
 // MARK: - App Open Ad Status
 
 /// Status events for app open ad lifecycle
@@ -720,6 +784,19 @@ public enum RewardedAdStatus {
     case didDismiss              // Ad was dismissed by user (without earning reward)
     case didEarnReward           // User earned the reward
     case didEarnRewardAndDismiss // User earned reward AND ad was dismissed
+}
+
+// MARK: - Banner Ad Status
+
+/// Status events for banner ad lifecycle
+public enum BannerAdStatus {
+    case didLoad              // Banner ad loaded successfully
+    case didFailToLoad        // Banner ad failed to load
+    case didRecordImpression  // Banner ad recorded an impression
+    case didRecordClick       // Banner ad was clicked
+    case willPresentScreen    // Banner ad will present full screen content
+    case willDismissScreen    // Banner ad will dismiss full screen content
+    case didDismissScreen     // Banner ad dismissed full screen content
 }
 
 // MARK: - AdMobHelperError

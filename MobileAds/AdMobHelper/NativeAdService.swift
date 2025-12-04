@@ -79,8 +79,8 @@ public class NativeAdConfiguration {
 
 /// Service to manage native ads loading and display
 @MainActor
-class NativeAdService {
-    
+public class NativeAdService {
+
     // MARK: - Properties
     
     /// Current delegate helper to prevent deallocation
@@ -91,12 +91,12 @@ class NativeAdService {
     
     // MARK: - Initialization
     
-    init() {}
-    
+    public init() {}
+
     // MARK: - Native Ad View Type
     
     /// Enum to specify which native ad view template to use
-    enum NativeAdViewType {
+    public enum NativeAdViewType {
         case small
         case medium
         
@@ -121,7 +121,7 @@ class NativeAdService {
     ///   - viewType: The type of native ad view template to use (.small or .medium)
     ///   - configuration: Optional configuration for customizing ad appearance. If nil, uses `NativeAdConfiguration.shared` singleton
     ///   - statusCallback: Optional callback to notify success (true) or failure (false)
-    func loadNativeAd(
+    public func loadNativeAd(
         containerView: UIView,
         adUnitID: AdUnitID,
         rootViewController: UIViewController,
