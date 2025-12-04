@@ -19,8 +19,8 @@ extension AdMobHelper {
     }
 
     /// Load an app open ad.
-    /// - Parameter adUnitID: The Ad Unit ID enum for app open ads.
-    public func loadAppOpenAd(adUnitID: AdUnitID) async throws {
+    /// - Parameter adUnitID: The ad unit identifier for app open ads.
+    public func loadAppOpenAd(adUnitID: AdUnitIdentifiable) async throws {
         // Do not load ad if there is an unused ad or one is already loading.
         if isAppOpenLoading || isAppOpenAdAvailable() {
             return
@@ -37,7 +37,7 @@ extension AdMobHelper {
 
         do {
             appOpenAd = try await AppOpenAd.load(
-                with: adUnitID.rawValue, request: Request())
+                with: adUnitID.adUnitIDString, request: Request())
             appOpenAd?.fullScreenContentDelegate = self
             appOpenLoadTime = Date()
             print("App open ad loaded successfully")

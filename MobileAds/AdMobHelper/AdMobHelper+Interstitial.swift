@@ -5,8 +5,8 @@ extension AdMobHelper {
     // MARK: - Interstitial Ad
     
     /// Load an interstitial ad.
-    /// - Parameter adUnitID: The Ad Unit ID enum for interstitial ads.
-    public func loadInterstitialAd(adUnitID: AdUnitID) async throws {
+    /// - Parameter adUnitID: The ad unit identifier for interstitial ads.
+    public func loadInterstitialAd(adUnitID: AdUnitIdentifiable) async throws {
         guard !isInterstitialLoading, interstitialAd == nil else {
             return
         }
@@ -22,7 +22,7 @@ extension AdMobHelper {
 
         do {
             interstitialAd = try await InterstitialAd.load(
-                with: adUnitID.rawValue, request: Request())
+                with: adUnitID.adUnitIDString, request: Request())
             interstitialAd?.fullScreenContentDelegate = self
             print("Interstitial ad loaded successfully")
         } catch {

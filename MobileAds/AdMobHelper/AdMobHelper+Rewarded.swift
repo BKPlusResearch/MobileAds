@@ -5,8 +5,8 @@ extension AdMobHelper {
     // MARK: - Rewarded Video Ad
     
     /// Load a rewarded video ad.
-    /// - Parameter adUnitID: The Ad Unit ID enum for rewarded video ads.
-    public func loadRewardedAd(adUnitID: AdUnitID) async throws {
+    /// - Parameter adUnitID: The ad unit identifier for rewarded video ads.
+    public func loadRewardedAd(adUnitID: AdUnitIdentifiable) async throws {
         guard !isRewardedLoading, rewardedAd == nil else {
             return
         }
@@ -22,7 +22,7 @@ extension AdMobHelper {
 
         do {
             rewardedAd = try await RewardedAd.load(
-                with: adUnitID.rawValue, request: Request())
+                with: adUnitID.adUnitIDString, request: Request())
             rewardedAd?.fullScreenContentDelegate = self
             print("Rewarded ad loaded successfully")
         } catch {
@@ -39,12 +39,12 @@ extension AdMobHelper {
     /// Show a rewarded video ad from the specified view controller.
     /// - Parameters:
     ///   - viewController: The view controller to present the ad from.
-    ///   - adUnitID: The Ad Unit ID enum for rewarded video ads (used to load if not already loaded).
+    ///   - adUnitID: The ad unit identifier for rewarded video ads (used to load if not already loaded).
     ///   - statusCallback: Optional callback to receive ad status events (didPresent, didFailToPresent, didDismiss, didEarnReward).
     ///   - completion: Callback with the reward when the user earns it.
     public func showRewardedAd(
         from viewController: UIViewController,
-        adUnitID: AdUnitID,
+        adUnitID: AdUnitIdentifiable,
         statusCallback: ((RewardedAdStatus) -> Void)? = nil,
         completion: @escaping (AdReward) -> Void
     ) async throws {

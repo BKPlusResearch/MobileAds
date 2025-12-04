@@ -10,12 +10,12 @@ extension AdMobHelper: BannerViewDelegate {
     ///   - statusCallback: Optional callback to receive ad status events (didLoad, didFailToLoad, didRecordImpression, etc.).
     /// - Returns: A configured BannerView ready to load ads.
     public func loadBannerAd(
-        adUnitID: AdUnitID,
+        adUnitID: AdUnitIdentifiable,
         rootViewController: UIViewController,
         statusCallback: ((BannerAdStatus) -> Void)? = nil
     ) -> BannerView {
         let bannerView = BannerView(adSize: currentOrientationAnchoredAdaptiveBanner(width: 375))
-        bannerView.adUnitID = adUnitID.rawValue
+        bannerView.adUnitID = adUnitID.adUnitIDString
         bannerView.rootViewController = rootViewController
         
         // Store banner view and callbacks

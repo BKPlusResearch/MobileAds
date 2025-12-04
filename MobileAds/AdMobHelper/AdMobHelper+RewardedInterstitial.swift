@@ -5,8 +5,8 @@ extension AdMobHelper {
     // MARK: - Rewarded Interstitial Ad
     
     /// Load a rewarded interstitial ad.
-    /// - Parameter adUnitID: The Ad Unit ID enum for rewarded interstitial ads.
-    public func loadRewardedInterstitialAd(adUnitID: AdUnitID) async throws {
+    /// - Parameter adUnitID: The ad unit identifier for rewarded interstitial ads.
+    public func loadRewardedInterstitialAd(adUnitID: AdUnitIdentifiable) async throws {
         guard !isRewardedInterstitialLoading, rewardedInterstitialAd == nil else {
             return
         }
@@ -20,7 +20,7 @@ extension AdMobHelper {
 
         do {
             rewardedInterstitialAd = try await RewardedInterstitialAd.load(
-                with: adUnitID.rawValue, request: Request())
+                with: adUnitID.adUnitIDString, request: Request())
             rewardedInterstitialAd?.fullScreenContentDelegate = self
             print("Rewarded interstitial ad loaded successfully")
         } catch {
@@ -36,11 +36,11 @@ extension AdMobHelper {
     /// Show a rewarded interstitial ad from the specified view controller.
     /// - Parameters:
     ///   - viewController: The view controller to present the ad from.
-    ///   - adUnitID: The Ad Unit ID enum for rewarded interstitial ads (used to load if not already loaded).
+    ///   - adUnitID: The ad unit identifier for rewarded interstitial ads (used to load if not already loaded).
     ///   - completion: Callback with the reward when the user earns it.
     public func showRewardedInterstitialAd(
         from viewController: UIViewController,
-        adUnitID: AdUnitID,
+        adUnitID: AdUnitIdentifiable,
         completion: @escaping (AdReward) -> Void
     ) async throws {
         guard !isRewardedInterstitialShowing else {

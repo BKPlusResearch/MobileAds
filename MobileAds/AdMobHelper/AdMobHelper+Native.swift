@@ -6,25 +6,25 @@ extension AdMobHelper {
     
     /// Load a native advanced ad using AdLoader.
     /// - Parameters:
-    ///   - adUnitID: The Ad Unit ID enum for native advanced ads.
+    ///   - adUnitID: The ad unit identifier for native advanced ads.
     ///   - rootViewController: The view controller that will present the ad.
     ///   - delegate: The native ad loader delegate.
     /// - Returns: An AdLoader instance configured to load native ads.
     public func loadNativeAd(
-        adUnitID: AdUnitID,
+        adUnitID: AdUnitIdentifiable,
         rootViewController: UIViewController,
         delegate: NativeAdLoaderDelegate
     ) -> AdLoader {
         guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
             print("Cannot load native ad: Consent not granted")
             return AdLoader(
-                adUnitID: adUnitID.rawValue, rootViewController: rootViewController,
+                adUnitID: adUnitID.adUnitIDString, rootViewController: rootViewController,
                 adTypes: [.native], options: nil)
         }
 
         initializeSDK()
         let adLoader = AdLoader(
-            adUnitID: adUnitID.rawValue, rootViewController: rootViewController,
+            adUnitID: adUnitID.adUnitIDString, rootViewController: rootViewController,
             adTypes: [.native], options: nil)
         adLoader.delegate = delegate
         adLoader.load(Request())

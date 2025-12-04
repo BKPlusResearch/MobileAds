@@ -16,62 +16,14 @@
 
 import Foundation
 
-/// Enum defining AdMob Ad Unit IDs for different ad types.
-/// Automatically uses test IDs in DEBUG mode and production IDs in RELEASE mode.
-/// Each case returns a string directly based on the build configuration.
-public enum AdUnitID: String {
-    case appOpen
-    case appResume
-    case banner
-    case interstitial
-    case rewardedVideo
-    case nativeAdvanced
-
-    /// Returns the Ad Unit ID string directly.
-    /// Returns test IDs in DEBUG mode, production IDs in RELEASE mode.
-    public var rawValue: String {
-#if DEBUG
-        return testID
-#else
-        return productionID
-#endif
-    }
-
-    /// Test Ad Unit ID for the ad type.
-    private var testID: String {
-        switch self {
-        case .appOpen:
-            return "ca-app-pub-3940256099942544/5575463023"
-        case .appResume:
-            return "ca-app-pub-3940256099942544/5575463023"
-        case .banner:
-            return "ca-app-pub-3940256099942544/2435281174"
-        case .interstitial:
-            return "ca-app-pub-3940256099942544/4411468910"
-        case .rewardedVideo:
-            return "ca-app-pub-3940256099942544/1712485313"
-        case .nativeAdvanced:
-            return "ca-app-pub-3940256099942544/3986624511"
-        }
-    }
-
-    /// Production Ad Unit ID for the ad type.
-    /// TODO: Replace these with your actual production Ad Unit IDs from AdMob.
-    private var productionID: String {
-        switch self {
-        case .appOpen:
-            return "ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX"
-        case .appResume:
-            return "ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX"
-        case .banner:
-            return "ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX"
-        case .interstitial:
-            return "ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX"
-        case .rewardedVideo:
-            return "ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX"
-        case .nativeAdvanced:
-            return "ca-app-pub-XXXXXXXXXXXXXXXX/XXXXXXXXXX"
-        }
-    }
+/// A type that can provide a concrete AdMob ad unit ID string.
+/// 
+/// The framework only needs the final string to pass to Google Mobile Ads SDK.
+/// Projects integrating this framework are expected to define their own enums
+/// or structs (for example, `enum AppAdUnitID`) that conform to this protocol
+/// and decide how to manage test vs production IDs.
+public protocol AdUnitIdentifiable {
+    /// The resolved ad unit ID string used when requesting ads.
+    var adUnitIDString: String { get }
 }
 

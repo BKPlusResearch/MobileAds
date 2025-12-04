@@ -116,14 +116,14 @@ public class NativeAdService {
     /// Load and display native ad in a container view
     /// - Parameters:
     ///   - containerView: The view container to add the native ad view to
-    ///   - adUnitID: The Ad Unit ID for the native ad
+    ///   - adUnitID: The ad unit identifier for the native ad
     ///   - rootViewController: The view controller that will present the ad
     ///   - viewType: The type of native ad view template to use (.small or .medium)
     ///   - configuration: Optional configuration for customizing ad appearance. If nil, uses `NativeAdConfiguration.shared` singleton
     ///   - statusCallback: Optional callback to notify success (true) or failure (false)
     public func loadNativeAd(
         containerView: UIView,
-        adUnitID: AdUnitID,
+        adUnitID: AdUnitIdentifiable,
         rootViewController: UIViewController,
         viewType: NativeAdViewType,
         configuration: NativeAdConfiguration? = nil,
@@ -220,14 +220,14 @@ public class NativeAdService {
     /// Load and display native ad with configuration
     /// - Parameters:
     ///   - containerView: The view container to add the native ad view to
-    ///   - adUnitID: The Ad Unit ID for the native ad
+    ///   - adUnitID: The ad unit identifier for the native ad
     ///   - rootViewController: The view controller that will present the ad
     ///   - viewType: The type of native ad view template to use (.small or .medium)
     ///   - configuration: Configuration for customizing ad appearance
     ///   - statusCallback: Optional callback to notify success (true) or failure (false)
     func loadNativeAdWithConfiguration(
         containerView: UIView,
-        adUnitID: AdUnitID,
+        adUnitID: AdUnitIdentifiable,
         rootViewController: UIViewController,
         viewType: NativeAdViewType,
         configuration: NativeAdConfiguration,
