@@ -25,73 +25,73 @@ public class AdMobHelper: NSObject {
     // MARK: - Properties
 
     /// The interstitial ad.
-    public private(set) var interstitialAd: InterstitialAd?
-
+    public internal(set) var interstitialAd: InterstitialAd?
+    
     /// The rewarded video ad.
-    public private(set) var rewardedAd: RewardedAd?
-
+    public internal(set) var rewardedAd: RewardedAd?
+    
     /// The rewarded interstitial ad.
-    public private(set) var rewardedInterstitialAd: RewardedInterstitialAd?
-
+    public internal(set) var rewardedInterstitialAd: RewardedInterstitialAd?
+    
     /// The app open ad.
-    public private(set) var appOpenAd: AppOpenAd?
-
+    public internal(set) var appOpenAd: AppOpenAd?
+    
     /// Loading view for app open ads.
-    private var appOpenAdLoadingView: AppOpenAdLoadingView?
+    var appOpenAdLoadingView: AppOpenAdLoadingView?
     
     /// Callback for app open ad status events
-    private var appOpenAdStatusCallback: ((AppOpenAdStatus) -> Void)?
+    var appOpenAdStatusCallback: ((AppOpenAdStatus) -> Void)?
     
     /// Loading view for interstitial ads.
-    private var interstitialAdLoadingView: AppOpenAdLoadingView?
+    var interstitialAdLoadingView: AppOpenAdLoadingView?
     
     /// Callback for interstitial ad status events
-    private var interstitialAdStatusCallback: ((InterstitialAdStatus) -> Void)?
+    var interstitialAdStatusCallback: ((InterstitialAdStatus) -> Void)?
     
     /// Loading view for rewarded ads.
-    private var rewardedAdLoadingView: AppOpenAdLoadingView?
+    var rewardedAdLoadingView: AppOpenAdLoadingView?
     
     /// Callback for rewarded ad status events
-    private var rewardedAdStatusCallback: ((RewardedAdStatus) -> Void)?
+    var rewardedAdStatusCallback: ((RewardedAdStatus) -> Void)?
     
     /// Tracks if user earned reward (to combine with dismiss event)
-    private var didEarnRewardForCurrentAd = false
-
+    var didEarnRewardForCurrentAd = false
+    
     /// Keeps track of if an interstitial ad is loading.
-    public private(set) var isInterstitialLoading = false
-
+    public internal(set) var isInterstitialLoading = false
+    
     /// Keeps track of if an interstitial ad is showing.
-    public private(set) var isInterstitialShowing = false
-
+    public internal(set) var isInterstitialShowing = false
+    
     /// Keeps track of if a rewarded ad is loading.
-    public private(set) var isRewardedLoading = false
-
+    public internal(set) var isRewardedLoading = false
+    
     /// Keeps track of if a rewarded ad is showing.
-    public private(set) var isRewardedShowing = false
-
+    public internal(set) var isRewardedShowing = false
+    
     /// Keeps track of if a rewarded interstitial ad is loading.
-    public private(set) var isRewardedInterstitialLoading = false
-
+    public internal(set) var isRewardedInterstitialLoading = false
+    
     /// Keeps track of if a rewarded interstitial ad is showing.
-    public private(set) var isRewardedInterstitialShowing = false
-
+    public internal(set) var isRewardedInterstitialShowing = false
+    
     /// Keeps track of if an app open ad is loading.
-    public private(set) var isAppOpenLoading = false
-
+    public internal(set) var isAppOpenLoading = false
+    
     /// Keeps track of if an app open ad is showing.
-    public private(set) var isAppOpenShowing = false
-
+    public internal(set) var isAppOpenShowing = false
+    
     /// The banner ad view.
-    public private(set) var bannerAd: BannerView?
+    public internal(set) var bannerAd: BannerView?
     
     /// Keeps track of if a banner ad is loading.
-    public private(set) var isBannerLoading = false
+    public internal(set) var isBannerLoading = false
     
     /// Callback for banner ad status events
-    private var bannerAdStatusCallback: ((BannerAdStatus) -> Void)?
-
+    var bannerAdStatusCallback: ((BannerAdStatus) -> Void)?
+    
     /// Keeps track of the time when an app open ad was loaded to discard expired ad.
-    private var appOpenLoadTime: Date?
+    var appOpenLoadTime: Date?
 
     /// Timeout interval for app open ad expiration (4 hours).
     public let appOpenTimeoutInterval: TimeInterval = 4 * 3_600
@@ -146,422 +146,6 @@ public class AdMobHelper: NSObject {
 #endif
     }
 
-    // MARK: - Banner Ad
-
-    /// Load and return a banner ad view.
-    /// - Parameters:
-    ///   - adUnitID: The Ad Unit ID enum for banner ads.
-    ///   - rootViewController: The view controller that will present the ad.
-    ///   - statusCallback: Optional callback to receive ad status events (didLoad, didFailToLoad, didRecordImpression, etc.).
-    /// - Returns: A configured BannerView ready to load ads.
-    public func loadBannerAd(
-        adUnitID: AdUnitID,
-        rootViewController: UIViewController,
-        statusCallback: ((BannerAdStatus) -> Void)? = nil
-    ) -> BannerView {
-        let bannerView = BannerView(adSize: currentOrientationAnchoredAdaptiveBanner(width: 375))
-        bannerView.adUnitID = adUnitID.rawValue
-        bannerView.rootViewController = rootViewController
-        
-        // Store banner view and callbacks
-        self.bannerAd = bannerView
-        self.bannerAdStatusCallback = statusCallback
-        
-        // Set self as delegate to track events
-        bannerView.delegate = self
-
-        guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
-            print("Cannot load banner ad: Consent not granted")
-            isBannerLoading = false
-            statusCallback?(.didFailToLoad)
-            return bannerView
-        }
-
-        isBannerLoading = true
-        initializeSDK()
-        bannerView.load(Request())
-        return bannerView
-    }
-
-    // MARK: - Interstitial Ad
-
-    /// Load an interstitial ad.
-    /// - Parameter adUnitID: The Ad Unit ID enum for interstitial ads.
-    public func loadInterstitialAd(adUnitID: AdUnitID) async throws {
-        guard !isInterstitialLoading, interstitialAd == nil else {
-            return
-        }
-
-        guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
-            throw AdMobHelperError.consentNotGranted
-        }
-
-        isInterstitialLoading = true
-        // Show loading view when starting to load ad
-        showInterstitialAdLoadingView()
-        initializeSDK()
-
-        do {
-            interstitialAd = try await InterstitialAd.load(
-                with: adUnitID.rawValue, request: Request())
-            interstitialAd?.fullScreenContentDelegate = self
-            print("Interstitial ad loaded successfully")
-        } catch {
-            print("Interstitial ad failed to load with error: \(error.localizedDescription)")
-            interstitialAd = nil
-            // Hide loading view when load fails
-            hideInterstitialAdLoadingView()
-            throw error
-        }
-
-        isInterstitialLoading = false
-    }
-
-    /// Show an interstitial ad from the specified view controller.
-    /// - Parameters:
-    ///   - viewController: The view controller to present the ad from.
-    ///   - statusCallback: Optional callback to receive ad status events (didPresent, didFailToPresent, didDismiss).
-    public func showInterstitialAd(
-        from viewController: UIViewController,
-        statusCallback: ((InterstitialAdStatus) -> Void)? = nil
-    ) throws {
-        guard !isInterstitialShowing else {
-            throw AdMobHelperError.adAlreadyShowing
-        }
-
-        guard let interstitialAd = interstitialAd else {
-            throw AdMobHelperError.adNotLoaded
-        }
-
-        // Store callback for status events
-        interstitialAdStatusCallback = statusCallback
-        
-        // Loading view should already be showing from loadInterstitialAd
-        // If not showing, show it now (in case ad was pre-loaded)
-        if interstitialAdLoadingView == nil {
-            showInterstitialAdLoadingView()
-        }
-
-        isInterstitialShowing = true
-        interstitialAd.present(from: viewController)
-    }
-
-    // MARK: - Rewarded Video Ad
-
-    /// Load a rewarded video ad.
-    /// - Parameter adUnitID: The Ad Unit ID enum for rewarded video ads.
-    public func loadRewardedAd(adUnitID: AdUnitID) async throws {
-        guard !isRewardedLoading, rewardedAd == nil else {
-            return
-        }
-
-        guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
-            throw AdMobHelperError.consentNotGranted
-        }
-
-        isRewardedLoading = true
-        // Show loading view when starting to load ad
-        showRewardedAdLoadingView()
-        initializeSDK()
-
-        do {
-            rewardedAd = try await RewardedAd.load(
-                with: adUnitID.rawValue, request: Request())
-            rewardedAd?.fullScreenContentDelegate = self
-            print("Rewarded ad loaded successfully")
-        } catch {
-            print("Rewarded ad failed to load with error: \(error.localizedDescription)")
-            rewardedAd = nil
-            // Hide loading view when load fails
-            hideRewardedAdLoadingView()
-            throw error
-        }
-
-        isRewardedLoading = false
-    }
-
-    /// Show a rewarded video ad from the specified view controller.
-    /// - Parameters:
-    ///   - viewController: The view controller to present the ad from.
-    ///   - adUnitID: The Ad Unit ID enum for rewarded video ads (used to load if not already loaded).
-    ///   - statusCallback: Optional callback to receive ad status events (didPresent, didFailToPresent, didDismiss, didEarnReward).
-    ///   - completion: Callback with the reward when the user earns it.
-    public func showRewardedAd(
-        from viewController: UIViewController,
-        adUnitID: AdUnitID,
-        statusCallback: ((RewardedAdStatus) -> Void)? = nil,
-        completion: @escaping (AdReward) -> Void
-    ) async throws {
-        guard !isRewardedShowing else {
-            throw AdMobHelperError.adAlreadyShowing
-        }
-
-        // Store callback for status events
-        rewardedAdStatusCallback = statusCallback
-
-        if rewardedAd == nil {
-            try await loadRewardedAd(adUnitID: adUnitID)
-        }
-
-        guard let rewardedAd = rewardedAd else {
-            throw AdMobHelperError.adNotLoaded
-        }
-
-        // Loading view should already be showing from loadRewardedAd
-        // If not showing, show it now (in case ad was pre-loaded)
-        if rewardedAdLoadingView == nil {
-            showRewardedAdLoadingView()
-        }
-
-        isRewardedShowing = true
-        didEarnRewardForCurrentAd = false  // Reset flag before showing
-        rewardedAd.present(from: viewController) { [weak self] in
-            let reward = rewardedAd.adReward
-            print("Reward received with currency \(reward.type), amount \(reward.amount.doubleValue)")
-            // Mark that reward was earned
-            self?.didEarnRewardForCurrentAd = true
-            // Notify that reward was earned
-            statusCallback?(.didEarnReward)
-            completion(reward)
-        }
-    }
-
-    // MARK: - Rewarded Interstitial Ad
-
-    /// Load a rewarded interstitial ad.
-    /// - Parameter adUnitID: The Ad Unit ID enum for rewarded interstitial ads.
-    public func loadRewardedInterstitialAd(adUnitID: AdUnitID) async throws {
-        guard !isRewardedInterstitialLoading, rewardedInterstitialAd == nil else {
-            return
-        }
-
-        guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
-            throw AdMobHelperError.consentNotGranted
-        }
-
-        isRewardedInterstitialLoading = true
-        initializeSDK()
-
-        do {
-            rewardedInterstitialAd = try await RewardedInterstitialAd.load(
-                with: adUnitID.rawValue, request: Request())
-            rewardedInterstitialAd?.fullScreenContentDelegate = self
-            print("Rewarded interstitial ad loaded successfully")
-        } catch {
-            print(
-                "Rewarded interstitial ad failed to load with error: \(error.localizedDescription)")
-            rewardedInterstitialAd = nil
-            throw error
-        }
-
-        isRewardedInterstitialLoading = false
-    }
-
-    /// Show a rewarded interstitial ad from the specified view controller.
-    /// - Parameters:
-    ///   - viewController: The view controller to present the ad from.
-    ///   - adUnitID: The Ad Unit ID enum for rewarded interstitial ads (used to load if not already loaded).
-    ///   - completion: Callback with the reward when the user earns it.
-    public func showRewardedInterstitialAd(
-        from viewController: UIViewController,
-        adUnitID: AdUnitID,
-        completion: @escaping (AdReward) -> Void
-    ) async throws {
-        guard !isRewardedInterstitialShowing else {
-            throw AdMobHelperError.adAlreadyShowing
-        }
-
-        if rewardedInterstitialAd == nil {
-            try await loadRewardedInterstitialAd(adUnitID: adUnitID)
-        }
-
-        guard let rewardedInterstitialAd = rewardedInterstitialAd else {
-            throw AdMobHelperError.adNotLoaded
-        }
-
-        isRewardedInterstitialShowing = true
-        rewardedInterstitialAd.present(from: viewController) {
-            let reward = rewardedInterstitialAd.adReward
-            print(
-                "Reward received with currency \(reward.amount), amount \(reward.amount.doubleValue)")
-            completion(reward)
-        }
-    }
-
-    // MARK: - Native Advanced Ad
-
-    /// Load a native advanced ad using AdLoader.
-    /// - Parameters:
-    ///   - adUnitID: The Ad Unit ID enum for native advanced ads.
-    ///   - rootViewController: The view controller that will present the ad.
-    ///   - delegate: The native ad loader delegate.
-    /// - Returns: An AdLoader instance configured to load native ads.
-    public func loadNativeAd(
-        adUnitID: AdUnitID,
-        rootViewController: UIViewController,
-        delegate: NativeAdLoaderDelegate
-    ) -> AdLoader {
-        guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
-            print("Cannot load native ad: Consent not granted")
-            return AdLoader(
-                adUnitID: adUnitID.rawValue, rootViewController: rootViewController,
-                adTypes: [.native], options: nil)
-        }
-
-        initializeSDK()
-        let adLoader = AdLoader(
-            adUnitID: adUnitID.rawValue, rootViewController: rootViewController,
-            adTypes: [.native], options: nil)
-        adLoader.delegate = delegate
-        adLoader.load(Request())
-        return adLoader
-    }
-
-    // MARK: - App Open Ad
-
-    /// Check if app open ad was loaded less than timeout interval ago.
-    private func wasLoadTimeLessThanNHoursAgo(timeoutInterval: TimeInterval) -> Bool {
-        if let loadTime = appOpenLoadTime {
-            return Date().timeIntervalSince(loadTime) < timeoutInterval
-        }
-        return false
-    }
-
-    /// Check if app open ad is available and not expired.
-    private func isAppOpenAdAvailable() -> Bool {
-        return appOpenAd != nil
-        && wasLoadTimeLessThanNHoursAgo(timeoutInterval: appOpenTimeoutInterval)
-    }
-
-    /// Load an app open ad.
-    /// - Parameter adUnitID: The Ad Unit ID enum for app open ads.
-    public func loadAppOpenAd(adUnitID: AdUnitID) async throws {
-        // Do not load ad if there is an unused ad or one is already loading.
-        if isAppOpenLoading || isAppOpenAdAvailable() {
-            return
-        }
-
-        guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
-            throw AdMobHelperError.consentNotGranted
-        }
-
-        isAppOpenLoading = true
-        // Show loading view when starting to load ad
-        showAppOpenAdLoadingView()
-        initializeSDK()
-
-        do {
-            appOpenAd = try await AppOpenAd.load(
-                with: adUnitID.rawValue, request: Request())
-            appOpenAd?.fullScreenContentDelegate = self
-            appOpenLoadTime = Date()
-            print("App open ad loaded successfully")
-            // Hide loading view when load completes successfully
-            // Keep it showing if we're about to show the ad immediately
-        } catch {
-            print("App open ad failed to load with error: \(error.localizedDescription)")
-            appOpenAd = nil
-            appOpenLoadTime = nil
-            // Hide loading view when load fails
-            hideAppOpenAdLoadingView()
-            throw error
-        }
-
-        isAppOpenLoading = false
-    }
-
-    /// Show an app open ad if available.
-    /// - Parameters:
-    ///   - viewController: The view controller to present the ad from (can be nil for app open).
-    ///   - statusCallback: Optional callback to receive ad status events (didPresent, didFailToPresent, didDismiss).
-    /// - Returns: True if ad was shown, false otherwise.
-
-    public func showAppOpenAd(
-        from viewController: UIViewController? = nil,
-        statusCallback: ((AppOpenAdStatus) -> Void)? = nil
-    ) {
-        // If the app open ad is already showing, do not show the ad again.
-        if isAppOpenShowing {
-            debugPrint("App open ad is already showing.")
-            return
-        }
-
-        // If the app open ad is not available yet, return false.
-        if !isAppOpenAdAvailable() {
-            debugPrint("App open ad is not ready yet.")
-            return
-        }
-
-        if let appOpenAd = appOpenAd {
-            // Store callback for status events
-            appOpenAdStatusCallback = statusCallback
-            
-            // Loading view should already be showing from loadAppOpenAd
-            // If not showing, show it now (in case ad was pre-loaded)
-            if appOpenAdLoadingView == nil {
-                showAppOpenAdLoadingView()
-            }
-            
-            appOpenAd.present(from: viewController)
-            isAppOpenShowing = true
-            return
-        }
-    }
-
-    // MARK: - App Open Ad Loading View
-    
-    /// Show loading view for app open ad
-    private func showAppOpenAdLoadingView() {
-        // Remove existing loading view if any
-        hideAppOpenAdLoadingView()
-        
-        // Create and show new loading view
-        appOpenAdLoadingView = AppOpenAdLoadingView()
-        appOpenAdLoadingView?.show()
-    }
-    
-    /// Hide loading view for app open ad
-    private func hideAppOpenAdLoadingView() {
-        appOpenAdLoadingView?.hide()
-        appOpenAdLoadingView = nil
-    }
-    
-    // MARK: - Interstitial Ad Loading View
-    
-    /// Show loading view for interstitial ad
-    private func showInterstitialAdLoadingView() {
-        // Remove existing loading view if any
-        hideInterstitialAdLoadingView()
-        
-        // Create and show new loading view
-        interstitialAdLoadingView = AppOpenAdLoadingView()
-        interstitialAdLoadingView?.show()
-    }
-    
-    /// Hide loading view for interstitial ad
-    private func hideInterstitialAdLoadingView() {
-        interstitialAdLoadingView?.hide()
-        interstitialAdLoadingView = nil
-    }
-    
-    // MARK: - Rewarded Ad Loading View
-    
-    /// Show loading view for rewarded ad
-    private func showRewardedAdLoadingView() {
-        // Remove existing loading view if any
-        hideRewardedAdLoadingView()
-        
-        // Create and show new loading view
-        rewardedAdLoadingView = AppOpenAdLoadingView()
-        rewardedAdLoadingView?.show()
-    }
-    
-    /// Hide loading view for rewarded ad
-    private func hideRewardedAdLoadingView() {
-        rewardedAdLoadingView?.hide()
-        rewardedAdLoadingView = nil
-    }
-
     // MARK: - Cleanup
 
     /// Clear all loaded ads.
@@ -590,173 +174,6 @@ public class AdMobHelper: NSObject {
         hideAppOpenAdLoadingView()
         hideInterstitialAdLoadingView()
         hideRewardedAdLoadingView()
-    }
-}
-
-// MARK: - FullScreenContentDelegate
-
-extension AdMobHelper: FullScreenContentDelegate {
-    public func adDidRecordImpression(_ ad: FullScreenPresentingAd) {
-        print("Ad recorded an impression.")
-    }
-
-    public func adDidRecordClick(_ ad: FullScreenPresentingAd) {
-        print("Ad recorded a click.")
-    }
-
-    public func adWillPresentFullScreenContent(_ ad: FullScreenPresentingAd) {
-        print("Ad will be presented.")
-        
-        // Hide loading view when ad is about to be presented (success case)
-        if ad === appOpenAd {
-            hideAppOpenAdLoadingView()
-            // Notify that ad was presented successfully
-            appOpenAdStatusCallback?(.didPresent)
-        } else if ad === interstitialAd {
-            hideInterstitialAdLoadingView()
-            // Notify that ad was presented successfully
-            interstitialAdStatusCallback?(.didPresent)
-        } else if ad === rewardedAd {
-            hideRewardedAdLoadingView()
-            // Notify that ad was presented successfully
-            rewardedAdStatusCallback?(.didPresent)
-        }
-    }
-
-    public func adWillDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
-        print("Ad will be dismissed.")
-        
-        // Notify that ad will be dismissed
-        if ad === appOpenAd {
-            appOpenAdStatusCallback?(.willDismiss)
-        } else if ad === interstitialAd {
-            interstitialAdStatusCallback?(.willDismiss)
-        } else if ad === rewardedAd {
-            rewardedAdStatusCallback?(.willDismiss)
-        }
-    }
-
-    public func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
-        print("Ad was dismissed.")
-
-        // Clear the ad and reset showing state
-        if ad === interstitialAd {
-            // Notify that ad was dismissed
-            interstitialAdStatusCallback?(.didDismiss)
-            interstitialAdStatusCallback = nil
-            
-            interstitialAd = nil
-            isInterstitialShowing = false
-        } else if ad === rewardedAd {
-            // Notify based on whether reward was earned
-            if didEarnRewardForCurrentAd {
-                rewardedAdStatusCallback?(.didEarnRewardAndDismiss)
-            } else {
-                rewardedAdStatusCallback?(.didDismiss)
-            }
-            rewardedAdStatusCallback = nil
-            didEarnRewardForCurrentAd = false  // Reset flag
-            
-            rewardedAd = nil
-            isRewardedShowing = false
-        } else if ad === rewardedInterstitialAd {
-            rewardedInterstitialAd = nil
-            isRewardedInterstitialShowing = false
-        } else if ad === appOpenAd {
-            // Notify that ad was dismissed
-            appOpenAdStatusCallback?(.didDismiss)
-            appOpenAdStatusCallback = nil
-            
-            appOpenAd = nil
-            appOpenLoadTime = nil
-            isAppOpenShowing = false
-        }
-    }
-
-    public func ad(
-        _ ad: FullScreenPresentingAd,
-        didFailToPresentFullScreenContentWithError error: Error
-    ) {
-        print("Ad failed to present with error: \(error.localizedDescription)")
-
-        // Clear the ad and reset showing state
-        if ad === interstitialAd {
-            // Hide loading view
-            hideInterstitialAdLoadingView()
-            
-            // Notify that ad failed to present
-            interstitialAdStatusCallback?(.didFailToPresent)
-            interstitialAdStatusCallback = nil
-            
-            interstitialAd = nil
-            isInterstitialShowing = false
-        } else if ad === rewardedAd {
-            // Hide loading view
-            hideRewardedAdLoadingView()
-            
-            // Notify that ad failed to present
-            rewardedAdStatusCallback?(.didFailToPresent)
-            rewardedAdStatusCallback = nil
-            didEarnRewardForCurrentAd = false  // Reset flag
-            
-            rewardedAd = nil
-            isRewardedShowing = false
-        } else if ad === rewardedInterstitialAd {
-            rewardedInterstitialAd = nil
-            isRewardedInterstitialShowing = false
-        } else if ad === appOpenAd {
-            // Hide loading view
-            hideAppOpenAdLoadingView()
-            
-            // Notify that ad failed to present
-            appOpenAdStatusCallback?(.didFailToPresent)
-            appOpenAdStatusCallback = nil
-            
-            appOpenAd = nil
-            appOpenLoadTime = nil
-            isAppOpenShowing = false
-        }
-    }
-}
-
-// MARK: - BannerViewDelegate
-
-extension AdMobHelper: BannerViewDelegate {
-    public func bannerViewDidReceiveAd(_ bannerView: BannerView) {
-        print("Banner ad loaded successfully")
-        isBannerLoading = false
-        bannerAdStatusCallback?(.didLoad)
-    }
-    
-    public func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: Error) {
-        print("Banner ad failed to load with error: \(error.localizedDescription)")
-        isBannerLoading = false
-        bannerAdStatusCallback?(.didFailToLoad)
-    }
-    
-    public func bannerViewDidRecordImpression(_ bannerView: BannerView) {
-        print("Banner ad recorded an impression")
-        bannerAdStatusCallback?(.didRecordImpression)
-    }
-    
-    public func bannerViewDidRecordClick(_ bannerView: BannerView) {
-        print("Banner ad recorded a click")
-        bannerAdStatusCallback?(.didRecordClick)
-    }
-    
-    public func bannerViewWillPresentScreen(_ bannerView: BannerView) {
-        print("Banner ad will present screen")
-        bannerAdStatusCallback?(.willPresentScreen)
-    }
-    
-    public func bannerViewWillDismissScreen(_ bannerView: BannerView) {
-        print("Banner ad will dismiss screen")
-        bannerAdStatusCallback?(.willDismissScreen)
-    }
-    
-    public func bannerViewDidDismissScreen(_ bannerView: BannerView) {
-        print("Banner ad dismissed screen")
-        bannerAdStatusCallback?(.didDismissScreen)
     }
 }
 
