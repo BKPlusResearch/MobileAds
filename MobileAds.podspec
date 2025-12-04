@@ -16,8 +16,8 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "MobileAds"
-  spec.version      = "1.1.5"
-  spec.summary      = "A small framework extending from Google-Mobile-Ads-SDK"
+  spec.version      = "1.2.0"
+  spec.summary      = "A Swift framework extending Google Mobile Ads SDK with convenient configuration and singleton-based native ad styling"
 
   # This description is used to generate tags and improve search results.
   #   * Think: What does it do? Why did you write it? What is the focus?
@@ -25,7 +25,12 @@ Pod::Spec.new do |spec|
   #   * Write the description between the DESC delimiters below.
   #   * Finally, don't worry about the indent, CocoaPods strips it!
   spec.description  = <<-DESC
-  MobileAds is a Swift framework that supports the base display ad types from google making it convenient to configure
+  MobileAds is a Swift framework that supports all base display ad types from Google Mobile Ads SDK, making it convenient to configure and use. Features include:
+  - Singleton-based configuration for global native ad styling
+  - Gradient support for call-to-action buttons
+  - Automatic consent management integration
+  - Simplified API for banner, interstitial, rewarded, and native ads
+  - Support for async/await patterns
                    DESC
 
   spec.homepage     = "https://github.com/AperoVN"
@@ -82,7 +87,7 @@ Pod::Spec.new do |spec|
 
   spec.source       = { :git => "https://github.com/AperoVN/MobileAds.git", :tag => "#{spec.version}" }
   spec.frameworks   = "Foundation", "UIKit", "Photos", "AVFoundation"
-  spec.swift_version = '4.2'
+  spec.swift_version = '5.5'
 # spec.source       = { :git => "https://github.com/AperoVN-iOS/MobileAds.git", :tag => "#{spec.version}" }
 
   # ――― Source Code ―――――――――――――――――――――――――――――――――――――――――――――――――――――――――――――― #
@@ -147,14 +152,13 @@ Pod::Spec.new do |spec|
   spec.requires_arc = true
 
   # spec.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
-  spec.dependency 'Firebase', '~> 11.0.0'
-  spec.dependency 'FirebaseCrashlytics', '~> 11.0.0'
-  spec.dependency 'FirebaseAnalytics', '~> 11.0.0'
-  spec.dependency 'Firebase/RemoteConfig', '~> 11.0.0'
-  spec.dependency "Google-Mobile-Ads-SDK", '~> 11.8.0'
+  spec.dependency 'Firebase', '~> 11.15.0'
+  spec.dependency 'FirebaseCrashlytics', '~> 11.15.0'
+  spec.dependency 'FirebaseAnalytics', '~> 11.15.0'
+  spec.dependency 'Firebase/RemoteConfig', '~> 11.15.0'
+  spec.dependency "Google-Mobile-Ads-SDK", '~> 12.0.0'
+  spec.dependency "GoogleUserMessagingPlatform", '~> 3.0.0'
   spec.dependency "SnapKit", '~> 5.7.1'
-  spec.dependency "SkeletonView", '~> 1.29.2'
-  spec.dependency 'Toast-Swift', '~> 5.0.1'
-  spec.dependency "Adjust", '~> 4.38.4'
+  spec.dependency "Adjust", '~> 5.0.0'
 
 end
