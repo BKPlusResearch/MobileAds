@@ -36,6 +36,7 @@
 		509F87242EE1788E00DAEACF /* AdMobHelper+Rewarded.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509F871D2EE1788E00DAEACF /* AdMobHelper+Rewarded.swift */; };
 		509F87252EE1788E00DAEACF /* AdMobHelper+Interstitial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509F871A2EE1788E00DAEACF /* AdMobHelper+Interstitial.swift */; };
 		509F87262EE1788E00DAEACF /* AdMobHelper+Banner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509F87182EE1788E00DAEACF /* AdMobHelper+Banner.swift */; };
+		509F88A52EE3CB0200DAEACF /* BannerAdLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509F88A42EE3CB0100DAEACF /* BannerAdLoadingView.swift */; };
 		768BF63F283F244D00737CEF /* RemoteConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 768BF63E283F244D00737CEF /* RemoteConfigService.swift */; };
 		9518C34C82D27DEB7F343B3D /* Pods_MobileAds.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFA7FFED897F79E7EE95595D /* Pods_MobileAds.framework */; };
 /* End PBXBuildFile section */
@@ -72,6 +73,7 @@
 		509F871C2EE1788E00DAEACF /* AdMobHelper+Native.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+Native.swift"; sourceTree = "<group>"; };
 		509F871D2EE1788E00DAEACF /* AdMobHelper+Rewarded.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+Rewarded.swift"; sourceTree = "<group>"; };
 		509F871E2EE1788E00DAEACF /* AdMobHelper+RewardedInterstitial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+RewardedInterstitial.swift"; sourceTree = "<group>"; };
+		509F88A42EE3CB0100DAEACF /* BannerAdLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerAdLoadingView.swift; sourceTree = "<group>"; };
 		760580A727E3221800975794 /* TestAdsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestAdsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		760580B127E3221800975794 /* TestAdsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestAdsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		768BF63E283F244D00737CEF /* RemoteConfigService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteConfigService.swift; sourceTree = "<group>"; };
@@ -158,6 +160,7 @@
 		509F87032EE11DD500DAEACF /* AdMobHelper */ = {
 			isa = PBXGroup;
 			children = (
+				509F88A42EE3CB0100DAEACF /* BannerAdLoadingView.swift */,
 				509F87172EE1788E00DAEACF /* AdMobHelper+AppOpen.swift */,
 				509F87182EE1788E00DAEACF /* AdMobHelper+Banner.swift */,
 				509F87192EE1788E00DAEACF /* AdMobHelper+FullScreenDelegate.swift */,
@@ -407,6 +410,7 @@
 			files = (
 				509F87042EE11DD500DAEACF /* AdUnitID.swift in Sources */,
 				509F87052EE11DD500DAEACF /* NativeAdLoadingView.swift in Sources */,
+				509F88A52EE3CB0200DAEACF /* BannerAdLoadingView.swift in Sources */,
 				509F87152EE125BF00DAEACF /* NativeAdService.swift in Sources */,
 				509F87062EE11DD500DAEACF /* NativeAdLoaderDelegateHelper.swift in Sources */,
 				509F87072EE11DD500DAEACF /* AdMobHelper.swift in Sources */,

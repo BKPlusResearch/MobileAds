@@ -112,22 +112,22 @@ class NativeAdViewSmall: NativeAdView {
                     layer.removeFromSuperlayer()
                 }
             }
-            
+
             // Apply gradient or solid background color from shared configuration
             if config.useGradientForCallToAction,
                let startColor = config.callToActionGradientStartColor,
                let endColor = config.callToActionGradientEndColor {
                 // Apply gradient
-                let gradientLayer = CAGradientLayer()
+            let gradientLayer = CAGradientLayer()
                 gradientLayer.colors = [startColor.cgColor, endColor.cgColor]
                 gradientLayer.startPoint = config.callToActionGradientStartPoint
                 gradientLayer.endPoint = config.callToActionGradientEndPoint
-                gradientLayer.frame = callToActionView.bounds
-                gradientLayer.cornerRadius = 12
-                
-                // Insert gradient layer at the bottom
-                callToActionView.layer.insertSublayer(gradientLayer, at: 0)
-                callToActionView.backgroundColor = .clear
+            gradientLayer.frame = callToActionView.bounds
+            gradientLayer.cornerRadius = 12
+
+            // Insert gradient layer at the bottom
+            callToActionView.layer.insertSublayer(gradientLayer, at: 0)
+            callToActionView.backgroundColor = .clear
             } else if let backgroundColor = config.callToActionBackgroundColor {
                 // Apply solid background color
                 callToActionView.backgroundColor = backgroundColor

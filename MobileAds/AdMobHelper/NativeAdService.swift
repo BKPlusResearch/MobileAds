@@ -80,7 +80,7 @@ public class NativeAdConfiguration {
 /// Service to manage native ads loading and display
 @MainActor
 public class NativeAdService {
-
+    
     // MARK: - Properties
     
     /// Current delegate helper to prevent deallocation
@@ -92,7 +92,7 @@ public class NativeAdService {
     // MARK: - Initialization
     
     public init() {}
-
+    
     // MARK: - Native Ad View Type
     
     /// Enum to specify which native ad view template to use

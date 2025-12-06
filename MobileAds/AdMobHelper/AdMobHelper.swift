@@ -26,16 +26,16 @@ public class AdMobHelper: NSObject {
 
     /// The interstitial ad.
     public internal(set) var interstitialAd: InterstitialAd?
-    
+
     /// The rewarded video ad.
     public internal(set) var rewardedAd: RewardedAd?
-    
+
     /// The rewarded interstitial ad.
     public internal(set) var rewardedInterstitialAd: RewardedInterstitialAd?
-    
+
     /// The app open ad.
     public internal(set) var appOpenAd: AppOpenAd?
-    
+
     /// Loading view for app open ads.
     var appOpenAdLoadingView: AppOpenAdLoadingView?
     
@@ -56,28 +56,28 @@ public class AdMobHelper: NSObject {
     
     /// Tracks if user earned reward (to combine with dismiss event)
     var didEarnRewardForCurrentAd = false
-    
+
     /// Keeps track of if an interstitial ad is loading.
     public internal(set) var isInterstitialLoading = false
-    
+
     /// Keeps track of if an interstitial ad is showing.
     public internal(set) var isInterstitialShowing = false
-    
+
     /// Keeps track of if a rewarded ad is loading.
     public internal(set) var isRewardedLoading = false
-    
+
     /// Keeps track of if a rewarded ad is showing.
     public internal(set) var isRewardedShowing = false
-    
+
     /// Keeps track of if a rewarded interstitial ad is loading.
     public internal(set) var isRewardedInterstitialLoading = false
-    
+
     /// Keeps track of if a rewarded interstitial ad is showing.
     public internal(set) var isRewardedInterstitialShowing = false
-    
+
     /// Keeps track of if an app open ad is loading.
     public internal(set) var isAppOpenLoading = false
-    
+
     /// Keeps track of if an app open ad is showing.
     public internal(set) var isAppOpenShowing = false
     
@@ -90,6 +90,9 @@ public class AdMobHelper: NSObject {
     /// Callback for banner ad status events
     var bannerAdStatusCallback: ((BannerAdStatus) -> Void)?
     
+    /// Loading view for banner ads.
+    var bannerAdLoadingView: BannerAdLoadingView?
+
     /// Keeps track of the time when an app open ad was loaded to discard expired ad.
     var appOpenLoadTime: Date?
 
@@ -174,6 +177,7 @@ public class AdMobHelper: NSObject {
         hideAppOpenAdLoadingView()
         hideInterstitialAdLoadingView()
         hideRewardedAdLoadingView()
+        hideBannerAdLoadingView()
     }
 }
 

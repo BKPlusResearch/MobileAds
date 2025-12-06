@@ -134,14 +134,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 ```swift
 class HomeViewController: UIViewController {
-    private var bannerView: BannerView?
-
     @IBOutlet weak var bannerContainer: UIView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        bannerView = AdMobHelper.shared.loadBannerAd(
+        AdMobHelper.shared.loadBannerAd(
+            into: bannerContainer,
             adUnitID: AppAdUnitID.bannerHome,
             rootViewController: self,
             statusCallback: { status in
@@ -155,20 +154,11 @@ class HomeViewController: UIViewController {
                 }
             }
         )
-
-        if let bannerView {
-            bannerContainer.addSubview(bannerView)
-            bannerView.translatesAutoresizingMaskIntoConstraints = false
-            NSLayoutConstraint.activate([
-                bannerView.leadingAnchor.constraint(equalTo: bannerContainer.leadingAnchor),
-                bannerView.trailingAnchor.constraint(equalTo: bannerContainer.trailingAnchor),
-                bannerView.topAnchor.constraint(equalTo: bannerContainer.topAnchor),
-                bannerView.bottomAnchor.constraint(equalTo: bannerContainer.bottomAnchor)
-            ])
-        }
     }
 }
 ```
+
+**Note:** Method `loadBannerAd(into:...)` automatically adds the banner to the container and sets constraints. If you need more control, you can use the original `loadBannerAd(...)` method which returns a `BannerView` that you can manually add to your view hierarchy.
 
 ### 4. Interstitial
 

@@ -84,6 +84,38 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
 #### Banner
 
+**Recommended: Using `loadBannerAd(into:...)` for automatic container setup**
+
+```swift
+class HomeViewController: UIViewController {
+    @IBOutlet weak var bannerContainer: UIView!
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+
+        AdMobHelper.shared.loadBannerAd(
+            into: bannerContainer,
+            adUnitID: AppAdUnitID.bannerHome,
+            rootViewController: self,
+            statusCallback: { status in
+                switch status {
+                case .didLoad:
+                    print("Banner loaded")
+                case .didFailToLoad:
+                    print("Banner failed")
+                default:
+                    break
+                }
+            }
+        )
+    }
+}
+```
+
+**Alternative: Using `loadBannerAd(...)` for manual control**
+
+If you need more control over the banner view placement, you can use the original method that returns a `BannerView`:
+
 ```swift
 class HomeViewController: UIViewController {
     @IBOutlet weak var bannerContainer: UIView!

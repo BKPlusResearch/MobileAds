@@ -1,8 +1,47 @@
 @preconcurrency import GoogleMobileAds
 import UIKit
+import SnapKit
 
 extension AdMobHelper: BannerViewDelegate {
-    // MARK: - Banner Ad
+    // MARK: - Banner Ad    
+    
+    /// Load banner ad and automatically add it to a container view with constraints.
+    /// This is a convenience method that eliminates the need to store a banner view reference in your controller.
+    /// - Parameters:
+    ///   - containerView: The container view where the banner ad will be added.
+    ///   - adUnitID: The Ad Unit ID enum for banner ads.
+    ///   - rootViewController: The view controller that will present the ad.
+    ///   - statusCallback: Optional callback to receive ad status events (didLoad, didFailToLoad, didRecordImpression, etc.).
+    public func loadBannerAd(
+        into containerView: UIView,
+        adUnitID: AdUnitIdentifiable,
+        rootViewController: UIViewController,
+        statusCallback: ((BannerAdStatus) -> Void)? = nil
+    ) {
+        // Cleanup existing banner ad (remove from container, hide loading, reset state)
+        cleanupBannerAd()
+        
+        // Remove any existing banner view from container (in case cleanup didn't catch it)
+        containerView.subviews.forEach { subview in
+            if subview is BannerView {
+                subview.removeFromSuperview()
+            }
+        }
+        
+        // Create and load banner view using existing method
+        let bannerView = loadBannerAd(
+            adUnitID: adUnitID,
+            rootViewController: rootViewController,
+            statusCallback: statusCallback
+        )
+        
+        // Add banner view to container
+        containerView.addSubview(bannerView)
+        bannerView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
+    
     /// Load and return a banner ad view.
     /// - Parameters:
     ///   - adUnitID: The Ad Unit ID enum for banner ads.
@@ -33,6 +72,8 @@ extension AdMobHelper: BannerViewDelegate {
         }
 
         isBannerLoading = true
+        // Show loading view
+        showBannerAdLoadingView(on: bannerView)
         initializeSDK()
         bannerView.load(Request())
         return bannerView
@@ -43,12 +84,16 @@ extension AdMobHelper: BannerViewDelegate {
     public func bannerViewDidReceiveAd(_ bannerView: BannerView) {
         print("Banner ad loaded successfully")
         isBannerLoading = false
+        // Hide loading view when ad loads successfully
+        hideBannerAdLoadingView()
         bannerAdStatusCallback?(.didLoad)
     }
     
     public func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: Error) {
         print("Banner ad failed to load with error: \(error.localizedDescription)")
         isBannerLoading = false
+        // Hide loading view when ad fails to load
+        hideBannerAdLoadingView()
         bannerAdStatusCallback?(.didFailToLoad)
     }
     
@@ -75,6 +120,50 @@ extension AdMobHelper: BannerViewDelegate {
     public func bannerViewDidDismissScreen(_ bannerView: BannerView) {
         print("Banner ad dismissed screen")
         bannerAdStatusCallback?(.didDismissScreen)
+    }
+    
+    // MARK: - Banner Ad Cleanup
+    
+    /// Cleanup existing banner ad (remove from container, hide loading view, reset state)
+    private func cleanupBannerAd() {
+        // Hide loading view if showing
+        hideBannerAdLoadingView()
+        
+        // Remove banner from its superview if it exists
+        bannerAd?.removeFromSuperview()
+        
+        // Reset loading state
+        isBannerLoading = false
+        
+        // Clear callback (will be set again when loading new banner)
+        bannerAdStatusCallback = nil
+        
+        // Note: We don't set bannerAd = nil here because the new loadBannerAd call will replace it
+    }
+    
+    // MARK: - Banner Ad Loading View
+    
+    /// Show loading view for banner ad
+    private func showBannerAdLoadingView(on bannerView: BannerView) {
+        // Remove existing loading view if any
+        hideBannerAdLoadingView()
+        
+        // Create and add loading view
+        let loadingView = BannerAdLoadingView()
+        bannerView.addSubview(loadingView)
+        loadingView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        
+        // Store reference
+        bannerAdLoadingView = loadingView
+    }
+    
+    /// Hide loading view for banner ad
+    func hideBannerAdLoadingView() {
+        bannerAdLoadingView?.stopAnimation()
+        bannerAdLoadingView?.removeFromSuperview()
+        bannerAdLoadingView = nil
     }
 }
 
