@@ -102,6 +102,16 @@ public class AdMobHelper: NSObject {
     /// Indicates whether the Google Mobile Ads SDK has been initialized.
     public private(set) var isSDKInitialized = false
 
+    var isEnableShowAds: Bool = true
+    
+    public func setEnableShowAds(_ isEnableShowAds: Bool) {
+        self.isEnableShowAds = isEnableShowAds
+    }
+    
+    public func checkEnableShowAds() -> Bool {
+        return isEnableShowAds
+    }
+    
     // MARK: - Initialization
 
     private override init() {
