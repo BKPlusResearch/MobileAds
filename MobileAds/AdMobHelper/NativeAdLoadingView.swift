@@ -6,45 +6,49 @@
 //
 
 import UIKit
-import SnapKit
 
 /// Loading view for native ads with shimmer animation
 class NativeAdLoadingView: UIView {
     
     private lazy var containerView: UIView = {
         let view = UIView()
-//        view.backgroundColor = AppColor.getColor(.Neutral20)
-        view.cornerRadius = 12
-        view.borderWidth = 1
-//        view.borderColor = AppColor.getColor(.Neutral20)
+        // view.backgroundColor = AppColor.getColor(.Neutral20)
+        view.layer.cornerRadius = 12
+        view.layer.borderWidth = 1
+        // view.layer.borderColor = AppColor.getColor(.Neutral20).cgColor
+        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private lazy var callToActionSkeleton: UIView = {
         let view = UIView()
         view.backgroundColor = .lightGray
-        view.cornerRadius = 12
+        view.layer.cornerRadius = 12
+        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private lazy var iconSkeleton: UIView = {
         let view = UIView()
         view.backgroundColor = .lightGray
-        view.cornerRadius = 4
+        view.layer.cornerRadius = 4
+        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private lazy var headlineSkeleton: UIView = {
         let view = UIView()
         view.backgroundColor = .lightGray
-        view.cornerRadius = 4
+        view.layer.cornerRadius = 4
+        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private lazy var bodySkeleton: UIView = {
         let view = UIView()
         view.backgroundColor = .lightGray
-        view.cornerRadius = 4
+        view.layer.cornerRadius = 4
+        view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
@@ -62,44 +66,51 @@ class NativeAdLoadingView: UIView {
     
     private func setupUI() {
         addSubview(containerView)
-        containerView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+        NSLayoutConstraint.activate([
+            containerView.topAnchor.constraint(equalTo: topAnchor),
+            containerView.leadingAnchor.constraint(equalTo: leadingAnchor),
+            containerView.trailingAnchor.constraint(equalTo: trailingAnchor),
+            containerView.bottomAnchor.constraint(equalTo: bottomAnchor)
+        ])
         
         // Call to action button skeleton (top)
         containerView.addSubview(callToActionSkeleton)
-        callToActionSkeleton.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(12)
-            make.leading.trailing.equalToSuperview().inset(12)
-            make.height.equalTo(44)
-        }
+        NSLayoutConstraint.activate([
+            callToActionSkeleton.topAnchor.constraint(equalTo: containerView.topAnchor, constant: 12),
+            callToActionSkeleton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
+            callToActionSkeleton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
+            callToActionSkeleton.heightAnchor.constraint(equalToConstant: 44)
+        ])
         
         // Icon skeleton (left side, below button)
         containerView.addSubview(iconSkeleton)
-        iconSkeleton.snp.makeConstraints { make in
-            make.top.equalTo(callToActionSkeleton.snp.bottom).offset(16)
-            make.leading.equalToSuperview().inset(12)
-            make.width.height.equalTo(48)
-        }
+        NSLayoutConstraint.activate([
+            iconSkeleton.topAnchor.constraint(equalTo: callToActionSkeleton.bottomAnchor, constant: 16),
+            iconSkeleton.leadingAnchor.constraint(equalTo: containerView.leadingAnchor, constant: 12),
+            iconSkeleton.widthAnchor.constraint(equalToConstant: 48),
+            iconSkeleton.heightAnchor.constraint(equalToConstant: 48)
+        ])
         
         // Headline skeleton (right side of icon, same top as icon)
         containerView.addSubview(headlineSkeleton)
-        headlineSkeleton.snp.makeConstraints { make in
-            make.leading.equalTo(iconSkeleton.snp.trailing).offset(8)
-            make.trailing.equalToSuperview().inset(12)
-            make.top.equalTo(iconSkeleton)
-            make.height.equalTo(14)
-        }
+        NSLayoutConstraint.activate([
+            headlineSkeleton.leadingAnchor.constraint(equalTo: iconSkeleton.trailingAnchor, constant: 8),
+            headlineSkeleton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
+            headlineSkeleton.topAnchor.constraint(equalTo: iconSkeleton.topAnchor),
+            headlineSkeleton.heightAnchor.constraint(equalToConstant: 14)
+        ])
         
         // Body skeleton (below headline)
         containerView.addSubview(bodySkeleton)
-        bodySkeleton.snp.makeConstraints { make in
-            make.top.equalTo(headlineSkeleton.snp.bottom).offset(4)
-            make.leading.equalTo(headlineSkeleton)
-            make.trailing.equalToSuperview().inset(12)
-            make.height.equalTo(28)
-            make.bottom.lessThanOrEqualToSuperview().inset(12)
-        }
+        let bottomConstraint = bodySkeleton.bottomAnchor.constraint(lessThanOrEqualTo: containerView.bottomAnchor, constant: -12)
+        bottomConstraint.priority = .defaultHigh
+        NSLayoutConstraint.activate([
+            bodySkeleton.topAnchor.constraint(equalTo: headlineSkeleton.bottomAnchor, constant: 4),
+            bodySkeleton.leadingAnchor.constraint(equalTo: headlineSkeleton.leadingAnchor),
+            bodySkeleton.trailingAnchor.constraint(equalTo: containerView.trailingAnchor, constant: -12),
+            bodySkeleton.heightAnchor.constraint(equalToConstant: 28),
+            bottomConstraint
+        ])
     }
     
     private func startShimmerAnimation() {
@@ -123,4 +134,3 @@ class NativeAdLoadingView: UIView {
         }
     }
 }
-
