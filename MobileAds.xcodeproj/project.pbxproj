@@ -10,6 +10,12 @@
 		042F528227D8E09E008D5330 /* MobileAds.docc in Sources */ = {isa = PBXBuildFile; fileRef = 042F528127D8E09E008D5330 /* MobileAds.docc */; };
 		042F528327D8E09E008D5330 /* MobileAds.h in Headers */ = {isa = PBXBuildFile; fileRef = 042F528027D8E09E008D5330 /* MobileAds.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0E7215CB2A36224700759DCA /* close.png in Resources */ = {isa = PBXBuildFile; fileRef = 0E7215CA2A36224700759DCA /* close.png */; };
+		507981712EE813B9009B6C5D /* IAPProductIdentifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816C2EE813B9009B6C5D /* IAPProductIdentifiable.swift */; };
+		507981722EE813B9009B6C5D /* IAPService+Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816F2EE813B9009B6C5D /* IAPService+Subscription.swift */; };
+		507981732EE813B9009B6C5D /* IAPModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816B2EE813B9009B6C5D /* IAPModels.swift */; };
+		507981742EE813B9009B6C5D /* IAPKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816A2EE813B9009B6C5D /* IAPKeychainStorage.swift */; };
+		507981752EE813B9009B6C5D /* IAPService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816D2EE813B9009B6C5D /* IAPService.swift */; };
+		507981762EE813B9009B6C5D /* IAPService+Receipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816E2EE813B9009B6C5D /* IAPService+Receipt.swift */; };
 		508D29432C6F2E5B005801DA /* ic_info.png in Resources */ = {isa = PBXBuildFile; fileRef = 508D29422C6F2E5B005801DA /* ic_info.png */; };
 		508D29482C6F3202005801DA /* stars_3_5.png in Resources */ = {isa = PBXBuildFile; fileRef = 508D29442C6F3202005801DA /* stars_3_5.png */; };
 		508D29492C6F3202005801DA /* stars_4.png in Resources */ = {isa = PBXBuildFile; fileRef = 508D29452C6F3202005801DA /* stars_4.png */; };
@@ -47,6 +53,12 @@
 		042F528127D8E09E008D5330 /* MobileAds.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = MobileAds.docc; sourceTree = "<group>"; };
 		0E7215CA2A36224700759DCA /* close.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close.png; sourceTree = "<group>"; };
 		3D6191E3A787BACD7741EE30 /* Pods-MobileAds.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileAds.release.xcconfig"; path = "Target Support Files/Pods-MobileAds/Pods-MobileAds.release.xcconfig"; sourceTree = "<group>"; };
+		5079816A2EE813B9009B6C5D /* IAPKeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPKeychainStorage.swift; sourceTree = "<group>"; };
+		5079816B2EE813B9009B6C5D /* IAPModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPModels.swift; sourceTree = "<group>"; };
+		5079816C2EE813B9009B6C5D /* IAPProductIdentifiable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPProductIdentifiable.swift; sourceTree = "<group>"; };
+		5079816D2EE813B9009B6C5D /* IAPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPService.swift; sourceTree = "<group>"; };
+		5079816E2EE813B9009B6C5D /* IAPService+Receipt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IAPService+Receipt.swift"; sourceTree = "<group>"; };
+		5079816F2EE813B9009B6C5D /* IAPService+Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IAPService+Subscription.swift"; sourceTree = "<group>"; };
 		508D29422C6F2E5B005801DA /* ic_info.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ic_info.png; sourceTree = "<group>"; };
 		508D29442C6F3202005801DA /* stars_3_5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stars_3_5.png; sourceTree = "<group>"; };
 		508D29452C6F3202005801DA /* stars_4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stars_4.png; sourceTree = "<group>"; };
@@ -130,6 +142,7 @@
 		042F527F27D8E09E008D5330 /* MobileAds */ = {
 			isa = PBXGroup;
 			children = (
+				507981702EE813B9009B6C5D /* IAP */,
 				509F870F2EE124A400DAEACF /* Extension */,
 				768BF63D283F243C00737CEF /* RemoteConfig */,
 				7667C7882836001700D47F77 /* Assets */,
@@ -155,6 +168,19 @@
 				DFA7FFED897F79E7EE95595D /* Pods_MobileAds.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		507981702EE813B9009B6C5D /* IAP */ = {
+			isa = PBXGroup;
+			children = (
+				5079816A2EE813B9009B6C5D /* IAPKeychainStorage.swift */,
+				5079816B2EE813B9009B6C5D /* IAPModels.swift */,
+				5079816C2EE813B9009B6C5D /* IAPProductIdentifiable.swift */,
+				5079816D2EE813B9009B6C5D /* IAPService.swift */,
+				5079816E2EE813B9009B6C5D /* IAPService+Receipt.swift */,
+				5079816F2EE813B9009B6C5D /* IAPService+Subscription.swift */,
+			);
+			path = IAP;
 			sourceTree = "<group>";
 		};
 		509F87032EE11DD500DAEACF /* AdMobHelper */ = {
@@ -410,6 +436,12 @@
 				509F87152EE125BF00DAEACF /* NativeAdService.swift in Sources */,
 				509F87062EE11DD500DAEACF /* NativeAdLoaderDelegateHelper.swift in Sources */,
 				509F87072EE11DD500DAEACF /* AdMobHelper.swift in Sources */,
+				507981712EE813B9009B6C5D /* IAPProductIdentifiable.swift in Sources */,
+				507981722EE813B9009B6C5D /* IAPService+Subscription.swift in Sources */,
+				507981732EE813B9009B6C5D /* IAPModels.swift in Sources */,
+				507981742EE813B9009B6C5D /* IAPKeychainStorage.swift in Sources */,
+				507981752EE813B9009B6C5D /* IAPService.swift in Sources */,
+				507981762EE813B9009B6C5D /* IAPService+Receipt.swift in Sources */,
 				509F87082EE11DD500DAEACF /* NativeAdViewSmall.swift in Sources */,
 				509F87092EE11DD500DAEACF /* AppOpenAdLoadingView.swift in Sources */,
 				509F871F2EE1788E00DAEACF /* AdMobHelper+RewardedInterstitial.swift in Sources */,
