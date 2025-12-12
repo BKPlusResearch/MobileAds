@@ -1,5 +1,5 @@
 //
-//  NativeAdViewSmall.swift
+//  NativeAdViewMedium.swift
 //  AppTheme
 //
 //  Created by Auto on 2024.
@@ -8,8 +8,9 @@
 import UIKit
 @preconcurrency import GoogleMobileAds
 
-/// Custom view class for managing NativeAdViewSmall.xib
-class NativeAdViewSmall: NativeAdView {
+/// Custom view class for managing NativeAdViewMedium.xib
+/// Layout: MediaView on the left, content on the right
+class NativeAdViewMedium: NativeAdView {
 
     // MARK: - IBOutlets
     // These outlets are already connected in the XIB file
@@ -18,8 +19,10 @@ class NativeAdViewSmall: NativeAdView {
     // @IBOutlet weak var bodyView: UIView!
     // @IBOutlet weak var callToActionView: UIView!
     // @IBOutlet weak var iconView: UIView!
+    // @IBOutlet weak var mediaView: GADMediaView!
     @IBOutlet weak var boundView: UIView!
     @IBOutlet weak var adsLabelView: UIView!
+    @IBOutlet weak var mainStackView: UIStackView!
 
     // MARK: - Initialization
 
@@ -39,28 +42,32 @@ class NativeAdViewSmall: NativeAdView {
 
     // MARK: - Factory Method
 
-    /// Load NativeAdViewSmall from XIB
+    /// Load NativeAdViewMedium from XIB
     /// This is the recommended way to create an instance
-    static func loadFromXib() -> NativeAdViewSmall? {
-        let bundle = Bundle(for: NativeAdViewSmall.self)
-        return UINib(nibName: "NativeAdViewSmall", bundle: bundle)
+    static func loadFromXib() -> NativeAdViewMedium? {
+        let bundle = Bundle(for: NativeAdViewMedium.self)
+        return UINib(nibName: "NativeAdViewMedium", bundle: bundle)
             .instantiate(withOwner: nil, options: nil)
-            .first as? NativeAdViewSmall
+            .first as? NativeAdViewMedium
     }
 
     // MARK: - Configuration
 
     private func setupUI() {
         // Use system colors as defaults - can be customized via configuration if needed
-        boundView.backgroundColor = .systemBackground
-        boundView.cornerRadius = 12
-        boundView.borderWidth = 1
-        boundView.borderColor = .separator // Use system separator color
+        boundView.cornerRadius = 8
+        boundView.clipsToBounds = true
 
         // Setup ads label view with bottom-right corner radius only
-        adsLabelView.layer.cornerRadius = 2
+        adsLabelView.cornerRadius = 8
         adsLabelView.layer.maskedCorners = [.layerMaxXMaxYCorner] // Bottom-right corner only
         adsLabelView.layer.masksToBounds = true
+
+        // Setup mediaView corner radius
+        if let mediaView = mediaView {
+            mediaView.layer.cornerRadius = 8
+            mediaView.layer.masksToBounds = true
+        }
 
         // Setup headline and body view styling
         setupTextViews()
@@ -80,13 +87,13 @@ class NativeAdViewSmall: NativeAdView {
 
             // Setup headline view with config or default values
             if let headlineView = self.headlineView as? UILabel {
-                headlineView.font = config.headlineFont ?? UIFont.systemFont(ofSize: 14, weight: .medium)
+                headlineView.font = config.headlineFont ?? UIFont.systemFont(ofSize: 16, weight: .semibold)
                 headlineView.textColor = config.headlineTextColor ?? .label
             }
 
             // Setup body view with config or default values
             if let bodyView = self.bodyView as? UILabel {
-                bodyView.font = config.bodyFont ?? UIFont.systemFont(ofSize: 12, weight: .regular)
+                bodyView.font = config.bodyFont ?? UIFont.systemFont(ofSize: 14, weight: .regular)
                 bodyView.textColor = config.bodyTextColor ?? .label
             }
 
@@ -94,7 +101,7 @@ class NativeAdViewSmall: NativeAdView {
             if let callToActionView = self.callToActionView as? UIButton {
                 callToActionView.titleLabel?.font = config.callToActionFont ?? UIFont.systemFont(ofSize: 16, weight: .bold)
                 callToActionView.setTitleColor(config.callToActionTextColor ?? .white, for: .normal)
-                callToActionView.layer.cornerRadius = 12
+                callToActionView.cornerRadius = 20
             }
         }
     }
@@ -108,10 +115,10 @@ class NativeAdViewSmall: NativeAdView {
                   let callToActionView = self.callToActionView as? UIButton else { return }
 
             let config = NativeAdConfiguration.shared
-            
+
             // Set corner radius
-            callToActionView.layer.cornerRadius = 12
-            
+            callToActionView.cornerRadius = 20
+
             // Remove any existing gradient layers first
             callToActionView.layer.sublayers?.forEach { layer in
                 if layer is CAGradientLayer {
@@ -150,15 +157,20 @@ class NativeAdViewSmall: NativeAdView {
         // Update gradient layer frame when view layout changes
         if let callToActionView = callToActionView as? UIButton {
             // Ensure corner radius is set
-            callToActionView.layer.cornerRadius = 12
-            
+            callToActionView.cornerRadius = 20
+
             // Update gradient layer frame if exists
             callToActionView.layer.sublayers?.forEach { layer in
                 if let gradientLayer = layer as? CAGradientLayer {
                     gradientLayer.frame = callToActionView.bounds
-                    gradientLayer.cornerRadius = 12
+                    gradientLayer.cornerRadius = 20
                 }
             }
+        }
+
+        // Update mediaView corner radius
+        if let mediaView = mediaView {
+            mediaView.layer.cornerRadius = 8
         }
     }
 
@@ -193,14 +205,14 @@ class NativeAdViewSmall: NativeAdView {
             if let font = config.callToActionFont {
                 callToActionView.titleLabel?.font = font
             }
-            
+
             // Remove any existing gradient layers first
             callToActionView.layer.sublayers?.forEach { layer in
                 if layer is CAGradientLayer {
                     layer.removeFromSuperlayer()
                 }
             }
-            
+
             // Apply gradient or solid background color
             if config.useGradientForCallToAction,
                let startColor = config.callToActionGradientStartColor,
@@ -211,8 +223,8 @@ class NativeAdViewSmall: NativeAdView {
                 gradientLayer.startPoint = config.callToActionGradientStartPoint
                 gradientLayer.endPoint = config.callToActionGradientEndPoint
                 gradientLayer.frame = callToActionView.bounds
-                gradientLayer.cornerRadius = 12
-                
+                gradientLayer.cornerRadius = 20
+
                 // Insert gradient layer at the bottom
                 callToActionView.layer.insertSublayer(gradientLayer, at: 0)
                 callToActionView.backgroundColor = .clear
@@ -220,7 +232,7 @@ class NativeAdViewSmall: NativeAdView {
                 // Apply solid background color
                 callToActionView.backgroundColor = backgroundColor
             }
-            
+
             if let textColor = config.callToActionTextColor {
                 callToActionView.setTitleColor(textColor, for: .normal)
             }
@@ -244,5 +256,28 @@ class NativeAdViewSmall: NativeAdView {
             adsLabelView.backgroundColor = adsLabelBgColor
         }
     }
-}
 
+    /// Hide media view when ad doesn't have media
+    /// This will collapse the mediaView in the stack view
+    func hideMediaView() {
+        guard let mediaView = mediaView else { return }
+        mediaView.isHidden = true
+    }
+
+    /// Show media view when ad has media
+    func showMediaView() {
+        guard let mediaView = mediaView else { return }
+        mediaView.isHidden = false
+    }
+
+    /// Update media view visibility based on whether the ad has media content
+    /// Call this after setting the native ad
+    /// - Parameter hasMedia: Whether the native ad has media content
+    func updateMediaVisibility(hasMedia: Bool) {
+        if hasMedia {
+            showMediaView()
+        } else {
+            hideMediaView()
+        }
+    }
+}

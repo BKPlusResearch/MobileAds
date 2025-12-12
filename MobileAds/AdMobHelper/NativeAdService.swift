@@ -37,7 +37,21 @@ public class NativeAdConfiguration {
     
     /// Text color for call to action button
     public var callToActionTextColor: UIColor?
-    
+
+    // MARK: - Border and Background Properties
+
+    /// Border color for the ad container view
+    public var borderColor: UIColor?
+
+    /// Border width for the ad container view
+    public var borderWidth: CGFloat?
+
+    /// Background color for the ad container view
+    public var backgroundColor: UIColor?
+
+    /// Background color for the "Ad" label view
+    public var adsLabelBackgroundColor: UIColor?
+
     // MARK: - Gradient Properties
     
     /// Flag to enable/disable gradient for call to action button
@@ -69,6 +83,10 @@ public class NativeAdConfiguration {
         headlineTextColor = nil
         bodyTextColor = nil
         callToActionTextColor = nil
+        borderColor = nil
+        borderWidth = nil
+        backgroundColor = nil
+        adsLabelBackgroundColor = nil
         useGradientForCallToAction = false
         callToActionGradientStartColor = nil
         callToActionGradientEndColor = nil
@@ -131,9 +149,20 @@ public class NativeAdService {
     ) {
         // Clear existing subviews
         containerView.subviews.forEach { $0.removeFromSuperview() }
-        
-        // Show loading view
-        let loadingView = NativeAdSmallLoadingView()
+
+        // Show loading view based on view type
+        let loadingView: UIView
+        switch viewType {
+        case .small:
+            let smallLoading = NativeAdSmallLoadingView()
+            loadingView = smallLoading
+        case .medium:
+            let mediumLoading = NativeAdMediumLoadingView()
+            // Apply configuration to loading view
+            mediumLoading.applyConfiguration(configuration ?? NativeAdConfiguration.shared)
+            loadingView = mediumLoading
+        }
+
         containerView.addSubview(loadingView)
         loadingView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -158,8 +187,11 @@ public class NativeAdService {
             
             // Remove loading view
             containerView.subviews.forEach { view in
-                if view is NativeAdSmallLoadingView {
-                    (view as? NativeAdSmallLoadingView)?.stopAnimation()
+                if let smallLoading = view as? NativeAdSmallLoadingView {
+                    smallLoading.stopAnimation()
+                    view.removeFromSuperview()
+                } else if let mediumLoading = view as? NativeAdMediumLoadingView {
+                    mediumLoading.stopAnimation()
                     view.removeFromSuperview()
                 }
             }
@@ -196,8 +228,11 @@ public class NativeAdService {
             
             // Remove loading view on failure
             containerView?.subviews.forEach { view in
-                if view is NativeAdSmallLoadingView {
-                    (view as? NativeAdSmallLoadingView)?.stopAnimation()
+                if let smallLoading = view as? NativeAdSmallLoadingView {
+                    smallLoading.stopAnimation()
+                    view.removeFromSuperview()
+                } else if let mediumLoading = view as? NativeAdMediumLoadingView {
+                    mediumLoading.stopAnimation()
                     view.removeFromSuperview()
                 }
             }
@@ -254,12 +289,8 @@ public class NativeAdService {
             // Use custom class NativeAdViewSmall - load directly from XIB
             return NativeAdViewSmall.loadFromXib()
         case .medium:
-            // For medium, use default XIB loading (can be extended later with NativeAdViewMedium class)
-            guard let nib = UINib(nibName: type.xibName, bundle: nil).instantiate(withOwner: nil, options: nil).first as? NativeAdView else {
-                print("NativeAdService: Failed to load \(type.xibName).xib")
-                return nil
-            }
-            return nib
+            // Use custom class NativeAdViewMedium - load directly from XIB
+            return NativeAdViewMedium.loadFromXib()
         }
     }
     
@@ -276,10 +307,19 @@ public class NativeAdService {
         
         // Use provided configuration or fall back to shared singleton
         let configToUse = configuration ?? NativeAdConfiguration.shared
-        
+
         // If using custom class NativeAdViewSmall, use its applyConfiguration method
         if let customView = nativeAdView as? NativeAdViewSmall {
             customView.applyConfiguration(configToUse)
+        } else if let customView = nativeAdView as? NativeAdViewMedium {
+            // If using custom class NativeAdViewMedium, use its applyConfiguration method
+            customView.applyConfiguration(configToUse)
+
+            // Handle media view visibility
+            let hasMedia = nativeAd.mediaContent != nil &&
+                          (nativeAd.mediaContent.hasVideoContent ||
+                           nativeAd.mediaContent.mainImage != nil)
+            customView.updateMediaVisibility(hasMedia: hasMedia)
         } else {
             // Fallback to manual configuration for other view types
             applyConfigurationManually(to: nativeAdView, with: nativeAd, configuration: configToUse)
