@@ -81,6 +81,15 @@ public class AdMobHelper: NSObject {
     /// Keeps track of if an app open ad is showing.
     public internal(set) var isAppOpenShowing = false
     
+    /// Flag to skip next App Resume Ad (e.g., when user returns from ad-opened browser)
+    public internal(set) var shouldSkipNextAppResume = false
+    
+    /// Track if user recently clicked an ad (to verify if background is from ad click)
+    private var hadRecentAdClick = false
+    
+    /// Timestamp of last ad click
+    private var lastAdClickTime: Date?
+    
     /// The banner ad view.
     public internal(set) var bannerAd: BannerView?
     
@@ -110,6 +119,44 @@ public class AdMobHelper: NSObject {
     
     public func checkEnableShowAds() -> Bool {
         return isEnableShowAds
+    }
+    
+    // MARK: - App Resume Control
+    
+    /// Check if there was a recent ad click within specified time window
+    public func isRecentAdClick(withinSeconds seconds: TimeInterval) -> Bool {
+        guard hadRecentAdClick, let clickTime = lastAdClickTime else {
+            return false
+        }
+        
+        let timeSinceClick = Date().timeIntervalSince(clickTime)
+        return timeSinceClick <= seconds
+    }
+    
+    /// Confirm that app went to background after ad click, set skip flag
+    public func confirmSkipNextAppResume() {
+        shouldSkipNextAppResume = true
+        hadRecentAdClick = false  // Reset pending flag
+        lastAdClickTime = nil
+    }
+    
+    /// Mark that an ad was clicked (pending verification in background handler)
+    public func markAdClick() {
+        hadRecentAdClick = true
+        lastAdClickTime = Date()
+    }
+    
+    /// Clear pending ad click flag (for in-app overlays that don't leave app)
+    public func clearPendingAdClick() {
+        hadRecentAdClick = false
+        lastAdClickTime = nil
+    }
+    
+    /// Reset the skip flag (typically after checking it)
+    public func resetAppResumeSkipFlag() {
+        shouldSkipNextAppResume = false
+        hadRecentAdClick = false
+        lastAdClickTime = nil
     }
     
     // MARK: - Initialization
@@ -179,6 +226,11 @@ public class AdMobHelper: NSObject {
         isAppOpenLoading = false
         isAppOpenShowing = false
         isBannerLoading = false
+        
+        // Reset App Resume skip flags
+        shouldSkipNextAppResume = false
+        hadRecentAdClick = false
+        lastAdClickTime = nil
         
         // Clear callbacks
         bannerAdStatusCallback = nil

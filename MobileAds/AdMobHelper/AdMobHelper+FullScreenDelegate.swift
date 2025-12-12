@@ -10,6 +10,9 @@ extension AdMobHelper: FullScreenContentDelegate {
 
     public func adDidRecordClick(_ ad: FullScreenPresentingAd) {
         print("Ad recorded a click.")
+        
+        // Mark ad click (will verify in background handler if app actually leaves)
+        markAdClick()
     }
 
     public func adWillPresentFullScreenContent(_ ad: FullScreenPresentingAd) {

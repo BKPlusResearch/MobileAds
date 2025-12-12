@@ -45,6 +45,7 @@
 		509F88A52EE3CB0200DAEACF /* BannerAdLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509F88A42EE3CB0100DAEACF /* BannerAdLoadingView.swift */; };
 		50FF23DE2EEAD07900EAF530 /* NativeAdViewMedium.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FF23DD2EEAD07900EAF530 /* NativeAdViewMedium.swift */; };
 		50FF24D82EEBAECF00EAF530 /* NativeAdMediumLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FF24D72EEBAECF00EAF530 /* NativeAdMediumLoadingView.swift */; };
+		50FF30442EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FF30432EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift */; };
 		768BF63F283F244D00737CEF /* RemoteConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 768BF63E283F244D00737CEF /* RemoteConfigService.swift */; };
 		9518C34C82D27DEB7F343B3D /* Pods_MobileAds.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFA7FFED897F79E7EE95595D /* Pods_MobileAds.framework */; };
 /* End PBXBuildFile section */
@@ -90,6 +91,7 @@
 		509F88A42EE3CB0100DAEACF /* BannerAdLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerAdLoadingView.swift; sourceTree = "<group>"; };
 		50FF23DD2EEAD07900EAF530 /* NativeAdViewMedium.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdViewMedium.swift; sourceTree = "<group>"; };
 		50FF24D72EEBAECF00EAF530 /* NativeAdMediumLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdMediumLoadingView.swift; sourceTree = "<group>"; };
+		50FF30432EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+NativeDelegate.swift"; sourceTree = "<group>"; };
 		760580A727E3221800975794 /* TestAdsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestAdsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		760580B127E3221800975794 /* TestAdsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestAdsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		768BF63E283F244D00737CEF /* RemoteConfigService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteConfigService.swift; sourceTree = "<group>"; };
@@ -190,6 +192,7 @@
 		509F87032EE11DD500DAEACF /* AdMobHelper */ = {
 			isa = PBXGroup;
 			children = (
+				50FF30432EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift */,
 				50FF24D72EEBAECF00EAF530 /* NativeAdMediumLoadingView.swift */,
 				509F88A42EE3CB0100DAEACF /* BannerAdLoadingView.swift */,
 				509F87172EE1788E00DAEACF /* AdMobHelper+AppOpen.swift */,
@@ -452,6 +455,7 @@
 				507981742EE813B9009B6C5D /* IAPKeychainStorage.swift in Sources */,
 				507981752EE813B9009B6C5D /* IAPService.swift in Sources */,
 				507981762EE813B9009B6C5D /* IAPService+Receipt.swift in Sources */,
+				50FF30442EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift in Sources */,
 				509F87082EE11DD500DAEACF /* NativeAdViewSmall.swift in Sources */,
 				509F87092EE11DD500DAEACF /* AppOpenAdLoadingView.swift in Sources */,
 				509F871F2EE1788E00DAEACF /* AdMobHelper+RewardedInterstitial.swift in Sources */,

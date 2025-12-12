@@ -104,6 +104,10 @@ extension AdMobHelper: BannerViewDelegate {
     
     public func bannerViewDidRecordClick(_ bannerView: BannerView) {
         print("Banner ad recorded a click")
+        
+        // Mark ad click (will verify in background handler if app actually leaves)
+        markAdClick()
+        
         bannerAdStatusCallback?(.didRecordClick)
     }
     
@@ -119,6 +123,10 @@ extension AdMobHelper: BannerViewDelegate {
     
     public func bannerViewDidDismissScreen(_ bannerView: BannerView) {
         print("Banner ad dismissed screen")
+        
+        // If dismissed in-app screen without going to background, clear the pending flag
+        clearPendingAdClick()
+        
         bannerAdStatusCallback?(.didDismissScreen)
     }
     

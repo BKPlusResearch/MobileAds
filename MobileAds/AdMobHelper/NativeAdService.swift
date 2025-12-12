@@ -305,6 +305,9 @@ public class NativeAdService {
         // automatically handles registration. The outlets connected in xib will be used.
         nativeAdView.nativeAd = nativeAd
         
+        // Set delegate to track native ad clicks
+        nativeAd.delegate = AdMobHelper.shared
+        
         // Use provided configuration or fall back to shared singleton
         let configToUse = configuration ?? NativeAdConfiguration.shared
 
