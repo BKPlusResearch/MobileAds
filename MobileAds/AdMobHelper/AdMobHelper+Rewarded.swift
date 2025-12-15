@@ -69,6 +69,9 @@ extension AdMobHelper {
             showRewardedAdLoadingView()
         }
 
+        // Skip next app resume ad since rewarded ad is showing
+        shouldSkipNextAppResume = true
+
         isRewardedShowing = true
         didEarnRewardForCurrentAd = false  // Reset flag before showing
         rewardedAd.present(from: viewController) { [weak self] in

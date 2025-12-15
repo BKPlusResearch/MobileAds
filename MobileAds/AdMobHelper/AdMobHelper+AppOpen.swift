@@ -71,6 +71,22 @@ extension AdMobHelper {
             return
         }
 
+        // If any other ad type is showing, skip app open ad
+        if isInterstitialShowing {
+            debugPrint("Interstitial ad is showing, skipping app open ad.")
+            return
+        }
+
+        if isRewardedShowing {
+            debugPrint("Rewarded ad is showing, skipping app open ad.")
+            return
+        }
+
+        if isRewardedInterstitialShowing {
+            debugPrint("Rewarded interstitial ad is showing, skipping app open ad.")
+            return
+        }
+
         // If the app open ad is not available yet, return false.
         if !isAppOpenAdAvailable() {
             debugPrint("App open ad is not ready yet.")

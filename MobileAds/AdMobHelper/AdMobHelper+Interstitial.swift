@@ -61,6 +61,9 @@ extension AdMobHelper {
             showInterstitialAdLoadingView()
         }
 
+        // Skip next app resume ad since interstitial is showing
+        shouldSkipNextAppResume = true
+
         isInterstitialShowing = true
         interstitialAd.present(from: viewController)
     }

@@ -55,6 +55,9 @@ extension AdMobHelper {
             throw AdMobHelperError.adNotLoaded
         }
 
+        // Skip next app resume ad since rewarded interstitial ad is showing
+        shouldSkipNextAppResume = true
+
         isRewardedInterstitialShowing = true
         rewardedInterstitialAd.present(from: viewController) {
             let reward = rewardedInterstitialAd.adReward
