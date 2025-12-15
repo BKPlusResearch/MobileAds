@@ -43,6 +43,10 @@
 		509F87252EE1788E00DAEACF /* AdMobHelper+Interstitial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509F871A2EE1788E00DAEACF /* AdMobHelper+Interstitial.swift */; };
 		509F87262EE1788E00DAEACF /* AdMobHelper+Banner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509F87182EE1788E00DAEACF /* AdMobHelper+Banner.swift */; };
 		509F88A52EE3CB0200DAEACF /* BannerAdLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509F88A42EE3CB0100DAEACF /* BannerAdLoadingView.swift */; };
+		50B1DC712EED62B40096DF8B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 50B1DC6F2EED62B40096DF8B /* README.md */; };
+		50B1DC722EED62B40096DF8B /* AnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50B1DC6C2EED62B40096DF8B /* AnalyticsEvent.swift */; };
+		50B1DC732EED62B40096DF8B /* LogParameter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50B1DC6E2EED62B40096DF8B /* LogParameter.swift */; };
+		50B1DC742EED62B40096DF8B /* FirebaseLogger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50B1DC6D2EED62B40096DF8B /* FirebaseLogger.swift */; };
 		50FF23DE2EEAD07900EAF530 /* NativeAdViewMedium.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FF23DD2EEAD07900EAF530 /* NativeAdViewMedium.swift */; };
 		50FF24D82EEBAECF00EAF530 /* NativeAdMediumLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FF24D72EEBAECF00EAF530 /* NativeAdMediumLoadingView.swift */; };
 		50FF30442EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FF30432EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift */; };
@@ -89,6 +93,10 @@
 		509F871D2EE1788E00DAEACF /* AdMobHelper+Rewarded.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+Rewarded.swift"; sourceTree = "<group>"; };
 		509F871E2EE1788E00DAEACF /* AdMobHelper+RewardedInterstitial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+RewardedInterstitial.swift"; sourceTree = "<group>"; };
 		509F88A42EE3CB0100DAEACF /* BannerAdLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerAdLoadingView.swift; sourceTree = "<group>"; };
+		50B1DC6C2EED62B40096DF8B /* AnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsEvent.swift; sourceTree = "<group>"; };
+		50B1DC6D2EED62B40096DF8B /* FirebaseLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseLogger.swift; sourceTree = "<group>"; };
+		50B1DC6E2EED62B40096DF8B /* LogParameter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogParameter.swift; sourceTree = "<group>"; };
+		50B1DC6F2EED62B40096DF8B /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		50FF23DD2EEAD07900EAF530 /* NativeAdViewMedium.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdViewMedium.swift; sourceTree = "<group>"; };
 		50FF24D72EEBAECF00EAF530 /* NativeAdMediumLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdMediumLoadingView.swift; sourceTree = "<group>"; };
 		50FF30432EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+NativeDelegate.swift"; sourceTree = "<group>"; };
@@ -148,6 +156,7 @@
 		042F527F27D8E09E008D5330 /* MobileAds */ = {
 			isa = PBXGroup;
 			children = (
+				50B1DC702EED62B40096DF8B /* FirebaseLogger */,
 				507981702EE813B9009B6C5D /* IAP */,
 				509F870F2EE124A400DAEACF /* Extension */,
 				768BF63D283F243C00737CEF /* RemoteConfig */,
@@ -226,6 +235,17 @@
 				509F87102EE124AB00DAEACF /* CallBackDefine.swift */,
 			);
 			path = Extension;
+			sourceTree = "<group>";
+		};
+		50B1DC702EED62B40096DF8B /* FirebaseLogger */ = {
+			isa = PBXGroup;
+			children = (
+				50B1DC6C2EED62B40096DF8B /* AnalyticsEvent.swift */,
+				50B1DC6D2EED62B40096DF8B /* FirebaseLogger.swift */,
+				50B1DC6E2EED62B40096DF8B /* LogParameter.swift */,
+				50B1DC6F2EED62B40096DF8B /* README.md */,
+			);
+			path = FirebaseLogger;
 			sourceTree = "<group>";
 		};
 		7667C7882836001700D47F77 /* Assets */ = {
@@ -371,6 +391,7 @@
 				508D29432C6F2E5B005801DA /* ic_info.png in Resources */,
 				509F870C2EE11DD500DAEACF /* NativeAdViewMedium.xib in Resources */,
 				509F870D2EE11DD500DAEACF /* NativeAdViewSmall.xib in Resources */,
+				50B1DC712EED62B40096DF8B /* README.md in Resources */,
 				0E7215CB2A36224700759DCA /* close.png in Resources */,
 				508D29482C6F3202005801DA /* stars_3_5.png in Resources */,
 			);
@@ -468,6 +489,9 @@
 				509F87242EE1788E00DAEACF /* AdMobHelper+Rewarded.swift in Sources */,
 				509F87252EE1788E00DAEACF /* AdMobHelper+Interstitial.swift in Sources */,
 				509F87262EE1788E00DAEACF /* AdMobHelper+Banner.swift in Sources */,
+				50B1DC722EED62B40096DF8B /* AnalyticsEvent.swift in Sources */,
+				50B1DC732EED62B40096DF8B /* LogParameter.swift in Sources */,
+				50B1DC742EED62B40096DF8B /* FirebaseLogger.swift in Sources */,
 				509F87132EE1251300DAEACF /* UIView+Extension.swift in Sources */,
 				509F870A2EE11DD500DAEACF /* GoogleMobileAdsConsentManager.swift in Sources */,
 				509F870B2EE11DD500DAEACF /* NativeAdSmallLoadingView.swift in Sources */,

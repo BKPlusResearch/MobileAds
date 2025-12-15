@@ -54,7 +54,6 @@ public struct PurchaseResult {
     @available(iOS 15.0, *)
     public let transaction: Transaction?
     
-    @available(iOS 15.0, *)
     public init(transaction: Transaction, receiptData: Data? = nil) {
         self.transactionID = String(transaction.id)
         self.productID = transaction.productID
