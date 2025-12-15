@@ -13,6 +13,7 @@ class BannerAdLoadingView: UIView {
     
     private lazy var containerView: UIView = {
         let view = UIView()
+        view.backgroundColor = .white
         return view
     }()
     
@@ -35,6 +36,7 @@ class BannerAdLoadingView: UIView {
     }
     
     private func setupUI() {
+        backgroundColor = .white
         addSubview(containerView)
         containerView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
