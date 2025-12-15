@@ -82,7 +82,7 @@ public class AdMobHelper: NSObject {
     public internal(set) var isAppOpenShowing = false
     
     /// Flag to skip next App Resume Ad (e.g., when user returns from ad-opened browser)
-    public internal(set) var shouldSkipNextAppResume = false
+    public var shouldSkipNextAppResume = false
     
     /// Track if user recently clicked an ad (to verify if background is from ad click)
     private var hadRecentAdClick = false
