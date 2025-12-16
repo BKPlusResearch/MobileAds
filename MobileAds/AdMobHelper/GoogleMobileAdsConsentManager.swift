@@ -55,7 +55,7 @@ public class GoogleMobileAdsConsentManager: NSObject {
         return consentGatheringComplete(requestConsentError)
       }
 
-      Task {
+      Task { @MainActor in
         do {
           try await ConsentForm.loadAndPresentIfRequired(from: viewController)
           // Consent has been gathered.
