@@ -171,15 +171,18 @@ public class AdMobHelper: NSObject {
     /// This is the recommended entry point when importing the framework.
     /// Call this method in your AppDelegate or SceneDelegate's didFinishLaunching.
     /// - Parameter viewController: Optional view controller to present consent form from. If nil, will use key window's root view controller.
-    public func configAds(from viewController: UIViewController? = nil) {
+    public func configAds(from viewController: UIViewController? = nil, completion: (() -> Void)? = nil) {
         GoogleMobileAdsConsentManager.shared.gatherConsent(from: viewController) { [weak self] error in
             if let error {
                 print("Consent gathering error: \(error.localizedDescription)")
             }
-            
+
             if GoogleMobileAdsConsentManager.shared.canRequestAds {
                 self?.initializeSDK()
             }
+
+            // Call completion handler after consent is gathered
+            completion?()
         }
     }
 
