@@ -40,6 +40,12 @@ extension AdMobHelper {
                 with: adUnitID.adUnitIDString, request: Request())
             appOpenAd?.fullScreenContentDelegate = self
             appOpenLoadTime = Date()
+
+            // Track ad revenue
+            appOpenAd?.paidEventHandler = { adValue in
+                ADJustManager.shared.logRevenue(adType: .appOpen, adValue: adValue)
+            }
+
             print("App open ad loaded successfully")
             // Hide loading view when load completes successfully
             // Keep it showing if we're about to show the ad immediately

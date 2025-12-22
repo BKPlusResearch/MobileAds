@@ -22,6 +22,12 @@ extension AdMobHelper {
             rewardedInterstitialAd = try await RewardedInterstitialAd.load(
                 with: adUnitID.adUnitIDString, request: Request())
             rewardedInterstitialAd?.fullScreenContentDelegate = self
+
+            // Track ad revenue
+            rewardedInterstitialAd?.paidEventHandler = { adValue in
+                ADJustManager.shared.logRevenue(adType: .reward, adValue: adValue)
+            }
+
             print("Rewarded interstitial ad loaded successfully")
         } catch {
             print(

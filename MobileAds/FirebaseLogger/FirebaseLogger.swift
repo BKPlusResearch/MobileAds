@@ -52,28 +52,6 @@ public final class FirebaseLogger {
         Analytics.logEvent(eventName, parameters: parameters)
     }
 
-    /// Log screen view
-    /// - Parameter screenName: Name of the screen
-    public func logScreen(_ screenName: String) {
-        logEvent(.screenView, params: [.screenName: screenName])
-    }
-
-    /// Log error event
-    /// - Parameters:
-    ///   - error: The error object
-    ///   - context: Additional context about where/why the error occurred
-    public func logError(_ error: Error, context: String? = nil) {
-        var params: [LogParameter: Any] = [
-            .errorMessage: error.localizedDescription
-        ]
-
-        if let context = context {
-            params[.errorContext] = context
-        }
-
-        logEvent(.error, params: params)
-    }
-
     /// Set user property
     /// - Parameters:
     ///   - key: Property key

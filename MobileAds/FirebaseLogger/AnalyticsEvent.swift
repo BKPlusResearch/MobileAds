@@ -9,7 +9,6 @@ import Foundation
 
 /// Analytics event names
 /// Extend this struct in your app for app-specific events
-@available(iOS 15.0, *)
 public struct AnalyticsEvent: RawRepresentable, Equatable, Hashable {
     public let rawValue: String
 
@@ -19,12 +18,6 @@ public struct AnalyticsEvent: RawRepresentable, Equatable, Hashable {
 
     // MARK: - Common Events (Available for all apps)
 
-    // App Lifecycle
-    public static let appOpen = AnalyticsEvent(rawValue: "app_open")
-
-    // Screen Tracking
-    public static let screenView = AnalyticsEvent(rawValue: "screen_view")
-
-    // Errors
-    public static let error = AnalyticsEvent(rawValue: "app_error")
+    // Ad Revenue
+    public static let adImpression = AnalyticsEvent(rawValue: "ad_impression_ios")
 }

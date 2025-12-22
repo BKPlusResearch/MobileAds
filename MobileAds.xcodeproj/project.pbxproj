@@ -10,6 +10,8 @@
 		042F528227D8E09E008D5330 /* MobileAds.docc in Sources */ = {isa = PBXBuildFile; fileRef = 042F528127D8E09E008D5330 /* MobileAds.docc */; };
 		042F528327D8E09E008D5330 /* MobileAds.h in Headers */ = {isa = PBXBuildFile; fileRef = 042F528027D8E09E008D5330 /* MobileAds.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0E7215CB2A36224700759DCA /* close.png in Resources */ = {isa = PBXBuildFile; fileRef = 0E7215CA2A36224700759DCA /* close.png */; };
+		50535B6F2EF8F2BB00D6549D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 50535B6D2EF8F2BB00D6549D /* README.md */; };
+		50535B702EF8F2BB00D6549D /* ADJustManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50535B6C2EF8F2BB00D6549D /* ADJustManager.swift */; };
 		507981712EE813B9009B6C5D /* IAPProductIdentifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816C2EE813B9009B6C5D /* IAPProductIdentifiable.swift */; };
 		507981722EE813B9009B6C5D /* IAPService+Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816F2EE813B9009B6C5D /* IAPService+Subscription.swift */; };
 		507981732EE813B9009B6C5D /* IAPModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816B2EE813B9009B6C5D /* IAPModels.swift */; };
@@ -60,6 +62,8 @@
 		042F528127D8E09E008D5330 /* MobileAds.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = MobileAds.docc; sourceTree = "<group>"; };
 		0E7215CA2A36224700759DCA /* close.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close.png; sourceTree = "<group>"; };
 		3D6191E3A787BACD7741EE30 /* Pods-MobileAds.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileAds.release.xcconfig"; path = "Target Support Files/Pods-MobileAds/Pods-MobileAds.release.xcconfig"; sourceTree = "<group>"; };
+		50535B6C2EF8F2BB00D6549D /* ADJustManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADJustManager.swift; sourceTree = "<group>"; };
+		50535B6D2EF8F2BB00D6549D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		5079816A2EE813B9009B6C5D /* IAPKeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPKeychainStorage.swift; sourceTree = "<group>"; };
 		5079816B2EE813B9009B6C5D /* IAPModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPModels.swift; sourceTree = "<group>"; };
 		5079816C2EE813B9009B6C5D /* IAPProductIdentifiable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPProductIdentifiable.swift; sourceTree = "<group>"; };
@@ -156,6 +160,7 @@
 		042F527F27D8E09E008D5330 /* MobileAds */ = {
 			isa = PBXGroup;
 			children = (
+				50535B6E2EF8F2BB00D6549D /* ADJustManager */,
 				50B1DC702EED62B40096DF8B /* FirebaseLogger */,
 				507981702EE813B9009B6C5D /* IAP */,
 				509F870F2EE124A400DAEACF /* Extension */,
@@ -183,6 +188,15 @@
 				DFA7FFED897F79E7EE95595D /* Pods_MobileAds.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		50535B6E2EF8F2BB00D6549D /* ADJustManager */ = {
+			isa = PBXGroup;
+			children = (
+				50535B6C2EF8F2BB00D6549D /* ADJustManager.swift */,
+				50535B6D2EF8F2BB00D6549D /* README.md */,
+			);
+			path = ADJustManager;
 			sourceTree = "<group>";
 		};
 		507981702EE813B9009B6C5D /* IAP */ = {
@@ -422,13 +436,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MobileAds/Pods-MobileAds-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MobileAds/Pods-MobileAds-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -495,6 +505,7 @@
 				509F87132EE1251300DAEACF /* UIView+Extension.swift in Sources */,
 				509F870A2EE11DD500DAEACF /* GoogleMobileAdsConsentManager.swift in Sources */,
 				509F870B2EE11DD500DAEACF /* NativeAdSmallLoadingView.swift in Sources */,
+				50535B702EF8F2BB00D6549D /* ADJustManager.swift in Sources */,
 				768BF63F283F244D00737CEF /* RemoteConfigService.swift in Sources */,
 				042F528227D8E09E008D5330 /* MobileAds.docc in Sources */,
 				509F87112EE124DE00DAEACF /* CallBackDefine.swift in Sources */,

@@ -21,6 +21,12 @@ class NativeAdLoaderDelegateHelper: NSObject, NativeAdLoaderDelegate {
     
     func adLoader(_ adLoader: AdLoader, didReceive nativeAd: NativeAd) {
         debugPrint("Native ad loaded successfully")
+
+        // Track ad revenue
+        nativeAd.paidEventHandler = { adValue in
+            ADJustManager.shared.logRevenue(adType: .native, adValue: adValue)
+        }
+
         onAdLoaded?(nativeAd)
     }
     

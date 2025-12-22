@@ -9,7 +9,6 @@ import Foundation
 
 /// Analytics event parameter keys
 /// Extend this struct in your app for app-specific parameters
-@available(iOS 15.0, *)
 public struct LogParameter: RawRepresentable, Equatable, Hashable {
     public let rawValue: String
 
@@ -18,11 +17,8 @@ public struct LogParameter: RawRepresentable, Equatable, Hashable {
     }
 
     // MARK: - Common Parameters
-
-    // Screen & Navigation
-    public static let screenName = LogParameter(rawValue: "screen_name")
-
-    // Error Tracking
-    public static let errorMessage = LogParameter(rawValue: "error_message")
-    public static let errorContext = LogParameter(rawValue: "error_context")
+    // Ad Revenue
+    public static let adPlatform = LogParameter(rawValue: "ad_platform")
+    public static let currency = LogParameter(rawValue: "currency")
+    public static let value = LogParameter(rawValue: "value")
 }

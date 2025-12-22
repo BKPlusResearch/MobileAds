@@ -24,6 +24,12 @@ extension AdMobHelper {
             interstitialAd = try await InterstitialAd.load(
                 with: adUnitID.adUnitIDString, request: Request())
             interstitialAd?.fullScreenContentDelegate = self
+
+            // Track ad revenue
+            interstitialAd?.paidEventHandler = { adValue in
+                ADJustManager.shared.logRevenue(adType: .interstitial, adValue: adValue)
+            }
+
             print("Interstitial ad loaded successfully")
         } catch {
             print("Interstitial ad failed to load with error: \(error.localizedDescription)")

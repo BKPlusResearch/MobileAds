@@ -24,6 +24,12 @@ extension AdMobHelper {
             rewardedAd = try await RewardedAd.load(
                 with: adUnitID.adUnitIDString, request: Request())
             rewardedAd?.fullScreenContentDelegate = self
+
+            // Track ad revenue
+            rewardedAd?.paidEventHandler = { adValue in
+                ADJustManager.shared.logRevenue(adType: .reward, adValue: adValue)
+            }
+
             print("Rewarded ad loaded successfully")
         } catch {
             print("Rewarded ad failed to load with error: \(error.localizedDescription)")

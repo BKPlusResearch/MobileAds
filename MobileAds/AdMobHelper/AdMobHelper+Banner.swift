@@ -60,9 +60,14 @@ extension AdMobHelper: BannerViewDelegate {
         // Store banner view and callbacks
         self.bannerAd = bannerView
         self.bannerAdStatusCallback = statusCallback
-        
+
         // Set self as delegate to track events
         bannerView.delegate = self
+
+        // Track ad revenue
+        bannerView.paidEventHandler = { adValue in
+            ADJustManager.shared.logRevenue(adType: .banner, adValue: adValue)
+        }
 
         guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
             print("Cannot load banner ad: Consent not granted")
