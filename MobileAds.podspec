@@ -161,7 +161,7 @@ Pod::Spec.new do |spec|
   spec.dependency "Google-Mobile-Ads-SDK", '~> 12.0.0'
   spec.dependency "GoogleUserMessagingPlatform", '~> 3.0.0'
   spec.dependency "SnapKit", '~> 5.7.1'
-  spec.dependency "Adjust", '~> 5.0.0'
+  spec.dependency "Adjust", '~> 5.5.0'
   spec.dependency "SkeletonView", '~> 1.29.2'
   spec.dependency 'Toast-Swift', '~> 5.0.1'
 
