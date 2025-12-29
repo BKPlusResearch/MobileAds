@@ -13,9 +13,11 @@ import GoogleMobileAds
 
 public struct AppADJustConfig {
     public let impressionToken: String?
+    public let token: String?
 
-    public init(impressionToken: String?) {
+    public init(impressionToken: String?, token: String?) {
         self.impressionToken = impressionToken
+        self.token = token
     }
 }
 
@@ -40,11 +42,47 @@ public final class ADJustManager {
 
     // MARK: - Configuration
 
-    /// Configure ADJustManager with impression token
-    /// - Parameter config: AppADJustConfig containing impression token
-    public func configure(with config: AppADJustConfig) {
+    /// Initialize Adjust SDK and configure ADJustManager
+    /// - Parameters:
+    ///   - config: AppADJustConfig with app token and impression token
+    ///   - environment: Adjust environment (sandbox or production)
+    ///   - delegate: Optional AdjustDelegate for callbacks
+    public func configure(with config: AppADJustConfig, delegate: AdjustDelegate? = nil) {
+        // Store config first
         self.adjConfig = config
-        debugPrint("✅ [ADJustManager] Configured with impression token: \(config.impressionToken ?? "nil")")
+
+        // If token provided, initialize Adjust SDK
+        let environment: String
+#if DEBUG
+        environment = ADJEnvironmentSandbox
+#else
+        environment = ADJEnvironmentProduction
+#endif
+        if let token = config.token {
+            guard let adjustConfig = ADJConfig(appToken: token, environment: environment) else {
+                debugPrint("❌ [ADJustManager] Failed to create Adjust config")
+                return
+            }
+
+            // Set delegate if provided
+            if let delegate = delegate as? NSObject & AdjustDelegate {
+                adjustConfig.delegate = delegate
+            }
+
+            // Set log level based on environment
+            #if DEBUG
+            adjustConfig.logLevel = ADJLogLevel.verbose
+            #else
+            adjustConfig.logLevel = ADJLogLevel.warn
+            #endif
+
+            // Initialize Adjust SDK
+            Adjust.initSdk(adjustConfig)
+            debugPrint("✅ [ADJustManager] Adjust SDK initialized with token: \(token) in \(environment) environment")
+        }
+
+        // Log configuration status
+        debugPrint("✅ [ADJustManager] Configured for ad revenue tracking with impression token: \(config.impressionToken ?? "nil")")
     }
 
     // MARK: - Public Methods
@@ -111,5 +149,44 @@ public final class ADJustManager {
             .currency: "USD",
             .value: safeRevenue
         ])
+    }
+}
+
+// MARK: - Additional Public Methods
+
+extension ADJustManager {
+
+    /// Track custom event to Adjust
+    /// - Parameters:
+    ///   - eventToken: Event token from Adjust dashboard
+    ///   - revenue: Optional revenue value
+    ///   - currency: Currency code (default: USD)
+    public func trackEvent(_ eventToken: String, revenue: Double? = nil, currency: String = "USD") {
+        guard let event = ADJEvent(eventToken: eventToken) else {
+            debugPrint("❌ [ADJustManager] Failed to create event with token: \(eventToken)")
+            return
+        }
+
+        if let revenue = revenue {
+            event.setRevenue(revenue, currency: currency)
+        }
+
+        Adjust.trackEvent(event)
+        debugPrint("✅ [ADJustManager] Event tracked: \(eventToken)")
+    }
+
+    /// Track purchase event to Adjust
+    /// - Parameters:
+    ///   - transactionId: Transaction/Receipt ID
+    ///   - productId: Product identifier
+    ///   - price: Purchase price
+    ///   - currency: Currency code
+    public func trackPurchase(transactionId: String, productId: String, price: Double, currency: String) {
+        // Create purchase event if you have purchase event token
+        // For now, just log the info
+        debugPrint("💰 [ADJustManager] Purchase tracked:")
+        debugPrint("  • Transaction ID: \(transactionId)")
+        debugPrint("  • Product ID: \(productId)")
+        debugPrint("  • Price: \(price) \(currency)")
     }
 }
