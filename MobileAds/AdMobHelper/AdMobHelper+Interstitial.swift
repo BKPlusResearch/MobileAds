@@ -5,8 +5,13 @@ extension AdMobHelper {
     // MARK: - Interstitial Ad
     
     /// Load an interstitial ad.
-    /// - Parameter adUnitID: The ad unit identifier for interstitial ads.
-    public func loadInterstitialAd(adUnitID: AdUnitIdentifiable) async throws {
+    /// - Parameters:
+    ///   - adUnitID: The ad unit identifier for interstitial ads.
+    ///   - shouldShowLoadingView: Whether to show loading view during ad load. Default is true.
+    public func loadInterstitialAd(
+        adUnitID: AdUnitIdentifiable,
+        shouldShowLoadingView: Bool = true
+    ) async throws {
         guard !isInterstitialLoading, interstitialAd == nil else {
             return
         }
@@ -16,8 +21,10 @@ extension AdMobHelper {
         }
 
         isInterstitialLoading = true
-        // Show loading view when starting to load ad
-        showInterstitialAdLoadingView()
+        // Show loading view when starting to load ad (if enabled)
+        if shouldShowLoadingView {
+            showInterstitialAdLoadingView()
+        }
         initializeSDK()
 
         do {
@@ -45,9 +52,11 @@ extension AdMobHelper {
     /// Show an interstitial ad from the specified view controller.
     /// - Parameters:
     ///   - viewController: The view controller to present the ad from.
+    ///   - shouldShowLoadingView: Whether to show loading view if not already showing. Default is true.
     ///   - statusCallback: Optional callback to receive ad status events (didPresent, didFailToPresent, didDismiss).
     public func showInterstitialAd(
         from viewController: UIViewController,
+        shouldShowLoadingView: Bool = true,
         statusCallback: ((InterstitialAdStatus) -> Void)? = nil
     ) throws {
         guard !isInterstitialShowing else {
@@ -60,10 +69,10 @@ extension AdMobHelper {
 
         // Store callback for status events
         interstitialAdStatusCallback = statusCallback
-        
+
         // Loading view should already be showing from loadInterstitialAd
-        // If not showing, show it now (in case ad was pre-loaded)
-        if interstitialAdLoadingView == nil {
+        // If not showing, show it now (in case ad was pre-loaded) only if enabled
+        if shouldShowLoadingView && interstitialAdLoadingView == nil {
             showInterstitialAdLoadingView()
         }
 

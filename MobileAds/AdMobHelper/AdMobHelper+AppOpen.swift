@@ -19,8 +19,13 @@ extension AdMobHelper {
     }
 
     /// Load an app open ad.
-    /// - Parameter adUnitID: The ad unit identifier for app open ads.
-    public func loadAppOpenAd(adUnitID: AdUnitIdentifiable) async throws {
+    /// - Parameters:
+    ///   - adUnitID: The ad unit identifier for app open ads.
+    ///   - shouldShowLoadingView: Whether to show loading view during ad load. Default is true.
+    public func loadAppOpenAd(
+        adUnitID: AdUnitIdentifiable,
+        shouldShowLoadingView: Bool = true
+    ) async throws {
         // Do not load ad if there is an unused ad or one is already loading.
         if isAppOpenLoading || isAppOpenAdAvailable() {
             return
@@ -31,8 +36,10 @@ extension AdMobHelper {
         }
 
         isAppOpenLoading = true
-        // Show loading view when starting to load ad
-        showAppOpenAdLoadingView()
+        // Show loading view when starting to load ad (if enabled)
+        if shouldShowLoadingView {
+            showAppOpenAdLoadingView()
+        }
         initializeSDK()
 
         do {
@@ -69,6 +76,7 @@ extension AdMobHelper {
 
     public func showAppOpenAd(
         from viewController: UIViewController? = nil,
+        shouldShowLoadingView: Bool = true,
         statusCallback: ((AppOpenAdStatus) -> Void)? = nil
     ) {
         // If the app open ad is already showing, do not show the ad again.
@@ -104,8 +112,8 @@ extension AdMobHelper {
             appOpenAdStatusCallback = statusCallback
             
             // Loading view should already be showing from loadAppOpenAd
-            // If not showing, show it now (in case ad was pre-loaded)
-            if appOpenAdLoadingView == nil {
+            // Show loading view if enabled and not already showing
+            if shouldShowLoadingView && appOpenAdLoadingView == nil {
                 showAppOpenAdLoadingView()
             }
             
