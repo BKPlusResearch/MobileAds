@@ -259,11 +259,9 @@ extension AdMobHelper {
                 in: containerView,
                 viewType: viewType,
                 configuration: configuration,
+                cacheKey: cacheKey,
                 statusCallback: statusCallback
             )
-
-            // Note: Keep cache for reuse until it expires (1 hour)
-            // Don't clear immediately to allow multiple uses
             return
         }
 
@@ -286,6 +284,7 @@ extension AdMobHelper {
         in containerView: UIView,
         viewType: NativeAdService.NativeAdViewType,
         configuration: NativeAdConfiguration?,
+        cacheKey: String,
         statusCallback: ((Bool) -> Void)?
     ) {
         // Clear existing subviews
@@ -363,6 +362,11 @@ extension AdMobHelper {
         nativeAdView.layoutIfNeeded()
 
         print("✅ [VUNT_CACHE] Displayed cached ad with all data populated")
+
+        // Clear cache immediately after displaying - ad should only be shown once
+        clearCachedNativeAd(for: cacheKey)
+        print("🗑️ [VUNT_CACHE] Cache cleared immediately after display for key: \(cacheKey)")
+
         statusCallback?(true)
     }
 }

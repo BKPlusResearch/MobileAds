@@ -4,7 +4,7 @@ feat: Add Native Ad Cache System with flexible cache keys
 
 ### Native Ad Cache System
 - Preload multiple native ads for instant display
-- Cache expires after 1 hour (AdMob policy)
+- Single-use cache - ads are cleared immediately after display
 - Automatic fallback to network if cache unavailable
 - Type-safe cache keys extensible per app
 

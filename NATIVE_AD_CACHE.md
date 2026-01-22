@@ -6,7 +6,7 @@ The MobileAds framework includes a powerful native ad caching system that allows
 
 - ✅ **Preload multiple ads** at once
 - ✅ **Type-safe cache keys** defined per app
-- ✅ **Automatic cache expiration** (1 hour)
+- ✅ **Single-use cache** - ads are cleared immediately after display
 - ✅ **Instant ad display** from cache
 - ✅ **Fallback to network** if cache unavailable
 - ✅ **Full styling support** via `NativeAdConfiguration`
@@ -176,12 +176,32 @@ AdMobHelper.shared.loadNativeAdWithCache(
 }
 ```
 
-### 4. Consider Cache Expiration
+### 4. Single-Use Cache Behavior
 
-Cached ads expire after **1 hour** (per AdMob policy). If you need fresh ads:
+**Important**: Cached ads are automatically cleared after being displayed. Each cached ad is shown only once:
 
 ```swift
-// Clear expired ads periodically
+// When you display a cached ad:
+AdMobHelper.shared.loadNativeAdWithCache(
+    containerView: adsView,
+    adUnitID: AppAdUnitID.native_onboarding,
+    cacheKey: NativeAdCacheKey.firstLanguage
+)
+// ↑ This displays the ad AND clears the cache immediately
+
+// Next call with same cache key will load from network:
+AdMobHelper.shared.loadNativeAdWithCache(
+    containerView: adsView,
+    adUnitID: AppAdUnitID.native_onboarding,
+    cacheKey: NativeAdCacheKey.firstLanguage
+)
+// ↑ Cache is empty, loads from network
+```
+
+You can also manually clear cache if needed:
+
+```swift
+// Clear specific cached ad
 AdMobHelper.shared.clearCachedNativeAd(for: NativeAdCacheKey.homeScreen)
 
 // Or clear all
