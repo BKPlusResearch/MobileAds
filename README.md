@@ -30,6 +30,13 @@ MobileAds is a Swift framework that wraps the Google Mobile Ads SDK and provides
   - Load và gắn native ad vào container view với XIB (`NativeAdViewSmall`, `NativeAdViewMedium`).
   - Hỗ trợ loading view (`NativeAdSmallLoadingView`).
 
+- **🆕 Native Ad Cache System**
+  - Preload native ads cho hiển thị tức thì, loại bỏ thời gian chờ loading.
+  - Cache tự động expire sau 1 giờ (theo policy của AdMob).
+  - Type-safe cache keys định nghĩa riêng cho từng app.
+  - Tự động fallback về network nếu cache không available.
+  - Xem chi tiết: [NATIVE_AD_CACHE.md](NATIVE_AD_CACHE.md)
+
 - **Tuỳ biến giao diện Native Ad toàn app**
   - Singleton `NativeAdConfiguration.shared` để cấu hình font, màu chữ, màu nền, gradient nút CTA.
 

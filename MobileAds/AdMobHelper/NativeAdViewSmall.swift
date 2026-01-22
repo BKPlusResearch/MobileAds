@@ -9,7 +9,7 @@ import UIKit
 @preconcurrency import GoogleMobileAds
 
 /// Custom view class for managing NativeAdViewSmall.xib
-class NativeAdViewSmall: NativeAdView {
+public class NativeAdViewSmall: NativeAdView {
 
     // MARK: - IBOutlets
     // These outlets are already connected in the XIB file
@@ -32,7 +32,7 @@ class NativeAdViewSmall: NativeAdView {
         super.init(coder: coder)
     }
 
-    override func awakeFromNib() {
+    public override func awakeFromNib() {
         super.awakeFromNib()
         setupUI()
     }
@@ -144,7 +144,7 @@ class NativeAdViewSmall: NativeAdView {
         }
     }
 
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         super.layoutSubviews()
 
         // Update gradient layer frame when view layout changes

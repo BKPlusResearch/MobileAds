@@ -10,7 +10,6 @@
 		042F528227D8E09E008D5330 /* MobileAds.docc in Sources */ = {isa = PBXBuildFile; fileRef = 042F528127D8E09E008D5330 /* MobileAds.docc */; };
 		042F528327D8E09E008D5330 /* MobileAds.h in Headers */ = {isa = PBXBuildFile; fileRef = 042F528027D8E09E008D5330 /* MobileAds.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0E7215CB2A36224700759DCA /* close.png in Resources */ = {isa = PBXBuildFile; fileRef = 0E7215CA2A36224700759DCA /* close.png */; };
-		50535B6F2EF8F2BB00D6549D /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 50535B6D2EF8F2BB00D6549D /* README.md */; };
 		50535B702EF8F2BB00D6549D /* ADJustManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50535B6C2EF8F2BB00D6549D /* ADJustManager.swift */; };
 		507981712EE813B9009B6C5D /* IAPProductIdentifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816C2EE813B9009B6C5D /* IAPProductIdentifiable.swift */; };
 		507981722EE813B9009B6C5D /* IAPService+Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816F2EE813B9009B6C5D /* IAPService+Subscription.swift */; };
@@ -45,6 +44,8 @@
 		509F87252EE1788E00DAEACF /* AdMobHelper+Interstitial.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509F871A2EE1788E00DAEACF /* AdMobHelper+Interstitial.swift */; };
 		509F87262EE1788E00DAEACF /* AdMobHelper+Banner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509F87182EE1788E00DAEACF /* AdMobHelper+Banner.swift */; };
 		509F88A52EE3CB0200DAEACF /* BannerAdLoadingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 509F88A42EE3CB0100DAEACF /* BannerAdLoadingView.swift */; };
+		50A9103B2F2120A2004E5E1D /* NativeAdCacheManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A9103A2F2120A2004E5E1D /* NativeAdCacheManager.swift */; };
+		50A9103C2F2120A2004E5E1D /* AdMobHelper+Preload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50A910392F2120A2004E5E1D /* AdMobHelper+Preload.swift */; };
 		50B1DC712EED62B40096DF8B /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 50B1DC6F2EED62B40096DF8B /* README.md */; };
 		50B1DC722EED62B40096DF8B /* AnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50B1DC6C2EED62B40096DF8B /* AnalyticsEvent.swift */; };
 		50B1DC732EED62B40096DF8B /* LogParameter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50B1DC6E2EED62B40096DF8B /* LogParameter.swift */; };
@@ -97,6 +98,8 @@
 		509F871D2EE1788E00DAEACF /* AdMobHelper+Rewarded.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+Rewarded.swift"; sourceTree = "<group>"; };
 		509F871E2EE1788E00DAEACF /* AdMobHelper+RewardedInterstitial.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+RewardedInterstitial.swift"; sourceTree = "<group>"; };
 		509F88A42EE3CB0100DAEACF /* BannerAdLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerAdLoadingView.swift; sourceTree = "<group>"; };
+		50A910392F2120A2004E5E1D /* AdMobHelper+Preload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+Preload.swift"; sourceTree = "<group>"; };
+		50A9103A2F2120A2004E5E1D /* NativeAdCacheManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdCacheManager.swift; sourceTree = "<group>"; };
 		50B1DC6C2EED62B40096DF8B /* AnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsEvent.swift; sourceTree = "<group>"; };
 		50B1DC6D2EED62B40096DF8B /* FirebaseLogger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirebaseLogger.swift; sourceTree = "<group>"; };
 		50B1DC6E2EED62B40096DF8B /* LogParameter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogParameter.swift; sourceTree = "<group>"; };
@@ -215,6 +218,8 @@
 		509F87032EE11DD500DAEACF /* AdMobHelper */ = {
 			isa = PBXGroup;
 			children = (
+				50A910392F2120A2004E5E1D /* AdMobHelper+Preload.swift */,
+				50A9103A2F2120A2004E5E1D /* NativeAdCacheManager.swift */,
 				50FF30432EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift */,
 				50FF24D72EEBAECF00EAF530 /* NativeAdMediumLoadingView.swift */,
 				509F88A42EE3CB0100DAEACF /* BannerAdLoadingView.swift */,
@@ -436,9 +441,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MobileAds/Pods-MobileAds-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MobileAds/Pods-MobileAds-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -475,6 +484,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				509F87042EE11DD500DAEACF /* AdUnitID.swift in Sources */,
+				50A9103B2F2120A2004E5E1D /* NativeAdCacheManager.swift in Sources */,
+				50A9103C2F2120A2004E5E1D /* AdMobHelper+Preload.swift in Sources */,
 				509F87052EE11DD500DAEACF /* NativeAdLoadingView.swift in Sources */,
 				509F88A52EE3CB0200DAEACF /* BannerAdLoadingView.swift in Sources */,
 				509F87152EE125BF00DAEACF /* NativeAdService.swift in Sources */,

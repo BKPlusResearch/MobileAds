@@ -130,8 +130,38 @@ public class NativeAdService {
     }
     
     // MARK: - Public Methods
-    
-    /// Load and display native ad in a container view
+
+    /// Load and display native ad from cache or network
+    /// - Parameters:
+    ///   - containerView: The view container to add the native ad view to
+    ///   - adUnitID: The ad unit identifier for the native ad
+    ///   - rootViewController: The view controller that will present the ad
+    ///   - viewType: The type of native ad view template to use (.small or .medium)
+    ///   - configuration: Optional configuration for customizing ad appearance. If nil, uses `NativeAdConfiguration.shared` singleton
+    ///   - cacheKey: Optional cache key to check for preloaded ad. If provided and ad exists in cache, uses cached ad instead of loading new one
+    ///   - statusCallback: Optional callback to notify success (true) or failure (false)
+    public func loadNativeAd(
+        containerView: UIView,
+        adUnitID: AdUnitIdentifiable,
+        rootViewController: UIViewController,
+        viewType: NativeAdViewType,
+        configuration: NativeAdConfiguration? = nil,
+        cacheKey: String? = nil,
+        statusCallback: ((Bool) -> Void)? = nil
+    ) {
+        // Note: Cache logic is now handled by AdMobHelper+NativeCache.swift
+        // This method always loads from network
+        loadNativeAdFromNetwork(
+            containerView: containerView,
+            adUnitID: adUnitID,
+            rootViewController: rootViewController,
+            viewType: viewType,
+            configuration: configuration,
+            statusCallback: statusCallback
+        )
+    }
+
+    /// Load and display native ad from network (original method)
     /// - Parameters:
     ///   - containerView: The view container to add the native ad view to
     ///   - adUnitID: The ad unit identifier for the native ad
@@ -139,7 +169,7 @@ public class NativeAdService {
     ///   - viewType: The type of native ad view template to use (.small or .medium)
     ///   - configuration: Optional configuration for customizing ad appearance. If nil, uses `NativeAdConfiguration.shared` singleton
     ///   - statusCallback: Optional callback to notify success (true) or failure (false)
-    public func loadNativeAd(
+    private func loadNativeAdFromNetwork(
         containerView: UIView,
         adUnitID: AdUnitIdentifiable,
         rootViewController: UIViewController,
@@ -432,6 +462,39 @@ public class NativeAdService {
             if let textColor = config.callToActionTextColor {
                 callToActionView.setTitleColor(textColor, for: .normal)
             }
+        }
+    }
+
+    /// Display a native ad that's already loaded (from cache or otherwise)
+    /// - Parameters:
+    ///   - nativeAd: The loaded native ad
+    ///   - containerView: The view container to add the native ad view to
+    ///   - viewType: The type of native ad view template to use
+    ///   - configuration: Optional configuration for customizing appearance
+    ///   - rootViewController: The view controller that will present the ad
+    private func displayNativeAd(
+        _ nativeAd: NativeAd,
+        in containerView: UIView,
+        viewType: NativeAdViewType,
+        configuration: NativeAdConfiguration?,
+        rootViewController: UIViewController
+    ) {
+        // Clear existing subviews
+        containerView.subviews.forEach { $0.removeFromSuperview() }
+
+        // Load native ad view from xib
+        guard let nativeAdView = loadNativeAdViewFromXib(type: viewType) else {
+            print("Failed to load native ad view from xib")
+            return
+        }
+
+        // Setup the view with ad data
+        setupNativeAdView(nativeAdView, with: nativeAd, configuration: configuration)
+
+        // Add native ad view to container
+        containerView.addSubview(nativeAdView)
+        nativeAdView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
     }
 }

@@ -10,7 +10,7 @@ import UIKit
 
 /// Custom view class for managing NativeAdViewMedium.xib
 /// Layout: MediaView on the left, content on the right
-class NativeAdViewMedium: NativeAdView {
+public class NativeAdViewMedium: NativeAdView {
 
     // MARK: - IBOutlets
     // These outlets are already connected in the XIB file
@@ -35,7 +35,7 @@ class NativeAdViewMedium: NativeAdView {
         super.init(coder: coder)
     }
 
-    override func awakeFromNib() {
+    public override func awakeFromNib() {
         super.awakeFromNib()
         setupUI()
     }
@@ -151,7 +151,7 @@ class NativeAdViewMedium: NativeAdView {
         }
     }
 
-    override func layoutSubviews() {
+    public override func layoutSubviews() {
         super.layoutSubviews()
 
         // Update gradient layer frame when view layout changes
