@@ -15,4 +15,5 @@ pod 'SnapKit'
 pod 'Adjust'
 pod 'SkeletonView'
 pod 'Toast-Swift'
+pod 'TikTokBusinessSDK', '~> 1.3.0'
 end

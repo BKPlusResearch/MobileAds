@@ -106,6 +106,9 @@ public final class ADJustManager {
         Task { @MainActor in
             logFirebaseRevenue(value: revenueUSD)
         }
+
+        // Track to TikTok Business SDK
+        TikTokManager.shared.trackAdRevenue(adType: adType, revenueUSD: revenueUSD)
     }
 
     // MARK: - Private Methods
