@@ -55,7 +55,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
 
         // Configure TikTok Business SDK
-        let tiktokConfig = TikTokConfig(
+        let tiktokConfig = TikTokAppConfig(
             appId: "YOUR_APP_ID",              // From TikTok Ads Manager
             tiktokAppId: "YOUR_TIKTOK_APP_ID", // From TikTok Ads Manager
             debugMode: false,                   // Set true for testing
@@ -71,7 +71,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 }
 ```
 
-### TikTokConfig Parameters
+### TikTokAppConfig Parameters
 
 | Parameter | Type | Required | Description |
 |-----------|------|----------|-------------|
@@ -239,14 +239,83 @@ TikTokManager.shared.trackEvent(.purchase, params: [
 
 ## Ad Revenue Tracking
 
-Ad revenue is automatically tracked when using `ADJustManager.logRevenue()`:
+### Method 1: Simple Version (Auto via ADJustManager)
 
 ```swift
-// This automatically sends to TikTok, Adjust, and Firebase
+// Simple - sends basic info to TikTok, Adjust, and Firebase
 ADJustManager.shared.logRevenue(adType: .interstitial, adValue: adValue)
 ```
 
-To track ad revenue manually:
+### Method 2: Detailed Version (Recommended for TikTok Attribution)
+
+This method captures full AdMob response info for better TikTok attribution, matching the official TikTok documentation.
+
+```swift
+// In your ad callback (e.g., Interstitial)
+interstitialAd.paidEventHandler = { [weak self] adValue in
+    guard let self = self else { return }
+
+    // Use detailed version with full response info
+    ADJustManager.shared.logRevenue(
+        adType: .interstitial,
+        adValue: adValue,
+        adUnitId: self.interstitialAd.adUnitID,
+        responseInfo: self.interstitialAd.responseInfo
+    )
+}
+
+// Rewarded Ad
+rewardedAd.paidEventHandler = { [weak self] adValue in
+    guard let self = self else { return }
+
+    ADJustManager.shared.logRevenue(
+        adType: .reward,
+        adValue: adValue,
+        adUnitId: self.rewardedAd.adUnitID,
+        responseInfo: self.rewardedAd.responseInfo
+    )
+}
+
+// Banner Ad
+bannerView.paidEventHandler = { [weak self] adValue in
+    guard let self = self else { return }
+
+    ADJustManager.shared.logRevenue(
+        adType: .banner,
+        adValue: adValue,
+        adUnitId: self.bannerView.adUnitID,
+        responseInfo: self.bannerView.responseInfo
+    )
+}
+
+// Native Ad
+nativeAd.paidEventHandler = { [weak self] adValue in
+    guard let self = self, let nativeAd = self.nativeAd else { return }
+
+    ADJustManager.shared.logRevenue(
+        adType: .native,
+        adValue: adValue,
+        adUnitId: "your_native_ad_unit_id",
+        responseInfo: nativeAd.responseInfo
+    )
+}
+
+// App Open Ad
+appOpenAd.paidEventHandler = { [weak self] adValue in
+    guard let self = self else { return }
+
+    ADJustManager.shared.logRevenue(
+        adType: .appOpen,
+        adValue: adValue,
+        adUnitId: self.appOpenAd.adUnitID,
+        responseInfo: self.appOpenAd.responseInfo
+    )
+}
+```
+
+### Method 3: Manual TikTok Tracking
+
+#### Simple Manual Tracking
 
 ```swift
 TikTokManager.shared.trackAdRevenue(
@@ -255,6 +324,53 @@ TikTokManager.shared.trackAdRevenue(
     adNetwork: "AdMob"
 )
 ```
+
+#### Detailed Manual Tracking (Full Control)
+
+```swift
+// Build TikTokAdRevenueInfo manually
+let adRevenueInfo = TikTokAdRevenueInfo(
+    value: adValue.value,
+    currencyCode: adValue.currencyCode,
+    precision: adValue.precision,
+    adUnitId: "ca-app-pub-xxx/yyy",
+    adSourceName: responseInfo.loadedAdNetworkResponseInfo?.adSourceName,
+    adSourceId: responseInfo.loadedAdNetworkResponseInfo?.adSourceID,
+    adSourceInstanceName: responseInfo.loadedAdNetworkResponseInfo?.adSourceInstanceName,
+    adSourceInstanceId: responseInfo.loadedAdNetworkResponseInfo?.adSourceInstanceID,
+    mediationGroupName: responseInfo.extras["mediation_group_name"] as? String,
+    mediationABTestName: responseInfo.extras["mediation_ab_test_name"] as? String,
+    mediationABTestVariant: responseInfo.extras["mediation_ab_test_variant"] as? String
+)
+
+TikTokManager.shared.trackAdRevenueEvent(adRevenueInfo, eventId: "custom_event_id")
+```
+
+### Comparison: Simple vs Detailed
+
+| Feature | Simple Version | Detailed Version |
+|---------|----------------|------------------|
+| **Method** | `logRevenue(adType:adValue:)` | `logRevenue(adType:adValue:adUnitId:responseInfo:)` |
+| **Data Sent** | value, currency, adType | Full AdMob response info |
+| **TikTok API** | `trackEvent()` | `trackTTEvent()` with `TikTokBaseEvent` |
+| **Attribution** | Basic | Enhanced (recommended) |
+| **Use Case** | Quick integration | Production apps |
+
+### TikTokAdRevenueInfo Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `value` | NSDecimalNumber | Ad revenue value |
+| `currencyCode` | String | Currency code (e.g., "USD") |
+| `precision` | AdValuePrecision | Revenue precision level |
+| `adUnitId` | String | AdMob ad unit ID |
+| `adSourceName` | String? | Ad network name (e.g., "AdMob") |
+| `adSourceId` | String? | Ad network ID |
+| `adSourceInstanceName` | String? | Ad source instance name |
+| `adSourceInstanceId` | String? | Ad source instance ID |
+| `mediationGroupName` | String? | Mediation group name |
+| `mediationABTestName` | String? | A/B test name |
+| `mediationABTestVariant` | String? | A/B test variant |
 
 ---
 
@@ -288,7 +404,7 @@ if #available(iOS 14, *) {
 Enable debug mode to see verbose logs in console:
 
 ```swift
-let config = TikTokConfig(
+let config = TikTokAppConfig(
     appId: "YOUR_APP_ID",
     tiktokAppId: "YOUR_TIKTOK_APP_ID",
     debugMode: true  // Enable for testing

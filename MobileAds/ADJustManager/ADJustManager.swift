@@ -87,7 +87,7 @@ public final class ADJustManager {
 
     // MARK: - Public Methods
 
-    /// Log ad impression with revenue tracking
+    /// Log ad impression with revenue tracking (simple version)
     /// - Parameters:
     ///   - adType: Type of ad (interstitial, appOpen, native, banner, reward)
     ///   - adValue: GADAdValue from ad callback
@@ -107,8 +107,52 @@ public final class ADJustManager {
             logFirebaseRevenue(value: revenueUSD)
         }
 
-        // Track to TikTok Business SDK
+        // Track to TikTok Business SDK (simple version)
         TikTokManager.shared.trackAdRevenue(adType: adType, revenueUSD: revenueUSD)
+    }
+
+    /// Log ad impression with revenue tracking (detailed version for TikTok)
+    /// This method captures full AdMob response info for better TikTok attribution
+    /// - Parameters:
+    ///   - adType: Type of ad (interstitial, appOpen, native, banner, reward)
+    ///   - adValue: GADAdValue from ad callback
+    ///   - adUnitId: Ad unit ID
+    ///   - responseInfo: GADResponseInfo from the ad object
+    public func logRevenue(adType: ADJAdType, adValue: AdValue, adUnitId: String, responseInfo: ResponseInfo?) {
+        let valueMicros = Double(truncating: adValue.value)
+        let currency = adValue.currencyCode
+        let revenueUSD = valueMicros
+
+        // Track to Adjust ad revenue
+        trackAdRevenue(adType: adType, revenueUSD: revenueUSD, currency: currency)
+
+        // Track to Adjust event
+        trackAdjustEvent(revenueUSD: revenueUSD, currency: currency)
+
+        // Track to Firebase Analytics
+        Task { @MainActor in
+            logFirebaseRevenue(value: revenueUSD)
+        }
+
+        // Track to TikTok Business SDK (detailed version)
+        let loadedAdNetworkResponseInfo = responseInfo?.loadedAdNetworkResponseInfo
+        let extras = responseInfo?.extras
+
+        let tiktokAdRevenueInfo = TikTokAdRevenueInfo(
+            value: adValue.value,
+            currencyCode: adValue.currencyCode,
+            precision: adValue.precision,
+            adUnitId: adUnitId,
+            adSourceName: loadedAdNetworkResponseInfo?.adSourceName,
+            adSourceId: loadedAdNetworkResponseInfo?.adSourceID,
+            adSourceInstanceName: loadedAdNetworkResponseInfo?.adSourceInstanceName,
+            adSourceInstanceId: loadedAdNetworkResponseInfo?.adSourceInstanceID,
+            mediationGroupName: extras?["mediation_group_name"] as? String,
+            mediationABTestName: extras?["mediation_ab_test_name"] as? String,
+            mediationABTestVariant: extras?["mediation_ab_test_variant"] as? String
+        )
+
+        TikTokManager.shared.trackAdRevenueEvent(tiktokAdRevenueInfo)
     }
 
     // MARK: - Private Methods

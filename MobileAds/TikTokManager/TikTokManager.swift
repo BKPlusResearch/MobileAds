@@ -8,13 +8,57 @@
 import Foundation
 import TikTokBusinessSDK
 import AppTrackingTransparency
+import GoogleMobileAds
+
+// MARK: - TikTok Ad Revenue Info
+
+/// Detailed ad revenue information for TikTok tracking
+public struct TikTokAdRevenueInfo {
+    public let value: NSDecimalNumber
+    public let currencyCode: String
+    public let precision: AdValuePrecision
+    public let adUnitId: String
+    public let adSourceName: String?
+    public let adSourceId: String?
+    public let adSourceInstanceName: String?
+    public let adSourceInstanceId: String?
+    public let mediationGroupName: String?
+    public let mediationABTestName: String?
+    public let mediationABTestVariant: String?
+
+    public init(
+        value: NSDecimalNumber,
+        currencyCode: String,
+        precision: AdValuePrecision,
+        adUnitId: String,
+        adSourceName: String? = nil,
+        adSourceId: String? = nil,
+        adSourceInstanceName: String? = nil,
+        adSourceInstanceId: String? = nil,
+        mediationGroupName: String? = nil,
+        mediationABTestName: String? = nil,
+        mediationABTestVariant: String? = nil
+    ) {
+        self.value = value
+        self.currencyCode = currencyCode
+        self.precision = precision
+        self.adUnitId = adUnitId
+        self.adSourceName = adSourceName
+        self.adSourceId = adSourceId
+        self.adSourceInstanceName = adSourceInstanceName
+        self.adSourceInstanceId = adSourceInstanceId
+        self.mediationGroupName = mediationGroupName
+        self.mediationABTestName = mediationABTestName
+        self.mediationABTestVariant = mediationABTestVariant
+    }
+}
 
 // MARK: - TikTok Manager
 
 /// Singleton manager for TikTok Business SDK integration
 /// Usage:
 /// ```
-/// let config = TikTokConfig(appId: "YOUR_APP_ID", tiktokAppId: "YOUR_TIKTOK_APP_ID", debugMode: true)
+/// let config = TikTokAppConfig(appId: "YOUR_APP_ID", tiktokAppId: "YOUR_TIKTOK_APP_ID", debugMode: true)
 /// TikTokManager.shared.configure(with: config)
 /// TikTokManager.shared.trackAppLaunch()
 /// ```
@@ -26,7 +70,7 @@ public final class TikTokManager {
 
     // MARK: - Properties
 
-    private var appConfig: MobileAds.TikTokConfig?
+    private var appConfig: TikTokAppConfig?
     private var isConfigured: Bool = false
 
     // MARK: - Init
@@ -37,7 +81,7 @@ public final class TikTokManager {
 
     /// Configure TikTok Business SDK
     /// - Parameter config: TikTok configuration
-    public func configure(with config: MobileAds.TikTokConfig) {
+    public func configure(with config: TikTokAppConfig) {
         self.appConfig = config
 
         // Create TikTok SDK config using the SDK's TikTokConfig class
@@ -219,7 +263,7 @@ public final class TikTokManager {
         ])
     }
 
-    /// Track ad revenue event
+    /// Track ad revenue event (simple version)
     /// - Parameters:
     ///   - adType: Type of ad (e.g., "interstitial", "banner", "rewarded")
     ///   - revenueUSD: Revenue in USD
@@ -231,6 +275,62 @@ public final class TikTokManager {
             .currency("USD"),
             .adNetwork(adNetwork)
         ])
+    }
+
+    /// Track ad revenue event with detailed info (matches TikTok official documentation)
+    /// - Parameters:
+    ///   - adRevenueInfo: Detailed ad revenue information from GADAdValue
+    ///   - eventId: Optional custom event ID
+    public func trackAdRevenueEvent(_ adRevenueInfo: TikTokAdRevenueInfo, eventId: String? = nil) {
+        // Build ad revenue dictionary matching TikTok's expected format
+        var adRevenue: [String: Any] = [
+            "device_ad_mediation_platform": "admob_sdk",
+            "value": adRevenueInfo.value,
+            "currency_code": adRevenueInfo.currencyCode,
+            "precision": adRevenueInfo.precision.rawValue,
+            "ad_unit_id": adRevenueInfo.adUnitId
+        ]
+
+        // Add optional parameters
+        if let adSourceName = adRevenueInfo.adSourceName {
+            adRevenue["ad_source_name"] = adSourceName
+        }
+        if let adSourceId = adRevenueInfo.adSourceId {
+            adRevenue["ad_source_id"] = adSourceId
+        }
+        if let adSourceInstanceName = adRevenueInfo.adSourceInstanceName {
+            adRevenue["ad_source_instance_name"] = adSourceInstanceName
+        }
+        if let adSourceInstanceId = adRevenueInfo.adSourceInstanceId {
+            adRevenue["ad_source_instance_id"] = adSourceInstanceId
+        }
+        if let mediationGroupName = adRevenueInfo.mediationGroupName {
+            adRevenue["mediation_group_name"] = mediationGroupName
+        }
+        if let mediationABTestName = adRevenueInfo.mediationABTestName {
+            adRevenue["mediation_ab_test_name"] = mediationABTestName
+        }
+        if let mediationABTestVariant = adRevenueInfo.mediationABTestVariant {
+            adRevenue["mediation_ab_test_variant"] = mediationABTestVariant
+        }
+
+        // Create TikTokBaseEvent for ad revenue
+        let adRevenueEvent: TikTokBaseEvent
+        if let eventId = eventId {
+            adRevenueEvent = TikTokBaseEvent(eventName: "InAppADImpr", properties: adRevenue, eventId: eventId)
+        } else {
+            adRevenueEvent = TikTokBaseEvent(eventName: "InAppADImpr", properties: adRevenue, eventId: nil)
+        }
+
+        // Track the event
+        TikTokBusiness.trackTTEvent(adRevenueEvent)
+
+        debugPrint("📊 [TikTokManager] Ad Revenue Event tracked:")
+        debugPrint("   Value: \(adRevenueInfo.value) \(adRevenueInfo.currencyCode)")
+        debugPrint("   Ad Unit: \(adRevenueInfo.adUnitId)")
+        if let adSourceName = adRevenueInfo.adSourceName {
+            debugPrint("   Ad Source: \(adSourceName)")
+        }
     }
 
     /// Track search event

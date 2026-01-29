@@ -8,7 +8,7 @@
 import Foundation
 
 /// Configuration for TikTok Business SDK
-public struct TikTokConfig {
+public struct TikTokAppConfig {
     /// TikTok App ID from TikTok Ads Manager
     public let appId: String
 
