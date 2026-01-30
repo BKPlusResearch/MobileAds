@@ -269,12 +269,24 @@ public final class TikTokManager {
     ///   - revenueUSD: Revenue in USD
     ///   - adNetwork: Ad network name (default: "AdMob")
     public func trackAdRevenue(adType: ADJAdType, revenueUSD: Double, adNetwork: String = "AdMob") {
-        trackEvent(.inAppAdImpression, params: [
-            .adType(adType.rawValue),
-            .value(revenueUSD),
-            .currency("USD"),
-            .adNetwork(adNetwork)
-        ])
+        // Build minimal ad revenue dictionary                                                                      
+      let adRevenue: [String: Any] = [                                                                            
+          "device_ad_mediation_platform": "admob_sdk",                                                            
+          "value": revenueUSD,                                                                                    
+          "currency": "USD",                                                                                      
+          "ad_type": adType.rawValue  // Optional: để biết loại ad                                                
+      ]                                                                                                           
+                                                                                                                  
+      // Use TikTokBaseEvent instead of trackEvent                                                                
+      let adRevenueEvent = TikTokBaseEvent(                                                                       
+          eventName: "InAppADImpr",                                                                               
+          properties: adRevenue,                                                                                  
+          eventId: nil                                                                                            
+      )                                                                                                           
+                                                                                                                  
+      TikTokBusiness.trackTTEvent(adRevenueEvent)                                                                 
+                                                                                                                  
+      debugPrint("📊 [TikTokManager] Ad Revenue Event tracked: \(revenueUSD) USD")   
     }
 
     /// Track ad revenue event with detailed info (matches TikTok official documentation)
