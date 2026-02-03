@@ -85,15 +85,24 @@ public final class TikTokManager {
         self.appConfig = config
 
         // Create TikTok SDK config using the SDK's TikTokConfig class
-        guard let sdkConfig = TikTokBusinessSDK.TikTokConfig(appId: config.appId, tiktokAppId: config.tiktokAppId ?? "") else {
-            debugPrint("❌ [TikTokManager] Failed to create TikTok config")
-            return
+        let sdkConfig: TikTokBusinessSDK.TikTokConfig?
+
+        if let appSecret = config.appSecret, !appSecret.isEmpty {
+            // Use configWithAccessToken when access token is provided
+            sdkConfig = TikTokBusinessSDK.TikTokConfig.configWithAccessToken(
+                accessToken: appSecret,
+                appId: config.appId,
+                tiktokAppId: config.tiktokAppId ?? ""
+            )
+            debugPrint("🔐 [TikTokManager] Configured with Access Token")
+        } else {
+            // Use basic config without access token
+            sdkConfig = TikTokBusinessSDK.TikTokConfig(appId: config.appId, tiktokAppId: config.tiktokAppId ?? "")
         }
 
-        // Set app secret if provided (for S2S verification)
-        if let appSecret = config.appSecret, !appSecret.isEmpty {
-            sdkConfig.setAppSecret(appSecret)
-            debugPrint("🔐 [TikTokManager] App Secret configured")
+        guard let sdkConfig = sdkConfig else {
+            debugPrint("❌ [TikTokManager] Failed to create TikTok config")
+            return
         }
 
         // Set log level based on debug mode
