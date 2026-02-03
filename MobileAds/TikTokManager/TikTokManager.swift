@@ -90,6 +90,12 @@ public final class TikTokManager {
             return
         }
 
+        // Set app secret if provided (for S2S verification)
+        if let appSecret = config.appSecret, !appSecret.isEmpty {
+            sdkConfig.setAppSecret(appSecret)
+            debugPrint("🔐 [TikTokManager] App Secret configured")
+        }
+
         // Set log level based on debug mode
         if config.debugMode {
             sdkConfig.setLogLevel(TikTokLogLevelDebug)
