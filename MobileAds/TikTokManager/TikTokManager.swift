@@ -89,7 +89,7 @@ public final class TikTokManager {
 
         if let appSecret = config.appSecret, !appSecret.isEmpty {
             // Use configWithAccessToken when access token is provided
-            sdkConfig = TikTokBusinessSDK.TikTokConfig.configWithAccessToken(
+            sdkConfig = TikTokBusinessSDK.TikTokConfig(
                 accessToken: appSecret,
                 appId: config.appId,
                 tiktokAppId: config.tiktokAppId ?? ""
