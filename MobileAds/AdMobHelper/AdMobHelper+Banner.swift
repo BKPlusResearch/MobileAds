@@ -11,11 +11,15 @@ extension AdMobHelper: BannerViewDelegate {
     ///   - containerView: The container view where the banner ad will be added.
     ///   - adUnitID: The Ad Unit ID enum for banner ads.
     ///   - rootViewController: The view controller that will present the ad.
+    ///   - isCollapsible: Whether to use collapsible banner ad (default: false).
+    ///   - collapsiblePlacement: The placement of the collapsible button (default: .bottom).
     ///   - statusCallback: Optional callback to receive ad status events (didLoad, didFailToLoad, didRecordImpression, etc.).
     public func loadBannerAd(
         into containerView: UIView,
         adUnitID: AdUnitIdentifiable,
         rootViewController: UIViewController,
+        isCollapsible: Bool = false,
+        collapsiblePlacement: BannerCollapsiblePlacement = .bottom,
         statusCallback: ((BannerAdStatus) -> Void)? = nil
     ) {
         // Cleanup existing banner ad (remove from container, hide loading, reset state)
@@ -32,6 +36,8 @@ extension AdMobHelper: BannerViewDelegate {
         let bannerView = loadBannerAd(
             adUnitID: adUnitID,
             rootViewController: rootViewController,
+            isCollapsible: isCollapsible,
+            collapsiblePlacement: collapsiblePlacement,
             statusCallback: statusCallback
         )
         
@@ -46,11 +52,15 @@ extension AdMobHelper: BannerViewDelegate {
     /// - Parameters:
     ///   - adUnitID: The Ad Unit ID enum for banner ads.
     ///   - rootViewController: The view controller that will present the ad.
+    ///   - isCollapsible: Whether to use collapsible banner ad (default: false).
+    ///   - collapsiblePlacement: The placement of the collapsible button (default: .bottom).
     ///   - statusCallback: Optional callback to receive ad status events (didLoad, didFailToLoad, didRecordImpression, etc.).
     /// - Returns: A configured BannerView ready to load ads.
     public func loadBannerAd(
         adUnitID: AdUnitIdentifiable,
         rootViewController: UIViewController,
+        isCollapsible: Bool = false,
+        collapsiblePlacement: BannerCollapsiblePlacement = .bottom,
         statusCallback: ((BannerAdStatus) -> Void)? = nil
     ) -> BannerView {
         let bannerView = BannerView(adSize: currentOrientationAnchoredAdaptiveBanner(width: 375))
@@ -80,7 +90,16 @@ extension AdMobHelper: BannerViewDelegate {
         // Show loading view
         showBannerAdLoadingView(on: bannerView)
         initializeSDK()
-        bannerView.load(Request())
+
+        // Create request with collapsible option if needed
+        let request = Request()
+        if isCollapsible {
+            let extras = Extras()
+            extras.additionalParameters = ["collapsible": collapsiblePlacement.rawValue]
+            request.register(extras)
+        }
+
+        bannerView.load(request)
         return bannerView
     }
     

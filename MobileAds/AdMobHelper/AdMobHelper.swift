@@ -285,6 +285,14 @@ public enum BannerAdStatus {
     case didDismissScreen     // Banner ad dismissed full screen content
 }
 
+// MARK: - Banner Collapsible Placement
+
+/// Placement options for collapsible banner ads
+public enum BannerCollapsiblePlacement: String {
+    case top = "top"
+    case bottom = "bottom"
+}
+
 // MARK: - AdMobHelperError
 
 /// Errors that can occur when using AdMobHelper.
