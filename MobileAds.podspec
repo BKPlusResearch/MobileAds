@@ -164,6 +164,7 @@ Pod::Spec.new do |spec|
   spec.dependency "Adjust", '~> 5.5.0'
   spec.dependency "SkeletonView", '~> 1.29.2'
   spec.dependency 'Toast-Swift', '~> 5.0.1'
+  spec.dependency 'TikTokBusinessSDK', '~> 1.3.0'
 
 
 end
