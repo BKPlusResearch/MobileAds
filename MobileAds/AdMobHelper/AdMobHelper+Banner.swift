@@ -111,6 +111,9 @@ extension AdMobHelper: BannerViewDelegate {
         // Hide loading view when ad loads successfully
         hideBannerAdLoadingView()
         bannerAdStatusCallback?(.didLoad)
+        
+        // Post notification so app can recover audio session (Google SDK may have changed it during load)
+        NotificationCenter.default.post(name: .adDidFinishFullScreenContent, object: nil)
     }
     
     public func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: Error) {

@@ -1,6 +1,13 @@
 @preconcurrency import GoogleMobileAds
 import UIKit
 
+// MARK: - Ad Audio Recovery Notification
+
+extension Notification.Name {
+    /// Posted when any fullscreen ad finishes (dismiss or fail). Apps should resume audio.
+    public static let adDidFinishFullScreenContent = Notification.Name("AdMobHelper.adDidFinishFullScreenContent")
+}
+
 // MARK: - FullScreenContentDelegate
 
 extension AdMobHelper: FullScreenContentDelegate {
@@ -82,6 +89,9 @@ extension AdMobHelper: FullScreenContentDelegate {
             appOpenLoadTime = nil
             isAppOpenShowing = false
         }
+        
+        // Post notification so app can resume audio session
+        NotificationCenter.default.post(name: .adDidFinishFullScreenContent, object: nil)
     }
 
     public func ad(
@@ -127,7 +137,11 @@ extension AdMobHelper: FullScreenContentDelegate {
             appOpenLoadTime = nil
             isAppOpenShowing = false
         }
+        
+        // Post notification so app can resume audio session
+        NotificationCenter.default.post(name: .adDidFinishFullScreenContent, object: nil)
     }
 }
+
 
 
