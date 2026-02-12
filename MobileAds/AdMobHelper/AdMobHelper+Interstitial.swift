@@ -37,9 +37,9 @@ extension AdMobHelper {
                 ADJustManager.shared.logRevenue(adType: .interstitial, adValue: adValue)
             }
 
-            print("Interstitial ad loaded successfully")
+            debugPrint("Interstitial ad loaded successfully")
         } catch {
-            print("Interstitial ad failed to load with error: \(error.localizedDescription)")
+            debugPrint("Interstitial ad failed to load with error: \(error.localizedDescription)")
             interstitialAd = nil
             // Hide loading view when load fails
             hideInterstitialAdLoadingView()

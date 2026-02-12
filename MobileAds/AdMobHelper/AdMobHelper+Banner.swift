@@ -13,6 +13,7 @@ extension AdMobHelper: BannerViewDelegate {
     ///   - rootViewController: The view controller that will present the ad.
     ///   - isCollapsible: Whether to use collapsible banner ad (default: false).
     ///   - collapsiblePlacement: The placement of the collapsible button (default: .bottom).
+    ///   - enableCache: Enable caching to reuse banner if user returns before impression fires (default: true).
     ///   - statusCallback: Optional callback to receive ad status events (didLoad, didFailToLoad, didRecordImpression, etc.).
     public func loadBannerAd(
         into containerView: UIView,
@@ -20,18 +21,40 @@ extension AdMobHelper: BannerViewDelegate {
         rootViewController: UIViewController,
         isCollapsible: Bool = false,
         collapsiblePlacement: BannerCollapsiblePlacement = .bottom,
+        enableCache: Bool = true,
         statusCallback: ((BannerAdStatus) -> Void)? = nil
     ) {
+        // Auto-generate cache key from ad unit ID if cache is enabled
+        let cacheKey = enableCache ? adUnitID.adUnitIDString : nil
+
+        // Try to use cached banner first if cache is enabled
+        if let cacheKey = cacheKey,
+           let cachedBanner = getCachedBannerAd(for: cacheKey) {
+            debugPrint("✅ [BANNER_CACHE] Using cached banner for ad unit: '\(cacheKey)'")
+            displayCachedBanner(
+                cachedBanner,
+                in: containerView,
+                cacheKey: cacheKey,
+                statusCallback: statusCallback
+            )
+            return
+        }
+
+        // No cached banner available, load from network
+        if let cacheKey = cacheKey {
+            debugPrint("⏳ [BANNER_CACHE] No cached banner for ad unit: '\(cacheKey)', loading from network...")
+        }
+
         // Cleanup existing banner ad (remove from container, hide loading, reset state)
         cleanupBannerAd()
-        
+
         // Remove any existing banner view from container (in case cleanup didn't catch it)
         containerView.subviews.forEach { subview in
             if subview is BannerView {
                 subview.removeFromSuperview()
             }
         }
-        
+
         // Create and load banner view using existing method
         let bannerView = loadBannerAd(
             adUnitID: adUnitID,
@@ -54,6 +77,7 @@ extension AdMobHelper: BannerViewDelegate {
     ///   - rootViewController: The view controller that will present the ad.
     ///   - isCollapsible: Whether to use collapsible banner ad (default: false).
     ///   - collapsiblePlacement: The placement of the collapsible button (default: .bottom).
+    ///   - enableCache: Enable caching to reuse banner if user returns before impression fires (default: true).
     ///   - statusCallback: Optional callback to receive ad status events (didLoad, didFailToLoad, didRecordImpression, etc.).
     /// - Returns: A configured BannerView ready to load ads.
     public func loadBannerAd(
@@ -61,8 +85,11 @@ extension AdMobHelper: BannerViewDelegate {
         rootViewController: UIViewController,
         isCollapsible: Bool = false,
         collapsiblePlacement: BannerCollapsiblePlacement = .bottom,
+        enableCache: Bool = true,
         statusCallback: ((BannerAdStatus) -> Void)? = nil
     ) -> BannerView {
+        // Auto-generate cache key from ad unit ID if cache is enabled
+        let cacheKey = enableCache ? adUnitID.adUnitIDString : nil
         let bannerView = BannerView(adSize: currentOrientationAnchoredAdaptiveBanner(width: 375))
         bannerView.adUnitID = adUnitID.adUnitIDString
         bannerView.rootViewController = rootViewController
@@ -70,6 +97,11 @@ extension AdMobHelper: BannerViewDelegate {
         // Store banner view and callbacks
         self.bannerAd = bannerView
         self.bannerAdStatusCallback = statusCallback
+
+        // Store cache key association if provided
+        if let cacheKey = cacheKey {
+            associateCacheKey(cacheKey, with: bannerView)
+        }
 
         // Set self as delegate to track events
         bannerView.delegate = self
@@ -80,7 +112,7 @@ extension AdMobHelper: BannerViewDelegate {
         }
 
         guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
-            print("Cannot load banner ad: Consent not granted")
+            debugPrint("Cannot load banner ad: Consent not granted")
             isBannerLoading = false
             statusCallback?(.didFailToLoad)
             return bannerView
@@ -102,19 +134,74 @@ extension AdMobHelper: BannerViewDelegate {
         bannerView.load(request)
         return bannerView
     }
-    
+
+    // MARK: - Display Cached Banner
+
+    /// Display a cached banner in container view
+    /// - Parameters:
+    ///   - bannerView: The cached banner view to display
+    ///   - containerView: The container view to add the banner to
+    ///   - cacheKey: The cache key for tracking
+    ///   - statusCallback: Optional callback for status events
+    private func displayCachedBanner(
+        _ bannerView: BannerView,
+        in containerView: UIView,
+        cacheKey: String,
+        statusCallback: ((BannerAdStatus) -> Void)?
+    ) {
+        // Cleanup existing banner first
+        cleanupBannerAd()
+
+        // Clear existing subviews from container
+        containerView.subviews.forEach { $0.removeFromSuperview() }
+
+        // Store as current banner
+        self.bannerAd = bannerView
+        self.bannerAdStatusCallback = statusCallback
+
+        // Maintain cache key association for impression tracking
+        associateCacheKey(cacheKey, with: bannerView)
+
+        // Set delegate to track future events
+        bannerView.delegate = self
+
+        // Add to container
+        containerView.addSubview(bannerView)
+        bannerView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        // Force layout update
+        containerView.setNeedsLayout()
+        containerView.layoutIfNeeded()
+
+        debugPrint("✅ [BANNER_CACHE] Displayed cached banner for key: '\(cacheKey)'")
+
+        // Notify success (banner is already loaded)
+        statusCallback?(.didLoad)
+
+        // NOTE: Cache will be cleared when impression fires (bannerViewDidRecordImpression)
+    }
+
     // MARK: - BannerViewDelegate
     
     public func bannerViewDidReceiveAd(_ bannerView: BannerView) {
-        print("Banner ad loaded successfully")
+        debugPrint("Banner ad loaded successfully")
         isBannerLoading = false
         // Hide loading view when ad loads successfully
         hideBannerAdLoadingView()
+
+        // Cache banner if cache key associated
+        if let cacheKey = getCacheKey(for: bannerView) {
+            cacheBannerAd(bannerView, for: cacheKey, adUnitID: bannerView.adUnitID ?? "")
+            debugPrint("📦 [BANNER_CACHE] Cached for '\(cacheKey)' - waiting for impression")
+        }
+
         bannerAdStatusCallback?(.didLoad)
     }
     
     public func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: Error) {
-        print("Banner ad failed to load with error: \(error.localizedDescription)")
+        debugPrint("Banner ad failed to load with error: \(error.localizedDescription)")
         isBannerLoading = false
         // Hide loading view when ad fails to load
         hideBannerAdLoadingView()
@@ -122,12 +209,19 @@ extension AdMobHelper: BannerViewDelegate {
     }
     
     public func bannerViewDidRecordImpression(_ bannerView: BannerView) {
-        print("Banner ad recorded an impression")
+        debugPrint("Banner ad recorded an impression")
+
+        // Clear cache AFTER impression fires (critical for show rate optimization)
+        if let cacheKey = getCacheKey(for: bannerView) {
+            clearCachedBannerAd(for: cacheKey)
+            debugPrint("🗑️ [BANNER_CACHE] Cache cleared after impression for '\(cacheKey)'")
+        }
+
         bannerAdStatusCallback?(.didRecordImpression)
     }
     
     public func bannerViewDidRecordClick(_ bannerView: BannerView) {
-        print("Banner ad recorded a click")
+        debugPrint("Banner ad recorded a click")
         
         // Mark ad click (will verify in background handler if app actually leaves)
         markAdClick()
@@ -136,17 +230,17 @@ extension AdMobHelper: BannerViewDelegate {
     }
     
     public func bannerViewWillPresentScreen(_ bannerView: BannerView) {
-        print("Banner ad will present screen")
+        debugPrint("Banner ad will present screen")
         bannerAdStatusCallback?(.willPresentScreen)
     }
     
     public func bannerViewWillDismissScreen(_ bannerView: BannerView) {
-        print("Banner ad will dismiss screen")
+        debugPrint("Banner ad will dismiss screen")
         bannerAdStatusCallback?(.willDismissScreen)
     }
     
     public func bannerViewDidDismissScreen(_ bannerView: BannerView) {
-        print("Banner ad dismissed screen")
+        debugPrint("Banner ad dismissed screen")
         
         // If dismissed in-app screen without going to background, clear the pending flag
         clearPendingAdClick()

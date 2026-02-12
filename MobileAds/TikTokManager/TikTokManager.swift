@@ -407,10 +407,10 @@ public final class TikTokManager {
     /// Debug print helper
     private func debugPrint(_ message: String) {
         #if DEBUG
-        print(message)
+        debugPrint(message)
         #else
         if appConfig?.debugMode == true {
-            print(message)
+            debugPrint(message)
         }
         #endif
     }

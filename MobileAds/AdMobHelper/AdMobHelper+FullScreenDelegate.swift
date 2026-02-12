@@ -5,18 +5,18 @@ import UIKit
 
 extension AdMobHelper: FullScreenContentDelegate {
     public func adDidRecordImpression(_ ad: FullScreenPresentingAd) {
-        print("Ad recorded an impression.")
+        debugPrint("Ad recorded an impression.")
     }
 
     public func adDidRecordClick(_ ad: FullScreenPresentingAd) {
-        print("Ad recorded a click.")
+        debugPrint("Ad recorded a click.")
         
         // Mark ad click (will verify in background handler if app actually leaves)
         markAdClick()
     }
 
     public func adWillPresentFullScreenContent(_ ad: FullScreenPresentingAd) {
-        print("Ad will be presented.")
+        debugPrint("Ad will be presented.")
         
         // Hide loading view when ad is about to be presented (success case)
         if ad === appOpenAd {
@@ -35,7 +35,7 @@ extension AdMobHelper: FullScreenContentDelegate {
     }
 
     public func adWillDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
-        print("Ad will be dismissed.")
+        debugPrint("Ad will be dismissed.")
         
         // Notify that ad will be dismissed
         if ad === appOpenAd {
@@ -48,7 +48,7 @@ extension AdMobHelper: FullScreenContentDelegate {
     }
 
     public func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
-        print("Ad was dismissed.")
+        debugPrint("Ad was dismissed.")
 
         // Clear the ad and reset showing state
         if ad === interstitialAd {
@@ -88,7 +88,7 @@ extension AdMobHelper: FullScreenContentDelegate {
         _ ad: FullScreenPresentingAd,
         didFailToPresentFullScreenContentWithError error: Error
     ) {
-        print("Ad failed to present with error: \(error.localizedDescription)")
+        debugPrint("Ad failed to present with error: \(error.localizedDescription)")
 
         // Clear the ad and reset showing state
         if ad === interstitialAd {

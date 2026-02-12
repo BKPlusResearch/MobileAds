@@ -53,11 +53,11 @@ extension AdMobHelper {
                 ADJustManager.shared.logRevenue(adType: .appOpen, adValue: adValue)
             }
 
-            print("App open ad loaded successfully")
+            debugPrint("App open ad loaded successfully")
             // Hide loading view when load completes successfully
             // Keep it showing if we're about to show the ad immediately
         } catch {
-            print("App open ad failed to load with error: \(error.localizedDescription)")
+            debugPrint("App open ad failed to load with error: \(error.localizedDescription)")
             appOpenAd = nil
             appOpenLoadTime = nil
             // Hide loading view when load fails

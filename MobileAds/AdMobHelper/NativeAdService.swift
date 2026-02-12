@@ -228,7 +228,7 @@ public class NativeAdService {
             
             // Load native ad view from xib
             guard let loadedView = self.loadNativeAdViewFromXib(type: viewType) else {
-                print("NativeAdService: Failed to load native ad view from xib: \(viewType.xibName)")
+                debugPrint("NativeAdService: Failed to load native ad view from xib: \(viewType.xibName)")
                 statusCallback?(false)
                 return
             }
@@ -254,7 +254,7 @@ public class NativeAdService {
         
         // Setup failure callback
         delegateHelper.onAdFailed = { [weak containerView] error in
-            print("NativeAdService: Native ad failed to load with error: \(error.localizedDescription)")
+            debugPrint("NativeAdService: Native ad failed to load with error: \(error.localizedDescription)")
             
             // Remove loading view on failure
             containerView?.subviews.forEach { view in
@@ -484,7 +484,7 @@ public class NativeAdService {
 
         // Load native ad view from xib
         guard let nativeAdView = loadNativeAdViewFromXib(type: viewType) else {
-            print("Failed to load native ad view from xib")
+            debugPrint("Failed to load native ad view from xib")
             return
         }
 

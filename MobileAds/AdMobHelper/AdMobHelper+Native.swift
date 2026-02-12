@@ -16,7 +16,7 @@ extension AdMobHelper {
         delegate: NativeAdLoaderDelegate
     ) -> AdLoader {
         guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
-            print("Cannot load native ad: Consent not granted")
+            debugPrint("Cannot load native ad: Consent not granted")
             return AdLoader(
                 adUnitID: adUnitID.adUnitIDString, rootViewController: rootViewController,
                 adTypes: [.native], options: nil)

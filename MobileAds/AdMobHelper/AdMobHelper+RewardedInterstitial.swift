@@ -28,9 +28,9 @@ extension AdMobHelper {
                 ADJustManager.shared.logRevenue(adType: .reward, adValue: adValue)
             }
 
-            print("Rewarded interstitial ad loaded successfully")
+            debugPrint("Rewarded interstitial ad loaded successfully")
         } catch {
-            print(
+            debugPrint(
                 "Rewarded interstitial ad failed to load with error: \(error.localizedDescription)")
             rewardedInterstitialAd = nil
             throw error
@@ -67,7 +67,7 @@ extension AdMobHelper {
         isRewardedInterstitialShowing = true
         rewardedInterstitialAd.present(from: viewController) {
             let reward = rewardedInterstitialAd.adReward
-            print(
+            debugPrint(
                 "Reward received with currency \(reward.amount), amount \(reward.amount.doubleValue)")
             completion(reward)
         }
