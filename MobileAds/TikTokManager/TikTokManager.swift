@@ -117,9 +117,9 @@ public final class TikTokManager {
         TikTokBusiness.initializeSdk(sdkConfig) { [weak self] success, error in
             if success {
                 self?.isConfigured = true
-                self?.debugPrint("✅ [TikTokManager] SDK initialized successfully")
+                debugPrint("✅ [TikTokManager] SDK initialized successfully")
             } else {
-                self?.debugPrint("❌ [TikTokManager] SDK initialization failed: \(error?.localizedDescription ?? "Unknown error")")
+                debugPrint("❌ [TikTokManager] SDK initialization failed: \(error?.localizedDescription ?? "Unknown error")")
             }
         }
 
@@ -135,15 +135,15 @@ public final class TikTokManager {
         ATTrackingManager.requestTrackingAuthorization { status in
             switch status {
             case .authorized:
-                self.debugPrint("✅ [TikTokManager] ATT authorized")
+                debugPrint("✅ [TikTokManager] ATT authorized")
             case .denied:
-                self.debugPrint("⚠️ [TikTokManager] ATT denied")
+                debugPrint("⚠️ [TikTokManager] ATT denied")
             case .notDetermined:
-                self.debugPrint("⚠️ [TikTokManager] ATT not determined")
+                debugPrint("⚠️ [TikTokManager] ATT not determined")
             case .restricted:
-                self.debugPrint("⚠️ [TikTokManager] ATT restricted")
+                debugPrint("⚠️ [TikTokManager] ATT restricted")
             @unknown default:
-                self.debugPrint("⚠️ [TikTokManager] ATT unknown status")
+                debugPrint("⚠️ [TikTokManager] ATT unknown status")
             }
             completion?(status)
         }
@@ -402,16 +402,5 @@ public final class TikTokManager {
             dict[param.key] = param.value
         }
         return dict
-    }
-
-    /// Debug print helper
-    private func debugPrint(_ message: String) {
-        #if DEBUG
-        debugPrint(message)
-        #else
-        if appConfig?.debugMode == true {
-            debugPrint(message)
-        }
-        #endif
     }
 }
