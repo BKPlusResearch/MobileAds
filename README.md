@@ -40,6 +40,12 @@ MobileAds is a Swift framework that wraps the Google Mobile Ads SDK and provides
 - **Tuỳ biến giao diện Native Ad toàn app**
   - Singleton `NativeAdConfiguration.shared` để cấu hình font, màu chữ, màu nền, gradient nút CTA.
 
+- **🆕 `BannerAdView` — Banner tự quản lý (không dùng singleton)**
+  - Drop-in `UIView` subclass tích hợp sẵn shimmer loading (`BannerAdLoadingView`).
+  - Tự skip nếu banner đã được load, tự dọn sạch khi reuse.
+  - Không đụng đến `AdMobHelper.shared` → tránh singleton conflict khi nhiều banner cùng lúc.
+  - API đơn giản: `loadAd(adUnitID:rootViewController:)` và `clearAd()`.
+
 - **Trạng thái & loading view rõ ràng**
   - Các flag `isInterstitialLoading`, `isRewardedLoading`, `isAppOpenLoading`, `isBannerLoading`, ...
   - Loading overlay cho Interstitial, Rewarded, App Open.
@@ -173,6 +179,74 @@ class HomeViewController: UIViewController {
 ```
 
 **Note:** Method `loadBannerAd(into:...)` automatically adds the banner to the container and sets constraints. If you need more control, you can use the original `loadBannerAd(...)` method which returns a `BannerView` that you can manually add to your view hierarchy.
+
+### 3b. BannerAdView — Banner tự quản lý (khuyến nghị khi tránh singleton conflict)
+
+`BannerAdView` là một `UIView` subclass độc lập — không dùng `AdMobHelper.shared`. Phù hợp khi:
+- Nhiều banner cùng tồn tại (vd: inline trong UICollectionView).
+- Muốn tách biệt lifecycle của từng banner.
+
+**Tích hợp sẵn:**
+- Shimmer loading (`BannerAdLoadingView`) hiện trong lúc chờ ad load.
+- Skip-if-loaded: gọi `loadAd` nhiều lần không bị double load.
+- `clearAd()`: dọn sạch banner + ẩn view (dùng khi user mua premium hoặc cell reuse).
+
+**Dùng trong ViewController:**
+
+```swift
+import MobileAds
+
+class HomeViewController: UIViewController {
+
+    private let bannerAdView = BannerAdView()
+
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        view.addSubview(bannerAdView)
+        bannerAdView.snp.makeConstraints { make in
+            make.left.right.bottom.equalTo(view.safeAreaLayoutGuide).inset(16)
+            make.height.equalTo(70)
+        }
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if !isPremiumUser {
+            bannerAdView.loadAd(adUnitID: AppAdUnitID.bannerHome, rootViewController: self)
+        } else {
+            bannerAdView.clearAd()
+        }
+    }
+}
+```
+
+**Dùng trong UICollectionViewCell (IGListKit / UICollectionView):**
+
+```swift
+import MobileAds
+
+class BannerCell: UICollectionViewCell {
+
+    private let bannerAdView = BannerAdView()
+
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        contentView.addSubview(bannerAdView)
+        bannerAdView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
+
+    func loadBanner(rootViewController: UIViewController) {
+        bannerAdView.loadAd(adUnitID: AppAdUnitID.bannerHome, rootViewController: rootViewController)
+    }
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        bannerAdView.clearAd()  // dọn sạch trước khi cell bị reuse
+    }
+}
+```
 
 ### 4. Interstitial
 
