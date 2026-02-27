@@ -26,6 +26,11 @@ extension AdMobHelper {
         adUnitID: AdUnitIdentifiable,
         shouldShowLoadingView: Bool = true
     ) async throws {
+        // Do not load if another fullscreen ad is already showing
+        guard !isInterstitialShowing, !isRewardedShowing, !isRewardedInterstitialShowing else {
+            debugPrint("AdMobHelper: Skipping app open ad load — another fullscreen ad is showing.")
+            return
+        }
         // Do not load ad if there is an unused ad or one is already loading.
         if isAppOpenLoading || isAppOpenAdAvailable() {
             return

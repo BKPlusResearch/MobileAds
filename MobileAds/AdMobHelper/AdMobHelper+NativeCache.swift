@@ -127,10 +127,10 @@ extension AdMobHelper {
     /// - Parameters:
     ///   - ad: The native ad to cache
     ///   - cacheKey: The cache key to store
-    private func cacheNativeAd(_ ad: NativeAd, for cacheKey: String) {
+    func cacheNativeAd(_ ad: NativeAd, for cacheKey: String) {
         let cached = CachedNativeAd(ad: ad, cacheKey: cacheKey)
         AdMobHelper.cachedNativeAds[cacheKey] = cached
-        debugPrint("✅ [VUNT_CACHE] Cached ad for key: \(cacheKey)")
+        debugPrint("✅ [NATIVE_CACHE] Cached ad for key: \(cacheKey)")
     }
 
     /// Clear cached ad for specific key
@@ -255,7 +255,40 @@ extension AdMobHelper {
         }
     }
 
-    /// Load native ad with cache support
+    /// Load native ad with auto-cache support (simplified API)
+    /// - Parameters:
+    ///   - containerView: The view container to add the native ad view to
+    ///   - adUnitID: The ad unit identifier
+    ///   - rootViewController: The view controller that will present the ad
+    ///   - viewType: The type of native ad view template to use
+    ///   - configuration: Optional configuration for customizing appearance
+    ///   - enableCache: Enable auto-caching using adUnitID as key (default: true)
+    ///   - statusCallback: Optional callback to notify success or failure
+    public func loadNativeAd(
+        containerView: UIView,
+        adUnitID: AdUnitIdentifiable,
+        rootViewController: UIViewController,
+        viewType: NativeAdService.NativeAdViewType,
+        configuration: NativeAdConfiguration? = nil,
+        enableCache: Bool = true,
+        statusCallback: ((Bool) -> Void)? = nil
+    ) {
+        // Auto-generate cache key from ad unit ID if cache is enabled
+        let cacheKey = enableCache ? adUnitID.adUnitIDString : nil
+
+        // Use the existing loadNativeAdWithCache implementation
+        loadNativeAdWithCache(
+            containerView: containerView,
+            adUnitID: adUnitID,
+            rootViewController: rootViewController,
+            viewType: viewType,
+            configuration: configuration,
+            cacheKey: cacheKey,
+            statusCallback: statusCallback
+        )
+    }
+
+    /// Load native ad with cache support (manual cache key)
     /// - Parameters:
     ///   - containerView: The view container to add the native ad view to
     ///   - adUnitID: The ad unit identifier
@@ -289,14 +322,18 @@ extension AdMobHelper {
         }
 
         // No cached ad available, load from network
-        debugPrint("⏳ [VUNT_CACHE] No cached ad for key: \(cacheKey ?? "nil"), loading from network...")
+        if let cacheKey = cacheKey {
+            debugPrint("⏳ [VUNT_CACHE] No cached ad for key: '\(cacheKey)', loading from network...")
+        }
+
         let nativeService = NativeAdService()
-        nativeService.loadNativeAd(
+        nativeService.loadNativeAdFromNetworkWithCache(
             containerView: containerView,
             adUnitID: adUnitID,
             rootViewController: rootViewController,
             viewType: viewType,
             configuration: configuration,
+            cacheKey: cacheKey,
             statusCallback: statusCallback
         )
     }

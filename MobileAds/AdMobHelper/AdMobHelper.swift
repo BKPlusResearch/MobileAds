@@ -242,7 +242,6 @@ public class AdMobHelper: NSObject {
         hideAppOpenAdLoadingView()
         hideInterstitialAdLoadingView()
         hideRewardedAdLoadingView()
-        hideBannerAdLoadingView()
 
         // Clear banner cache
         clearAllCachedBannerAds()
