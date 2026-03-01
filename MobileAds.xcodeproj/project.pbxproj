@@ -17,6 +17,8 @@
 		5050C43A2F3D6BEE0057F86C /* AdMobHelper+BannerCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5050C4392F3D6BEE0057F86C /* AdMobHelper+BannerCache.swift */; };
 		5050C43C2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5050C43B2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift */; };
 		50535B702EF8F2BB00D6549D /* ADJustManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50535B6C2EF8F2BB00D6549D /* ADJustManager.swift */; };
+		5066FDE72F541A7400A50463 /* IAPMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5066FDE52F541A7400A50463 /* IAPMigration.swift */; };
+		5066FDE82F541A7400A50463 /* IAPUserDefaultsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5066FDE62F541A7400A50463 /* IAPUserDefaultsStorage.swift */; };
 		507981712EE813B9009B6C5D /* IAPProductIdentifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816C2EE813B9009B6C5D /* IAPProductIdentifiable.swift */; };
 		507981722EE813B9009B6C5D /* IAPService+Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816F2EE813B9009B6C5D /* IAPService+Subscription.swift */; };
 		507981732EE813B9009B6C5D /* IAPModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816B2EE813B9009B6C5D /* IAPModels.swift */; };
@@ -73,6 +75,8 @@
 		5050C43B2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+NativeCache.swift"; sourceTree = "<group>"; };
 		50535B6C2EF8F2BB00D6549D /* ADJustManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADJustManager.swift; sourceTree = "<group>"; };
 		50535B6D2EF8F2BB00D6549D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		5066FDE52F541A7400A50463 /* IAPMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPMigration.swift; sourceTree = "<group>"; };
+		5066FDE62F541A7400A50463 /* IAPUserDefaultsStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPUserDefaultsStorage.swift; sourceTree = "<group>"; };
 		5079816A2EE813B9009B6C5D /* IAPKeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPKeychainStorage.swift; sourceTree = "<group>"; };
 		5079816B2EE813B9009B6C5D /* IAPModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPModels.swift; sourceTree = "<group>"; };
 		5079816C2EE813B9009B6C5D /* IAPProductIdentifiable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPProductIdentifiable.swift; sourceTree = "<group>"; };
@@ -214,6 +218,8 @@
 		507981702EE813B9009B6C5D /* IAP */ = {
 			isa = PBXGroup;
 			children = (
+				5066FDE52F541A7400A50463 /* IAPMigration.swift */,
+				5066FDE62F541A7400A50463 /* IAPUserDefaultsStorage.swift */,
 				5079816A2EE813B9009B6C5D /* IAPKeychainStorage.swift */,
 				5079816B2EE813B9009B6C5D /* IAPModels.swift */,
 				5079816C2EE813B9009B6C5D /* IAPProductIdentifiable.swift */,
@@ -503,6 +509,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5066FDE72F541A7400A50463 /* IAPMigration.swift in Sources */,
+				5066FDE82F541A7400A50463 /* IAPUserDefaultsStorage.swift in Sources */,
 				509F87042EE11DD500DAEACF /* AdUnitID.swift in Sources */,
 				502BC1B42F4D8BB60090CE3E /* BannerAdView.swift in Sources */,
 				509F87052EE11DD500DAEACF /* NativeAdLoadingView.swift in Sources */,
