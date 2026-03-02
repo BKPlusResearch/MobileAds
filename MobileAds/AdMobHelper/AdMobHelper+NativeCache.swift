@@ -19,26 +19,26 @@ private class CacheNativeAdLoaderDelegate: NSObject, NativeAdLoaderDelegate {
     init(cacheKey: String) {
         self.cacheKey = cacheKey
         super.init()
-        print("🆕 [VUNT_CACHE] Delegate created for key: \(cacheKey)")
+        debugPrint("🆕 [VUNT_CACHE] Delegate created for key: \(cacheKey)")
     }
 
     deinit {
-        print("💀 [VUNT_CACHE] Delegate deallocated for key: \(cacheKey)")
+        debugPrint("💀 [VUNT_CACHE] Delegate deallocated for key: \(cacheKey)")
     }
 
     func adLoader(_ adLoader: AdLoader, didReceive nativeAd: NativeAd) {
-        print("🎉 [VUNT_CACHE] Delegate didReceive called for key: \(cacheKey)!")
-        print("🎉 [VUNT_CACHE] onAdLoaded closure is nil? \(onAdLoaded == nil)")
+        debugPrint("🎉 [VUNT_CACHE] Delegate didReceive called for key: \(cacheKey)!")
+        debugPrint("🎉 [VUNT_CACHE] onAdLoaded closure is nil? \(onAdLoaded == nil)")
         onAdLoaded?(nativeAd)
-        print("🎉 [VUNT_CACHE] onAdLoaded closure executed for key: \(cacheKey)")
+        debugPrint("🎉 [VUNT_CACHE] onAdLoaded closure executed for key: \(cacheKey)")
     }
 
     func adLoader(_ adLoader: AdLoader, didFailToReceiveAdWithError error: Error) {
-        print("💥 [VUNT_CACHE] Delegate didFail called for key: \(cacheKey)!")
-        print("💥 [VUNT_CACHE] Error: \(error.localizedDescription)")
-        print("💥 [VUNT_CACHE] onAdFailed closure is nil? \(onAdFailed == nil)")
+        debugPrint("💥 [VUNT_CACHE] Delegate didFail called for key: \(cacheKey)!")
+        debugPrint("💥 [VUNT_CACHE] Error: \(error.localizedDescription)")
+        debugPrint("💥 [VUNT_CACHE] onAdFailed closure is nil? \(onAdFailed == nil)")
         onAdFailed?(error)
-        print("💥 [VUNT_CACHE] onAdFailed closure executed for key: \(cacheKey)")
+        debugPrint("💥 [VUNT_CACHE] onAdFailed closure executed for key: \(cacheKey)")
     }
 }
 
@@ -86,6 +86,10 @@ extension AdMobHelper {
     private static var activeDelegates: [String: CacheNativeAdLoaderDelegate] = [:]
     private static var activeAdLoaders: [String: AdLoader] = [:]
 
+    // Track which cache key is associated with currently showing native ad
+    // This allows us to clear cache on impression
+    private static var nativeAdCacheKeyMap: [NativeAd: String] = [:]
+
     /// Get cached native ad for a specific key
     /// - Parameter cacheKey: The cache key to retrieve
     /// - Returns: Cached native ad if available and valid
@@ -105,10 +109,10 @@ extension AdMobHelper {
     public func hasCachedNativeAd(for cacheKey: String) -> Bool {
         guard let cached = AdMobHelper.cachedNativeAds[cacheKey],
               cached.isValid else {
-            print("🔍 [VUNT_CACHE] Check cache for '\(cacheKey)': ❌ NOT FOUND or EXPIRED")
+            debugPrint("🔍 [VUNT_CACHE] Check cache for '\(cacheKey)': ❌ NOT FOUND or EXPIRED")
             return false
         }
-        print("🔍 [VUNT_CACHE] Check cache for '\(cacheKey)': ✅ FOUND (age: \(Int(Date().timeIntervalSince(cached.loadedTime)))s)")
+        debugPrint("🔍 [VUNT_CACHE] Check cache for '\(cacheKey)': ✅ FOUND (age: \(Int(Date().timeIntervalSince(cached.loadedTime)))s)")
         return true
     }
 
@@ -123,17 +127,20 @@ extension AdMobHelper {
     /// - Parameters:
     ///   - ad: The native ad to cache
     ///   - cacheKey: The cache key to store
-    private func cacheNativeAd(_ ad: NativeAd, for cacheKey: String) {
+    func cacheNativeAd(_ ad: NativeAd, for cacheKey: String) {
         let cached = CachedNativeAd(ad: ad, cacheKey: cacheKey)
         AdMobHelper.cachedNativeAds[cacheKey] = cached
-        print("✅ [VUNT_CACHE] Cached ad for key: \(cacheKey)")
+        debugPrint("✅ [NATIVE_CACHE] Cached ad for key: \(cacheKey)")
     }
 
     /// Clear cached ad for specific key
     /// - Parameter cacheKey: The cache key to clear
     public func clearCachedNativeAd(for cacheKey: String) {
-        AdMobHelper.cachedNativeAds.removeValue(forKey: cacheKey)
-        print("🗑️ [VUNT_CACHE] Cleared cache for key: \(cacheKey)")
+        if let cached = AdMobHelper.cachedNativeAds.removeValue(forKey: cacheKey) {
+            // Clean up tracking
+            AdMobHelper.nativeAdCacheKeyMap.removeValue(forKey: cached.ad)
+            debugPrint("🗑️ [NATIVE_CACHE] Cleared cache for key: '\(cacheKey)'")
+        }
     }
 
     /// Clear all cached native ads
@@ -142,7 +149,23 @@ extension AdMobHelper {
         AdMobHelper.preloadingKeys.removeAll()
         AdMobHelper.activeDelegates.removeAll()
         AdMobHelper.activeAdLoaders.removeAll()
-        print("🗑️ [VUNT_CACHE] Cleared all cached native ads")
+        AdMobHelper.nativeAdCacheKeyMap.removeAll()
+        debugPrint("🗑️ [VUNT_CACHE] Cleared all cached native ads")
+    }
+
+    /// Store cache key association for a native ad
+    /// - Parameters:
+    ///   - cacheKey: The cache key to associate
+    ///   - nativeAd: The native ad instance
+    func associateNativeAdCacheKey(_ cacheKey: String, with nativeAd: NativeAd) {
+        AdMobHelper.nativeAdCacheKeyMap[nativeAd] = cacheKey
+    }
+
+    /// Get cache key associated with a native ad
+    /// - Parameter nativeAd: The native ad instance
+    /// - Returns: The associated cache key if any
+    func getNativeAdCacheKey(for nativeAd: NativeAd) -> String? {
+        return AdMobHelper.nativeAdCacheKeyMap[nativeAd]
     }
 
     /// Preload multiple native ads for later use
@@ -154,12 +177,12 @@ extension AdMobHelper {
         completion: ((Int) -> Void)? = nil
     ) {
         guard !requests.isEmpty else {
-            print("⚠️ [VUNT_CACHE] No ads to preload")
+            debugPrint("⚠️ [VUNT_CACHE] No ads to preload")
             completion?(0)
             return
         }
 
-        print("🚀 [VUNT_CACHE] Starting preload for \(requests.count) ads")
+        debugPrint("🚀 [VUNT_CACHE] Starting preload for \(requests.count) ads")
         var successCount = 0
         let totalCount = requests.count
         let dispatchGroup = DispatchGroup()
@@ -167,20 +190,20 @@ extension AdMobHelper {
         for request in requests {
             // Skip if already cached or preloading
             if hasCachedNativeAd(for: request.cacheKey) {
-                print("ℹ️ [VUNT_CACHE] Ad already cached for key: \(request.cacheKey)")
+                debugPrint("ℹ️ [VUNT_CACHE] Ad already cached for key: \(request.cacheKey)")
                 successCount += 1
                 continue
             }
 
             if isPreloadingNativeAd(for: request.cacheKey) {
-                print("ℹ️ [VUNT_CACHE] Ad already preloading for key: \(request.cacheKey)")
+                debugPrint("ℹ️ [VUNT_CACHE] Ad already preloading for key: \(request.cacheKey)")
                 continue
             }
 
             dispatchGroup.enter()
             AdMobHelper.preloadingKeys.insert(request.cacheKey)
 
-            print("⏳ [VUNT_CACHE] Preloading ad for key: \(request.cacheKey)")
+            debugPrint("⏳ [VUNT_CACHE] Preloading ad for key: \(request.cacheKey)")
 
             // Create ad loader delegate and store it to prevent deallocation
             let delegateHelper = CacheNativeAdLoaderDelegate(cacheKey: request.cacheKey)
@@ -192,7 +215,7 @@ extension AdMobHelper {
                     return
                 }
 
-                print("✅ [VUNT_CACHE] onAdLoaded closure executing for key: \(request.cacheKey)")
+                debugPrint("✅ [VUNT_CACHE] onAdLoaded closure executing for key: \(request.cacheKey)")
 
                 // Cache the ad
                 self.cacheNativeAd(nativeAd, for: request.cacheKey)
@@ -204,8 +227,8 @@ extension AdMobHelper {
             }
 
             delegateHelper.onAdFailed = { (error: Error) in
-                print("❌ [VUNT_CACHE] onAdFailed closure executing for key: \(request.cacheKey)")
-                print("❌ [VUNT_CACHE] Failed to preload ad for key: \(request.cacheKey) - \(error.localizedDescription)")
+                debugPrint("❌ [VUNT_CACHE] onAdFailed closure executing for key: \(request.cacheKey)")
+                debugPrint("❌ [VUNT_CACHE] Failed to preload ad for key: \(request.cacheKey) - \(error.localizedDescription)")
                 AdMobHelper.preloadingKeys.remove(request.cacheKey)
                 AdMobHelper.activeDelegates.removeValue(forKey: request.cacheKey)
                 AdMobHelper.activeAdLoaders.removeValue(forKey: request.cacheKey)
@@ -222,17 +245,50 @@ extension AdMobHelper {
 
             // Store AdLoader to prevent it from being deallocated
             AdMobHelper.activeAdLoaders[request.cacheKey] = adLoader
-            print("📡 [VUNT_CACHE] AdLoader created and retained for key: \(request.cacheKey), loading request sent")
+            debugPrint("📡 [VUNT_CACHE] AdLoader created and retained for key: \(request.cacheKey), loading request sent")
         }
 
         // Wait for all preloads to complete
         dispatchGroup.notify(queue: .main) {
-            print("✅ [VUNT_CACHE] Preload completed: \(successCount)/\(totalCount) ads")
+            debugPrint("✅ [VUNT_CACHE] Preload completed: \(successCount)/\(totalCount) ads")
             completion?(successCount)
         }
     }
 
-    /// Load native ad with cache support
+    /// Load native ad with auto-cache support (simplified API)
+    /// - Parameters:
+    ///   - containerView: The view container to add the native ad view to
+    ///   - adUnitID: The ad unit identifier
+    ///   - rootViewController: The view controller that will present the ad
+    ///   - viewType: The type of native ad view template to use
+    ///   - configuration: Optional configuration for customizing appearance
+    ///   - enableCache: Enable auto-caching using adUnitID as key (default: true)
+    ///   - statusCallback: Optional callback to notify success or failure
+    public func loadNativeAd(
+        containerView: UIView,
+        adUnitID: AdUnitIdentifiable,
+        rootViewController: UIViewController,
+        viewType: NativeAdService.NativeAdViewType,
+        configuration: NativeAdConfiguration? = nil,
+        enableCache: Bool = true,
+        statusCallback: ((Bool) -> Void)? = nil
+    ) {
+        // Auto-generate cache key from ad unit ID if cache is enabled
+        let cacheKey = enableCache ? adUnitID.adUnitIDString : nil
+
+        // Use the existing loadNativeAdWithCache implementation
+        loadNativeAdWithCache(
+            containerView: containerView,
+            adUnitID: adUnitID,
+            rootViewController: rootViewController,
+            viewType: viewType,
+            configuration: configuration,
+            cacheKey: cacheKey,
+            statusCallback: statusCallback
+        )
+    }
+
+    /// Load native ad with cache support (manual cache key)
     /// - Parameters:
     ///   - containerView: The view container to add the native ad view to
     ///   - adUnitID: The ad unit identifier
@@ -253,7 +309,7 @@ extension AdMobHelper {
         // Try to use cached ad first if cache key provided
         if let cacheKey = cacheKey,
            let cachedAd = getCachedNativeAd(for: cacheKey) {
-            print("✅ [VUNT_CACHE] Using cached ad for key: \(cacheKey)")
+            debugPrint("✅ [VUNT_CACHE] Using cached ad for key: \(cacheKey)")
             displayCachedNativeAd(
                 cachedAd,
                 in: containerView,
@@ -266,14 +322,18 @@ extension AdMobHelper {
         }
 
         // No cached ad available, load from network
-        print("⏳ [VUNT_CACHE] No cached ad for key: \(cacheKey ?? "nil"), loading from network...")
+        if let cacheKey = cacheKey {
+            debugPrint("⏳ [VUNT_CACHE] No cached ad for key: '\(cacheKey)', loading from network...")
+        }
+
         let nativeService = NativeAdService()
-        nativeService.loadNativeAd(
+        nativeService.loadNativeAdFromNetworkWithCache(
             containerView: containerView,
             adUnitID: adUnitID,
             rootViewController: rootViewController,
             viewType: viewType,
             configuration: configuration,
+            cacheKey: cacheKey,
             statusCallback: statusCallback
         )
     }
@@ -300,7 +360,7 @@ extension AdMobHelper {
         }
 
         guard let nativeAdView = Bundle.main.loadNibNamed(xibName, owner: nil, options: nil)?.first as? NativeAdView else {
-            print("❌ [VUNT_CACHE] Failed to load native ad view from xib: \(xibName)")
+            debugPrint("❌ [VUNT_CACHE] Failed to load native ad view from xib: \(xibName)")
             statusCallback?(false)
             return
         }
@@ -361,11 +421,11 @@ extension AdMobHelper {
         nativeAdView.setNeedsLayout()
         nativeAdView.layoutIfNeeded()
 
-        print("✅ [VUNT_CACHE] Displayed cached ad with all data populated")
+        debugPrint("✅ [VUNT_CACHE] Displayed cached ad with all data populated")
 
-        // Clear cache immediately after displaying - ad should only be shown once
-        clearCachedNativeAd(for: cacheKey)
-        print("🗑️ [VUNT_CACHE] Cache cleared immediately after display for key: \(cacheKey)")
+        // Store cache key association for impression tracking
+        associateNativeAdCacheKey(cacheKey, with: nativeAd)
+        debugPrint("📦 [NATIVE_CACHE] Native ad displayed, waiting for impression to clear cache")
 
         statusCallback?(true)
     }

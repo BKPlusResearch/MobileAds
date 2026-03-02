@@ -131,14 +131,19 @@ public class NativeAdService {
     
     // MARK: - Public Methods
 
-    /// Load and display native ad from cache or network
+    /// Load and display native ad from network (no caching)
+    ///
+    /// **Note:** This method always loads from network and does NOT use caching.
+    /// For cache support, use:
+    /// - `AdMobHelper.shared.loadNativeAd()` with `enableCache: true` (recommended)
+    /// - `AdMobHelper.shared.loadNativeAdWithCache()` with manual cache key
+    ///
     /// - Parameters:
     ///   - containerView: The view container to add the native ad view to
     ///   - adUnitID: The ad unit identifier for the native ad
     ///   - rootViewController: The view controller that will present the ad
     ///   - viewType: The type of native ad view template to use (.small or .medium)
     ///   - configuration: Optional configuration for customizing ad appearance. If nil, uses `NativeAdConfiguration.shared` singleton
-    ///   - cacheKey: Optional cache key to check for preloaded ad. If provided and ad exists in cache, uses cached ad instead of loading new one
     ///   - statusCallback: Optional callback to notify success (true) or failure (false)
     public func loadNativeAd(
         containerView: UIView,
@@ -146,17 +151,47 @@ public class NativeAdService {
         rootViewController: UIViewController,
         viewType: NativeAdViewType,
         configuration: NativeAdConfiguration? = nil,
-        cacheKey: String? = nil,
         statusCallback: ((Bool) -> Void)? = nil
     ) {
-        // Note: Cache logic is now handled by AdMobHelper+NativeCache.swift
-        // This method always loads from network
+        // Always loads from network (no caching)
         loadNativeAdFromNetwork(
             containerView: containerView,
             adUnitID: adUnitID,
             rootViewController: rootViewController,
             viewType: viewType,
             configuration: configuration,
+            statusCallback: statusCallback
+        )
+    }
+
+    // MARK: - Internal method for cache integration
+
+    /// Load and display native ad from network with cache support (internal)
+    /// - Parameters:
+    ///   - containerView: The view container to add the native ad view to
+    ///   - adUnitID: The ad unit identifier
+    ///   - rootViewController: The view controller that will present the ad
+    ///   - viewType: The type of native ad view template to use
+    ///   - configuration: Optional configuration for customizing appearance
+    ///   - cacheKey: Optional cache key for storing the loaded ad
+    ///   - statusCallback: Optional callback to notify success or failure
+    func loadNativeAdFromNetworkWithCache(
+        containerView: UIView,
+        adUnitID: AdUnitIdentifiable,
+        rootViewController: UIViewController,
+        viewType: NativeAdViewType,
+        configuration: NativeAdConfiguration? = nil,
+        cacheKey: String?,
+        statusCallback: ((Bool) -> Void)? = nil
+    ) {
+        // Delegate to existing private method with cache key
+        loadNativeAdFromNetwork(
+            containerView: containerView,
+            adUnitID: adUnitID,
+            rootViewController: rootViewController,
+            viewType: viewType,
+            configuration: configuration,
+            cacheKey: cacheKey,
             statusCallback: statusCallback
         )
     }
@@ -168,6 +203,7 @@ public class NativeAdService {
     ///   - rootViewController: The view controller that will present the ad
     ///   - viewType: The type of native ad view template to use (.small or .medium)
     ///   - configuration: Optional configuration for customizing ad appearance. If nil, uses `NativeAdConfiguration.shared` singleton
+    ///   - cacheKey: Optional cache key for storing the loaded ad
     ///   - statusCallback: Optional callback to notify success (true) or failure (false)
     private func loadNativeAdFromNetwork(
         containerView: UIView,
@@ -175,6 +211,7 @@ public class NativeAdService {
         rootViewController: UIViewController,
         viewType: NativeAdViewType,
         configuration: NativeAdConfiguration? = nil,
+        cacheKey: String? = nil,
         statusCallback: ((Bool) -> Void)? = nil
     ) {
         // Clear existing subviews
@@ -228,7 +265,7 @@ public class NativeAdService {
             
             // Load native ad view from xib
             guard let loadedView = self.loadNativeAdViewFromXib(type: viewType) else {
-                print("NativeAdService: Failed to load native ad view from xib: \(viewType.xibName)")
+                debugPrint("NativeAdService: Failed to load native ad view from xib: \(viewType.xibName)")
                 statusCallback?(false)
                 return
             }
@@ -248,13 +285,20 @@ public class NativeAdService {
             containerView.layoutIfNeeded()
             loadedView.setNeedsLayout()
             loadedView.layoutIfNeeded()
-            
+
+            // Cache the ad if cache key provided
+            if let cacheKey = cacheKey {
+                AdMobHelper.shared.cacheNativeAd(nativeAd, for: cacheKey)
+                AdMobHelper.shared.associateNativeAdCacheKey(cacheKey, with: nativeAd)
+                debugPrint("📦 [NATIVE_CACHE] Cached for '\(cacheKey)' - waiting for impression")
+            }
+
             statusCallback?(true)
         }
         
         // Setup failure callback
         delegateHelper.onAdFailed = { [weak containerView] error in
-            print("NativeAdService: Native ad failed to load with error: \(error.localizedDescription)")
+            debugPrint("NativeAdService: Native ad failed to load with error: \(error.localizedDescription)")
             
             // Remove loading view on failure
             containerView?.subviews.forEach { view in
@@ -484,7 +528,7 @@ public class NativeAdService {
 
         // Load native ad view from xib
         guard let nativeAdView = loadNativeAdViewFromXib(type: viewType) else {
-            print("Failed to load native ad view from xib")
+            debugPrint("Failed to load native ad view from xib")
             return
         }
 

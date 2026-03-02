@@ -13,6 +13,9 @@
 		1CE6E1D4249761C4A7BEE781 /* TikTokConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6374FCB0183272131E3A60C1 /* TikTokConfig.swift */; };
 		2DE9A75D01576F7E7046C9AE /* TikTokManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF091AE0EFF03CD62861AAC /* TikTokManager.swift */; };
 		43D524075E619A4B7D677E4E /* TikTokEventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BDFFC3EA5DE4641F337DF8 /* TikTokEventType.swift */; };
+		502BC1B42F4D8BB60090CE3E /* BannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502BC1B32F4D8BB60090CE3E /* BannerAdView.swift */; };
+		5050C43A2F3D6BEE0057F86C /* AdMobHelper+BannerCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5050C4392F3D6BEE0057F86C /* AdMobHelper+BannerCache.swift */; };
+		5050C43C2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5050C43B2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift */; };
 		50535B702EF8F2BB00D6549D /* ADJustManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50535B6C2EF8F2BB00D6549D /* ADJustManager.swift */; };
 		507981712EE813B9009B6C5D /* IAPProductIdentifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816C2EE813B9009B6C5D /* IAPProductIdentifiable.swift */; };
 		507981722EE813B9009B6C5D /* IAPService+Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816F2EE813B9009B6C5D /* IAPService+Subscription.swift */; };
@@ -65,6 +68,9 @@
 		0E7215CA2A36224700759DCA /* close.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close.png; sourceTree = "<group>"; };
 		3AF091AE0EFF03CD62861AAC /* TikTokManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TikTokManager.swift; sourceTree = "<group>"; };
 		3D6191E3A787BACD7741EE30 /* Pods-MobileAds.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileAds.release.xcconfig"; path = "Target Support Files/Pods-MobileAds/Pods-MobileAds.release.xcconfig"; sourceTree = "<group>"; };
+		502BC1B32F4D8BB60090CE3E /* BannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerAdView.swift; sourceTree = "<group>"; };
+		5050C4392F3D6BEE0057F86C /* AdMobHelper+BannerCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+BannerCache.swift"; sourceTree = "<group>"; };
+		5050C43B2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+NativeCache.swift"; sourceTree = "<group>"; };
 		50535B6C2EF8F2BB00D6549D /* ADJustManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADJustManager.swift; sourceTree = "<group>"; };
 		50535B6D2EF8F2BB00D6549D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		5079816A2EE813B9009B6C5D /* IAPKeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPKeychainStorage.swift; sourceTree = "<group>"; };
@@ -221,6 +227,9 @@
 		509F87032EE11DD500DAEACF /* AdMobHelper */ = {
 			isa = PBXGroup;
 			children = (
+				502BC1B32F4D8BB60090CE3E /* BannerAdView.swift */,
+				5050C43B2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift */,
+				5050C4392F3D6BEE0057F86C /* AdMobHelper+BannerCache.swift */,
 				50FF30432EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift */,
 				50FF24D72EEBAECF00EAF530 /* NativeAdMediumLoadingView.swift */,
 				509F88A42EE3CB0100DAEACF /* BannerAdLoadingView.swift */,
@@ -275,7 +284,6 @@
 				53BDFFC3EA5DE4641F337DF8 /* TikTokEventType.swift */,
 				3AF091AE0EFF03CD62861AAC /* TikTokManager.swift */,
 			);
-			name = TikTokManager;
 			path = TikTokManager;
 			sourceTree = "<group>";
 		};
@@ -453,9 +461,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MobileAds/Pods-MobileAds-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MobileAds/Pods-MobileAds-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -492,6 +504,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				509F87042EE11DD500DAEACF /* AdUnitID.swift in Sources */,
+				502BC1B42F4D8BB60090CE3E /* BannerAdView.swift in Sources */,
 				509F87052EE11DD500DAEACF /* NativeAdLoadingView.swift in Sources */,
 				509F88A52EE3CB0200DAEACF /* BannerAdLoadingView.swift in Sources */,
 				509F87152EE125BF00DAEACF /* NativeAdService.swift in Sources */,
@@ -500,6 +513,7 @@
 				507981712EE813B9009B6C5D /* IAPProductIdentifiable.swift in Sources */,
 				507981722EE813B9009B6C5D /* IAPService+Subscription.swift in Sources */,
 				507981732EE813B9009B6C5D /* IAPModels.swift in Sources */,
+				5050C43C2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift in Sources */,
 				507981742EE813B9009B6C5D /* IAPKeychainStorage.swift in Sources */,
 				507981752EE813B9009B6C5D /* IAPService.swift in Sources */,
 				507981762EE813B9009B6C5D /* IAPService+Receipt.swift in Sources */,
@@ -507,6 +521,7 @@
 				509F87082EE11DD500DAEACF /* NativeAdViewSmall.swift in Sources */,
 				509F87092EE11DD500DAEACF /* AppOpenAdLoadingView.swift in Sources */,
 				509F871F2EE1788E00DAEACF /* AdMobHelper+RewardedInterstitial.swift in Sources */,
+				5050C43A2F3D6BEE0057F86C /* AdMobHelper+BannerCache.swift in Sources */,
 				509F87202EE1788E00DAEACF /* AdMobHelper+LoadingViews.swift in Sources */,
 				509F87212EE1788E00DAEACF /* AdMobHelper+Native.swift in Sources */,
 				509F87222EE1788E00DAEACF /* AdMobHelper+AppOpen.swift in Sources */,

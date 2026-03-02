@@ -58,7 +58,7 @@ public final class FirebaseLogger {
     ///   - value: Property value
     public func setUserProperty(key: String, value: String?) {
         if isDebugMode {
-            print("🔥 [UserProperty] \(key) = \(value ?? "nil")")
+            debugPrint("🔥 [UserProperty] \(key) = \(value ?? "nil")")
         }
         Analytics.setUserProperty(value, forName: key)
     }
@@ -73,12 +73,12 @@ public final class FirebaseLogger {
 
     private func printDebugLog(event: String, params: [String: Any]?) {
         let timestamp = DateFormatter.localizedString(from: Date(), dateStyle: .none, timeStyle: .medium)
-        print("🔥 [\(timestamp)] \(event)")
+        debugPrint("🔥 [\(timestamp)] \(event)")
 
         if let params = params, !params.isEmpty {
-            print("   📊 Parameters:")
+            debugPrint("   📊 Parameters:")
             params.forEach { key, value in
-                print("      • \(key): \(value)")
+                debugPrint("      • \(key): \(value)")
             }
         }
     }

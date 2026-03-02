@@ -56,7 +56,7 @@ class AppOpenAdLoadingView: UIView {
 	/// Show loading view on the key window
 	func show() {
 		guard let window = getKeyWindow() else {
-			print("AppOpenAdLoadingView: No key window found")
+			debugPrint("AppOpenAdLoadingView: No key window found")
 			return
 		}
 		

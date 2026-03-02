@@ -26,6 +26,11 @@ extension AdMobHelper {
         adUnitID: AdUnitIdentifiable,
         shouldShowLoadingView: Bool = true
     ) async throws {
+        // Do not load if another fullscreen ad is already showing
+        guard !isInterstitialShowing, !isRewardedShowing, !isRewardedInterstitialShowing else {
+            debugPrint("AdMobHelper: Skipping app open ad load — another fullscreen ad is showing.")
+            return
+        }
         // Do not load ad if there is an unused ad or one is already loading.
         if isAppOpenLoading || isAppOpenAdAvailable() {
             return
@@ -53,11 +58,11 @@ extension AdMobHelper {
                 ADJustManager.shared.logRevenue(adType: .appOpen, adValue: adValue)
             }
 
-            print("App open ad loaded successfully")
+            debugPrint("App open ad loaded successfully")
             // Hide loading view when load completes successfully
             // Keep it showing if we're about to show the ad immediately
         } catch {
-            print("App open ad failed to load with error: \(error.localizedDescription)")
+            debugPrint("App open ad failed to load with error: \(error.localizedDescription)")
             appOpenAd = nil
             appOpenLoadTime = nil
             // Hide loading view when load fails

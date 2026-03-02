@@ -30,9 +30,9 @@ extension AdMobHelper {
                 ADJustManager.shared.logRevenue(adType: .reward, adValue: adValue)
             }
 
-            print("Rewarded ad loaded successfully")
+            debugPrint("Rewarded ad loaded successfully")
         } catch {
-            print("Rewarded ad failed to load with error: \(error.localizedDescription)")
+            debugPrint("Rewarded ad failed to load with error: \(error.localizedDescription)")
             rewardedAd = nil
             // Hide loading view when load fails
             hideRewardedAdLoadingView()
@@ -82,7 +82,7 @@ extension AdMobHelper {
         didEarnRewardForCurrentAd = false  // Reset flag before showing
         rewardedAd.present(from: viewController) { [weak self] in
             let reward = rewardedAd.adReward
-            print("Reward received with currency \(reward.type), amount \(reward.amount.doubleValue)")
+            debugPrint("Reward received with currency \(reward.type), amount \(reward.amount.doubleValue)")
             // Mark that reward was earned
             self?.didEarnRewardForCurrentAd = true
             // Notify that reward was earned

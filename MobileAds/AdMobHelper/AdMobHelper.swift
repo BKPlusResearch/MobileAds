@@ -174,7 +174,7 @@ public class AdMobHelper: NSObject {
     public func configAds(from viewController: UIViewController? = nil, completion: (() -> Void)? = nil) {
         GoogleMobileAdsConsentManager.shared.gatherConsent(from: viewController) { [weak self] error in
             if let error {
-                print("Consent gathering error: \(error.localizedDescription)")
+                debugPrint("Consent gathering error: \(error.localizedDescription)")
             }
 
             if GoogleMobileAdsConsentManager.shared.canRequestAds {
@@ -193,19 +193,19 @@ public class AdMobHelper: NSObject {
         }
 
         guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
-            print("Cannot initialize SDK: Consent not granted")
+            debugPrint("Cannot initialize SDK: Consent not granted")
             return
         }
 
         MobileAds.shared.start()
         isSDKInitialized = true
-        print("Google Mobile Ads SDK initialized")
+        debugPrint("Google Mobile Ads SDK initialized")
 
 #if DEBUG
-        print("⚠️ DEBUG MODE: Using TEST Ad Unit IDs")
-        print("   Make sure to use PRODUCTION IDs in RELEASE builds!")
+        debugPrint("⚠️ DEBUG MODE: Using TEST Ad Unit IDs")
+        debugPrint("   Make sure to use PRODUCTION IDs in RELEASE builds!")
 #else
-        print("✅ RELEASE MODE: Using PRODUCTION Ad Unit IDs")
+        debugPrint("✅ RELEASE MODE: Using PRODUCTION Ad Unit IDs")
 #endif
     }
 
@@ -229,20 +229,22 @@ public class AdMobHelper: NSObject {
         isAppOpenLoading = false
         isAppOpenShowing = false
         isBannerLoading = false
-        
+
         // Reset App Resume skip flags
         shouldSkipNextAppResume = false
         hadRecentAdClick = false
         lastAdClickTime = nil
-        
+
         // Clear callbacks
         bannerAdStatusCallback = nil
-        
+
         // Hide loading views if showing
         hideAppOpenAdLoadingView()
         hideInterstitialAdLoadingView()
         hideRewardedAdLoadingView()
-        hideBannerAdLoadingView()
+
+        // Clear banner cache
+        clearAllCachedBannerAds()
     }
 }
 
@@ -283,6 +285,14 @@ public enum BannerAdStatus {
     case willPresentScreen    // Banner ad will present full screen content
     case willDismissScreen    // Banner ad will dismiss full screen content
     case didDismissScreen     // Banner ad dismissed full screen content
+}
+
+// MARK: - Banner Collapsible Placement
+
+/// Placement options for collapsible banner ads
+public enum BannerCollapsiblePlacement: String {
+    case top = "top"
+    case bottom = "bottom"
 }
 
 // MARK: - AdMobHelperError

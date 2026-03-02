@@ -4,30 +4,42 @@ import UIKit
 // MARK: - NativeAdDelegate
 
 extension AdMobHelper: NativeAdDelegate {
-    public func nativeAdDidRecordClick(_ nativeAd: NativeAd) {
-        print("Native ad recorded a click")
-        
+    nonisolated public func nativeAdDidRecordClick(_ nativeAd: NativeAd) {
+        debugPrint("Native ad recorded a click")
+
         // Mark ad click (will verify in background handler if app actually leaves)
-        markAdClick()
+        Task { @MainActor in
+            markAdClick()
+        }
     }
-    
-    public func nativeAdDidRecordImpression(_ nativeAd: NativeAd) {
-        print("Native ad recorded an impression")
+
+    nonisolated public func nativeAdDidRecordImpression(_ nativeAd: NativeAd) {
+        debugPrint("Native ad recorded an impression")
+
+        // Clear cache AFTER impression fires (critical for show rate optimization)
+        Task { @MainActor in
+            if let cacheKey = getNativeAdCacheKey(for: nativeAd) {
+                clearCachedNativeAd(for: cacheKey)
+                debugPrint("🗑️ [NATIVE_CACHE] Cache cleared after impression for '\(cacheKey)'")
+            }
+        }
     }
-    
-    public func nativeAdWillPresentScreen(_ nativeAd: NativeAd) {
-        print("Native ad will present screen")
+
+    nonisolated public func nativeAdWillPresentScreen(_ nativeAd: NativeAd) {
+        debugPrint("Native ad will present screen")
     }
-    
-    public func nativeAdWillDismissScreen(_ nativeAd: NativeAd) {
-        print("Native ad will dismiss screen")
+
+    nonisolated public func nativeAdWillDismissScreen(_ nativeAd: NativeAd) {
+        debugPrint("Native ad will dismiss screen")
     }
-    
-    public func nativeAdDidDismissScreen(_ nativeAd: NativeAd) {
-        print("Native ad dismissed screen")
-        
+
+    nonisolated public func nativeAdDidDismissScreen(_ nativeAd: NativeAd) {
+        debugPrint("Native ad dismissed screen")
+
         // If dismissed in-app screen without going to background, clear the pending flag
-        clearPendingAdClick()
+        Task { @MainActor in
+            clearPendingAdClick()
+        }
     }
 }
 
