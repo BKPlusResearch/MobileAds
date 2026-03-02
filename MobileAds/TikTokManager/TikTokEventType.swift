@@ -38,6 +38,8 @@ public enum TikTokEventType: String {
     // Ad Events
     case inAppAdImpression = "InAppADImpr"
     case inAppAdClick = "InAppADClick"
+    /// Impression-level ad revenue event (required for tROAS)
+    case impressionLevelAdRevenue = "ImpressionLevelAdRevenue"
 
     // Engagement Events
     case achieveLevel = "AchieveLevel"

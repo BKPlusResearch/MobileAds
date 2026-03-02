@@ -279,46 +279,52 @@ public final class TikTokManager {
     }
 
     /// Track ad revenue event (simple version)
+    /// Sends both InAppADImpr (impression tracking) and ImpressionLevelAdRevenue (revenue for tROAS)
     /// - Parameters:
     ///   - adType: Type of ad (e.g., "interstitial", "banner", "rewarded")
     ///   - revenueUSD: Revenue in USD
     ///   - adNetwork: Ad network name (default: "AdMob")
     public func trackAdRevenue(adType: ADJAdType, revenueUSD: Double, adNetwork: String = "AdMob") {
-        // Build minimal ad revenue dictionary                                                                      
-      let adRevenue: [String: Any] = [                                                                            
-          "device_ad_mediation_platform": "admob_sdk",                                                            
-          "value": revenueUSD,                                                                                    
-          "currency": "USD",                                                                                      
-          "ad_type": adType.rawValue  // Optional: để biết loại ad                                                
-      ]                                                                                                           
-                                                                                                                  
-      // Use TikTokBaseEvent instead of trackEvent                                                                
-      let adRevenueEvent = TikTokBaseEvent(                                                                       
-          eventName: "InAppADImpr",                                                                               
-          properties: adRevenue,                                                                                  
-          eventId: nil                                                                                            
-      )                                                                                                           
-                                                                                                                  
-      TikTokBusiness.trackTTEvent(adRevenueEvent)                                                                 
-                                                                                                                  
-      debugPrint("📊 [TikTokManager] Ad Revenue Event tracked: \(revenueUSD) USD")   
+        let adRevenue: [String: Any] = [
+            "device_ad_mediation_platform": "admob_sdk",
+            "value": revenueUSD,
+            "currency": "USD",
+            "ad_type": adType.rawValue
+        ]
+
+        // 1. Send InAppADImpr for general impression tracking
+        let adImprEvent = TikTokBaseEvent(
+            eventName: TikTokEventType.inAppAdImpression.rawValue,
+            properties: adRevenue,
+            eventId: nil
+        )
+        TikTokBusiness.trackTTEvent(adImprEvent)
+
+        // 2. Send ImpressionLevelAdRevenue for tROAS (ad revenue postback)
+        let adRevenueEvent = TikTokBaseEvent(
+            eventName: TikTokEventType.impressionLevelAdRevenue.rawValue,
+            properties: adRevenue,
+            eventId: nil
+        )
+        TikTokBusiness.trackTTEvent(adRevenueEvent)
+
+        debugPrint("📊 [TikTokManager] Ad Revenue tracked: \(revenueUSD) USD (InAppADImpr + ImpressionLevelAdRevenue)")
     }
 
-    /// Track ad revenue event with detailed info (matches TikTok official documentation)
+    /// Track ad revenue event with detailed info
+    /// Sends both InAppADImpr (impression tracking) and ImpressionLevelAdRevenue (revenue for tROAS)
     /// - Parameters:
     ///   - adRevenueInfo: Detailed ad revenue information from GADAdValue
     ///   - eventId: Optional custom event ID
     public func trackAdRevenueEvent(_ adRevenueInfo: TikTokAdRevenueInfo, eventId: String? = nil) {
-        // Build ad revenue dictionary matching TikTok's expected format
         var adRevenue: [String: Any] = [
             "device_ad_mediation_platform": "admob_sdk",
             "value": adRevenueInfo.value,
-            "currency_code": adRevenueInfo.currencyCode,
+            "currency": adRevenueInfo.currencyCode,
             "precision": adRevenueInfo.precision.rawValue,
             "ad_unit_id": adRevenueInfo.adUnitId
         ]
 
-        // Add optional parameters
         if let adSourceName = adRevenueInfo.adSourceName {
             adRevenue["ad_source_name"] = adSourceName
         }
@@ -341,23 +347,24 @@ public final class TikTokManager {
             adRevenue["mediation_ab_test_variant"] = mediationABTestVariant
         }
 
-        // Create TikTokBaseEvent for ad revenue
-        let adRevenueEvent: TikTokBaseEvent
-        if let eventId = eventId {
-            adRevenueEvent = TikTokBaseEvent(eventName: "InAppADImpr", properties: adRevenue, eventId: eventId)
-        } else {
-            adRevenueEvent = TikTokBaseEvent(eventName: "InAppADImpr", properties: adRevenue, eventId: nil)
-        }
+        // 1. Send InAppADImpr for general impression tracking
+        let adImprEvent = TikTokBaseEvent(
+            eventName: TikTokEventType.inAppAdImpression.rawValue,
+            properties: adRevenue,
+            eventId: eventId
+        )
+        TikTokBusiness.trackTTEvent(adImprEvent)
 
-        // Track the event
-        TikTokBusiness.trackTTEvent(adRevenueEvent)
+        // 2. Send ImpressionLevelAdRevenue for tROAS (ad revenue postback)
+        let revenueEvent = TikTokBaseEvent(
+            eventName: TikTokEventType.impressionLevelAdRevenue.rawValue,
+            properties: adRevenue,
+            eventId: eventId
+        )
+        TikTokBusiness.trackTTEvent(revenueEvent)
 
-        debugPrint("📊 [TikTokManager] Ad Revenue Event tracked:")
-        debugPrint("   Value: \(adRevenueInfo.value) \(adRevenueInfo.currencyCode)")
-        debugPrint("   Ad Unit: \(adRevenueInfo.adUnitId)")
-        if let adSourceName = adRevenueInfo.adSourceName {
-            debugPrint("   Ad Source: \(adSourceName)")
-        }
+        debugPrint("📊 [TikTokManager] Ad Revenue tracked: \(adRevenueInfo.value) \(adRevenueInfo.currencyCode) (InAppADImpr + ImpressionLevelAdRevenue)")
+        debugPrint("   Ad Unit: \(adRevenueInfo.adUnitId), Source: \(adRevenueInfo.adSourceName ?? "unknown")")
     }
 
     /// Track search event
