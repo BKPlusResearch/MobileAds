@@ -59,7 +59,12 @@ public class BannerAdView: UIView {
     /// - Serve từ cache nếu banner đã load trong vòng 1 giờ và chưa bắn impression.
     /// - Hiển thị shimmer loading khi cần load từ network.
     /// - isPurchase check phải được xử lý ở app layer trước khi gọi hàm này.
-    public func loadAd(adUnitID: AdUnitIdentifiable, rootViewController: UIViewController) {
+    public func loadAd(
+        adUnitID: AdUnitIdentifiable,
+        rootViewController: UIViewController,
+        isCollapsible: Bool = false,
+        collapsiblePlacement: BannerCollapsiblePlacement = .bottom
+    ) {
         // Skip nếu đã có banner đang hiển thị
         if let existing = bannerView, existing.superview != nil {
             return
@@ -115,7 +120,13 @@ public class BannerAdView: UIView {
             make.edges.equalToSuperview()
         }
 
-        banner.load(Request())
+        let request = Request()
+        if isCollapsible {
+            let extras = Extras()
+            extras.additionalParameters = ["collapsible": collapsiblePlacement.rawValue]
+            request.register(extras)
+        }
+        banner.load(request)
     }
 
     /// Reset về trạng thái ban đầu — KHÔNG xoá cache.
