@@ -44,7 +44,7 @@ MobileAds is a Swift framework that wraps the Google Mobile Ads SDK and provides
   - Drop-in `UIView` subclass tích hợp sẵn shimmer loading (`BannerAdLoadingView`).
   - Tự skip nếu banner đã được load, tự dọn sạch khi reuse.
   - Không đụng đến `AdMobHelper.shared` → tránh singleton conflict khi nhiều banner cùng lúc.
-  - API đơn giản: `loadAd(adUnitID:rootViewController:)` và `clearAd()`.
+  - API đơn giản: `loadAd(adUnitID:rootViewController:isCollapsible:collapsiblePlacement:)` và `clearAd()`.
 
 - **Trạng thái & loading view rõ ràng**
   - Các flag `isInterstitialLoading`, `isRewardedLoading`, `isAppOpenLoading`, `isBannerLoading`, ...
@@ -218,6 +218,18 @@ class HomeViewController: UIViewController {
         }
     }
 }
+```
+
+**Collapsible banner:**
+
+```swift
+// Collapsible banner — nút thu gọn ở cuối màn hình
+bannerAdView.loadAd(
+    adUnitID: AppAdUnitID.bannerHome,
+    rootViewController: self,
+    isCollapsible: true,
+    collapsiblePlacement: .bottom  // hoặc .top
+)
 ```
 
 **Dùng trong UICollectionViewCell (IGListKit / UICollectionView):**

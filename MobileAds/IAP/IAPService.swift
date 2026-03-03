@@ -29,16 +29,21 @@ public class IAPService: NSObject {
     /// Cache của products đã fetch
     private var products: [String: Product] = [:]
     
-    /// Keychain storage để lưu subscription status
+    /// Keychain storage - chỉ dùng cho migration
     internal let keychainStorage = IAPKeychainStorage()
-    
+
+    /// UserDefaults storage để lưu subscription status
+    internal let storage = IAPUserDefaultsStorage()
+
     /// Transaction update listener task
     private var updateListenerTask: Task<Void, Error>?
-    
+
     // MARK: - Initialization
-    
+
     private override init() {
         super.init()
+        // Migrate từ Keychain sang UserDefaults (chạy một lần)
+        IAPMigration.migrateFromKeychainIfNeeded(keychain: keychainStorage, userDefaults: storage)
         // Start listening for transaction updates
         updateListenerTask = listenForTransactions()
     }
@@ -100,7 +105,7 @@ public class IAPService: NSObject {
                 // Verify transaction
                 let transaction = try checkVerified(verification)
                 
-                // Update subscription status trong Keychain
+                // Update subscription status trong UserDefaults
                 await updateSubscriptionStatus(from: transaction)
                 
                 // Finish the transaction
@@ -176,8 +181,7 @@ public class IAPService: NSObject {
     /// - Parameter productID: Product ID cần check
     /// - Returns: SubscriptionStatus
     public func checkSubscriptionStatus(for productID: IAPProductIdentifiable) -> SubscriptionStatus {
-        // Check from Keychain cache first
-        if let info = keychainStorage.getSubscriptionInfo(for: productID.productIDString) {
+        if let info = storage.getSubscriptionInfo(for: productID.productIDString) {
             // Check if expired
             if let expiryDate = info.expiryDate, Date() >= expiryDate {
                 return .expired
@@ -192,7 +196,7 @@ public class IAPService: NSObject {
     /// - Parameter productID: Product ID cần check
     /// - Returns: true nếu subscription đang active
     public func isSubscriptionActive(for productID: IAPProductIdentifiable) -> Bool {
-        guard let info = keychainStorage.getSubscriptionInfo(for: productID.productIDString) else {
+        guard let info = storage.getSubscriptionInfo(for: productID.productIDString) else {
             return false
         }
         return info.isActive
@@ -201,7 +205,7 @@ public class IAPService: NSObject {
     /// Clear all cached data (dùng khi logout)
     public func clearAllData() {
         products.removeAll()
-        keychainStorage.clearAllSubscriptionInfo()
+        storage.clearAllSubscriptionInfo()
         print("✅ Cleared all IAP data")
     }
     
