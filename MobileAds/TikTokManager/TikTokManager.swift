@@ -383,17 +383,26 @@ public final class TikTokManager {
         ])
     }
 
-    /// Track start trial event
+    /// Track start trial event using TikTokBaseEvent for proper SDK integration
     /// - Parameters:
     ///   - productId: Product identifier
     ///   - price: Trial price (usually 0)
     ///   - currency: Currency code (default: "USD")
     public func trackStartTrial(productId: String, price: Double = 0, currency: String = "USD") {
-        trackEvent(.startTrial, params: [
-            .productId(productId),
-            .value(price),
-            .currency(currency)
-        ])
+        let properties: [String: Any] = [
+            "product_id": productId,
+            "value": price,
+            "currency": currency
+        ]
+
+        let event = TikTokBaseEvent(
+            eventName: TTEventNameStartTrial,
+            properties: properties,
+            eventId: nil
+        )
+        TikTokBusiness.trackTTEvent(event)
+
+        debugPrint("📊 [TikTokManager] StartTrial tracked: \(productId), price: \(price) \(currency)")
     }
 
     // MARK: - Private Methods
