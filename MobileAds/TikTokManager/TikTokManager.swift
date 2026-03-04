@@ -396,7 +396,7 @@ public final class TikTokManager {
         ]
 
         let event = TikTokBaseEvent(
-            eventName: TTEventNameStartTrial,
+            eventName: TikTokEventType.trialAdRevenue.rawValue,
             properties: properties,
             eventId: nil
         )
