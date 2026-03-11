@@ -4,6 +4,12 @@ PODS:
   - Adjust/Adjust (5.5.0):
     - AdjustSignature (= 3.62.0)
   - AdjustSignature (3.62.0)
+  - FBAEMKit (18.0.2):
+    - FBSDKCoreKit_Basics (= 18.0.2)
+  - FBSDKCoreKit (18.0.2):
+    - FBAEMKit (= 18.0.2)
+    - FBSDKCoreKit_Basics (= 18.0.2)
+  - FBSDKCoreKit_Basics (18.0.2)
   - Firebase (12.7.0):
     - Firebase/Core (= 12.7.0)
   - Firebase/Core (12.7.0):
@@ -150,6 +156,7 @@ PODS:
 
 DEPENDENCIES:
   - Adjust
+  - FBSDKCoreKit (~> 18.0)
   - Firebase
   - Firebase/RemoteConfig
   - FirebaseAnalytics
@@ -164,6 +171,9 @@ SPEC REPOS:
   trunk:
     - Adjust
     - AdjustSignature
+    - FBAEMKit
+    - FBSDKCoreKit
+    - FBSDKCoreKit_Basics
     - Firebase
     - FirebaseABTesting
     - FirebaseAnalytics
@@ -193,6 +203,9 @@ SPEC REPOS:
 SPEC CHECKSUMS:
   Adjust: a0095eda439b925f809b0efbf64923c05701e937
   AdjustSignature: 682d788005a6e21557913a9dc0381ae8d943ca0a
+  FBAEMKit: 56a4f5a9607957b547b6458b17a98c5bb2736367
+  FBSDKCoreKit: 54f1240567e16862ab71c53c33dc347db5c524c5
+  FBSDKCoreKit_Basics: eb530cd6a79030dbb11df460aafb2767bcad9028
   Firebase: 2d19a10c9a2e48ac532a4303115d3fc9b2798396
   FirebaseABTesting: 72e4636929660d40844f2a4db15be9d551fc27d6
   FirebaseAnalytics: e423129866107aeacf6010a280b9c9829f9ea50d
@@ -219,6 +232,6 @@ SPEC CHECKSUMS:
   TikTokBusinessSDK: db839e24b244c2693c1e3bb635a4c3cae4a8ab6d
   Toast-Swift: 7a03a532afe3a560d4044bc7c237e2864d295173
 
-PODFILE CHECKSUM: 8a9d7c51642db727dfeb755c092fb2c2a3221756
+PODFILE CHECKSUM: 08793cfd1fbbc71c3671886099e8d617ec3cac8f
 
 COCOAPODS: 1.16.2

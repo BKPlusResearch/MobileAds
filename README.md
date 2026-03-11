@@ -57,6 +57,12 @@ MobileAds is a Swift framework that wraps the Google Mobile Ads SDK and provides
   - Quản lý subscription status và lưu trữ an toàn trong Keychain.
   - Protocol `IAPProductIdentifiable` cho product IDs linh hoạt.
 
+- **🆕 Facebook AD_IMPRESSION Tracking**
+  - Tự động log `AD_IMPRESSION` event lên Facebook SDK khi có ad revenue.
+  - Tích hợp sẵn trong `ADJustManager.logRevenue()` — không cần code thêm.
+  - Hỗ trợ tất cả ad formats: Banner, Interstitial, Rewarded, App Open, Native.
+  - Giúp tối ưu hoá giá trị quảng cáo in-app trên Meta Ads. Xem [tài liệu Facebook](https://developers.facebook.com/docs/app-events/guides/maximize-in-app-ad-revenue/).
+
 ## Requirements
 
 - iOS 15.0+

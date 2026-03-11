@@ -13,6 +13,7 @@
 		1CE6E1D4249761C4A7BEE781 /* TikTokConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6374FCB0183272131E3A60C1 /* TikTokConfig.swift */; };
 		2DE9A75D01576F7E7046C9AE /* TikTokManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF091AE0EFF03CD62861AAC /* TikTokManager.swift */; };
 		43D524075E619A4B7D677E4E /* TikTokEventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BDFFC3EA5DE4641F337DF8 /* TikTokEventType.swift */; };
+		4C063B0657C5FC7D1C9274E2 /* FacebookManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 508E5944FF6CBF5A7ABD178D /* FacebookManager.swift */; };
 		502BC1B42F4D8BB60090CE3E /* BannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502BC1B32F4D8BB60090CE3E /* BannerAdView.swift */; };
 		5050C43A2F3D6BEE0057F86C /* AdMobHelper+BannerCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5050C4392F3D6BEE0057F86C /* AdMobHelper+BannerCache.swift */; };
 		5050C43C2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5050C43B2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift */; };
@@ -88,6 +89,7 @@
 		508D29452C6F3202005801DA /* stars_4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stars_4.png; sourceTree = "<group>"; };
 		508D29462C6F3202005801DA /* stars_4_5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stars_4_5.png; sourceTree = "<group>"; };
 		508D29472C6F3202005801DA /* stars_5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stars_5.png; sourceTree = "<group>"; };
+		508E5944FF6CBF5A7ABD178D /* FacebookManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = FacebookManager.swift; sourceTree = "<group>"; };
 		509F86F92EE11DD500DAEACF /* AdMobHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdMobHelper.swift; sourceTree = "<group>"; };
 		509F86FA2EE11DD500DAEACF /* AdUnitID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdUnitID.swift; sourceTree = "<group>"; };
 		509F86FB2EE11DD500DAEACF /* AppOpenAdLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppOpenAdLoadingView.swift; sourceTree = "<group>"; };
@@ -185,6 +187,7 @@
 				042F528027D8E09E008D5330 /* MobileAds.h */,
 				042F528127D8E09E008D5330 /* MobileAds.docc */,
 				6B6203C3A9B92E9524986C62 /* TikTokManager */,
+				B0620133133EBFF4B44AA811 /* FacebookManager */,
 			);
 			path = MobileAds;
 			sourceTree = "<group>";
@@ -312,6 +315,15 @@
 				768BF63E283F244D00737CEF /* RemoteConfigService.swift */,
 			);
 			path = RemoteConfig;
+			sourceTree = "<group>";
+		};
+		B0620133133EBFF4B44AA811 /* FacebookManager */ = {
+			isa = PBXGroup;
+			children = (
+				508E5944FF6CBF5A7ABD178D /* FacebookManager.swift */,
+			);
+			name = FacebookManager;
+			path = FacebookManager;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -467,13 +479,9 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MobileAds/Pods-MobileAds-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-MobileAds/Pods-MobileAds-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -552,6 +560,7 @@
 				1CE6E1D4249761C4A7BEE781 /* TikTokConfig.swift in Sources */,
 				43D524075E619A4B7D677E4E /* TikTokEventType.swift in Sources */,
 				2DE9A75D01576F7E7046C9AE /* TikTokManager.swift in Sources */,
+				4C063B0657C5FC7D1C9274E2 /* FacebookManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

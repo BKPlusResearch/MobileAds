@@ -16,4 +16,6 @@ pod 'Adjust'
 pod 'SkeletonView'
 pod 'Toast-Swift'
 pod 'TikTokBusinessSDK', '~> 1.3.0'
+pod 'FBSDKCoreKit', '~> 18.0'
+pod 'PremiumAdmobAdapter'
 end

@@ -109,6 +109,9 @@ public final class ADJustManager {
 
         // Track to TikTok Business SDK (simple version)
         TikTokManager.shared.trackAdRevenue(adType: adType, revenueUSD: revenueUSD)
+
+        // Track to Facebook SDK (AD_IMPRESSION)
+        FacebookManager.shared.logAdImpression(adType: adType, revenueUSD: revenueUSD, currency: currency)
     }
 
     /// Log ad impression with revenue tracking (detailed version for TikTok)
@@ -153,6 +156,9 @@ public final class ADJustManager {
         )
 
         TikTokManager.shared.trackAdRevenueEvent(tiktokAdRevenueInfo)
+
+        // Track to Facebook SDK (AD_IMPRESSION)
+        FacebookManager.shared.logAdImpression(adType: adType, revenueUSD: revenueUSD, currency: currency)
     }
 
     // MARK: - Private Methods
