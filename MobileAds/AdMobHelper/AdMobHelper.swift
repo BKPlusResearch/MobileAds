@@ -102,6 +102,9 @@ public class AdMobHelper: NSObject {
     /// Loading view for banner ads.
     var bannerAdLoadingView: BannerAdLoadingView?
 
+    /// Callback for native ad status events
+    public var nativeAdStatusCallback: ((NativeAdStatus) -> Void)?
+
     /// Keeps track of the time when an app open ad was loaded to discard expired ad.
     var appOpenLoadTime: Date?
 
@@ -110,6 +113,10 @@ public class AdMobHelper: NSObject {
 
     /// Indicates whether the Google Mobile Ads SDK has been initialized.
     public private(set) var isSDKInitialized = false
+
+    /// Maps full-screen ad objects to their ad unit ID strings for metrics tracking.
+    /// FullScreenPresentingAd protocol doesn't expose adUnitID, so we store it at load time.
+    var fullScreenAdUnitIDs: [ObjectIdentifier: String] = [:]
 
     var isEnableShowAds: Bool = true
     
@@ -272,6 +279,19 @@ public enum RewardedAdStatus {
     case didDismiss              // Ad was dismissed by user (without earning reward)
     case didEarnReward           // User earned the reward
     case didEarnRewardAndDismiss // User earned reward AND ad was dismissed
+}
+
+// MARK: - Native Ad Status
+
+/// Status events for native ad lifecycle
+public enum NativeAdStatus {
+    case didLoad              // Native ad loaded successfully
+    case didFailToLoad        // Native ad failed to load
+    case didRecordImpression  // Native ad recorded an impression
+    case didRecordClick       // Native ad was clicked
+    case willPresentScreen    // Native ad will present full screen content
+    case willDismissScreen    // Native ad will dismiss full screen content
+    case didDismissScreen     // Native ad dismissed full screen content
 }
 
 // MARK: - Banner Ad Status

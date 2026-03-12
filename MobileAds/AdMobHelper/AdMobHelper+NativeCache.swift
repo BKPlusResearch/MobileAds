@@ -90,6 +90,10 @@ extension AdMobHelper {
     // This allows us to clear cache on impression
     private static var nativeAdCacheKeyMap: [NativeAd: String] = [:]
 
+    // Track which ad unit ID is associated with a native ad (for metrics tracking)
+    // nonisolated(unsafe) because accessed from non-MainActor delegate callbacks (all on main thread)
+    nonisolated(unsafe) static var nativeAdUnitIDMap: [NativeAd: String] = [:]
+
     /// Get cached native ad for a specific key
     /// - Parameter cacheKey: The cache key to retrieve
     /// - Returns: Cached native ad if available and valid

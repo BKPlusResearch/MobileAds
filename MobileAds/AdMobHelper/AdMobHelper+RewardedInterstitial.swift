@@ -16,12 +16,17 @@ extension AdMobHelper {
         }
 
         isRewardedInterstitialLoading = true
+        AdMetricsTracker.shared.trackRequest(adUnit: adUnitID.adUnitIDString, adType: .reward)
         initializeSDK()
 
         do {
             rewardedInterstitialAd = try await RewardedInterstitialAd.load(
                 with: adUnitID.adUnitIDString, request: Request())
             rewardedInterstitialAd?.fullScreenContentDelegate = self
+            if let ad = rewardedInterstitialAd {
+                fullScreenAdUnitIDs[ObjectIdentifier(ad)] = adUnitID.adUnitIDString
+            }
+            AdMetricsTracker.shared.trackLoaded(adUnit: adUnitID.adUnitIDString)
 
             // Track ad revenue
             rewardedInterstitialAd?.paidEventHandler = { adValue in
@@ -32,6 +37,7 @@ extension AdMobHelper {
         } catch {
             debugPrint(
                 "Rewarded interstitial ad failed to load with error: \(error.localizedDescription)")
+            AdMetricsTracker.shared.trackLoadFailed(adUnit: adUnitID.adUnitIDString)
             rewardedInterstitialAd = nil
             throw error
         }

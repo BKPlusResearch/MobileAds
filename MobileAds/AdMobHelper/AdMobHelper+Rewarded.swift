@@ -16,6 +16,7 @@ extension AdMobHelper {
         }
 
         isRewardedLoading = true
+        AdMetricsTracker.shared.trackRequest(adUnit: adUnitID.adUnitIDString, adType: .reward)
         // Show loading view when starting to load ad
         showRewardedAdLoadingView()
         initializeSDK()
@@ -24,6 +25,10 @@ extension AdMobHelper {
             rewardedAd = try await RewardedAd.load(
                 with: adUnitID.adUnitIDString, request: Request())
             rewardedAd?.fullScreenContentDelegate = self
+            if let ad = rewardedAd {
+                fullScreenAdUnitIDs[ObjectIdentifier(ad)] = adUnitID.adUnitIDString
+            }
+            AdMetricsTracker.shared.trackLoaded(adUnit: adUnitID.adUnitIDString)
 
             // Track ad revenue
             rewardedAd?.paidEventHandler = { adValue in
@@ -33,6 +38,7 @@ extension AdMobHelper {
             debugPrint("Rewarded ad loaded successfully")
         } catch {
             debugPrint("Rewarded ad failed to load with error: \(error.localizedDescription)")
+            AdMetricsTracker.shared.trackLoadFailed(adUnit: adUnitID.adUnitIDString)
             rewardedAd = nil
             // Hide loading view when load fails
             hideRewardedAdLoadingView()

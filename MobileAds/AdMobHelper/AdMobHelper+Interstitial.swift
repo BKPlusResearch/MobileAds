@@ -21,6 +21,7 @@ extension AdMobHelper {
         }
 
         isInterstitialLoading = true
+        AdMetricsTracker.shared.trackRequest(adUnit: adUnitID.adUnitIDString, adType: .interstitial)
         // Show loading view when starting to load ad (if enabled)
         if shouldShowLoadingView {
             showInterstitialAdLoadingView()
@@ -31,6 +32,10 @@ extension AdMobHelper {
             interstitialAd = try await InterstitialAd.load(
                 with: adUnitID.adUnitIDString, request: Request())
             interstitialAd?.fullScreenContentDelegate = self
+            if let ad = interstitialAd {
+                fullScreenAdUnitIDs[ObjectIdentifier(ad)] = adUnitID.adUnitIDString
+            }
+            AdMetricsTracker.shared.trackLoaded(adUnit: adUnitID.adUnitIDString)
 
             // Track ad revenue
             interstitialAd?.paidEventHandler = { adValue in
@@ -40,6 +45,7 @@ extension AdMobHelper {
             debugPrint("Interstitial ad loaded successfully")
         } catch {
             debugPrint("Interstitial ad failed to load with error: \(error.localizedDescription)")
+            AdMetricsTracker.shared.trackLoadFailed(adUnit: adUnitID.adUnitIDString)
             interstitialAd = nil
             // Hide loading view when load fails
             hideInterstitialAdLoadingView()

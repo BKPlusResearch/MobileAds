@@ -21,6 +21,13 @@ class NativeAdLoaderDelegateHelper: NSObject, NativeAdLoaderDelegate {
     
     func adLoader(_ adLoader: AdLoader, didReceive nativeAd: NativeAd) {
         debugPrint("Native ad loaded successfully")
+        let adUnit = adLoader.adUnitID
+        Task { @MainActor in
+            AdMetricsTracker.shared.trackLoaded(adUnit: adUnit)
+        }
+
+        // Store ad unit ID for metrics tracking in delegate callbacks
+        AdMobHelper.nativeAdUnitIDMap[nativeAd] = adUnit
 
         // Track ad revenue
         nativeAd.paidEventHandler = { adValue in
@@ -32,6 +39,10 @@ class NativeAdLoaderDelegateHelper: NSObject, NativeAdLoaderDelegate {
     
     func adLoader(_ adLoader: AdLoader, didFailToReceiveAdWithError error: Error) {
         debugPrint("Native ad failed to load with error: \(error.localizedDescription)")
+        let adUnit = adLoader.adUnitID
+        Task { @MainActor in
+            AdMetricsTracker.shared.trackLoadFailed(adUnit: adUnit)
+        }
         onAdFailed?(error)
     }
 }

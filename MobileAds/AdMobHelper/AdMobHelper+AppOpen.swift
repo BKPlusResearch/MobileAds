@@ -41,6 +41,7 @@ extension AdMobHelper {
         }
 
         isAppOpenLoading = true
+        AdMetricsTracker.shared.trackRequest(adUnit: adUnitID.adUnitIDString, adType: .appOpen)
         // Show loading view when starting to load ad (if enabled)
         if shouldShowLoadingView {
             showAppOpenAdLoadingView()
@@ -52,6 +53,10 @@ extension AdMobHelper {
                 with: adUnitID.adUnitIDString, request: Request())
             appOpenAd?.fullScreenContentDelegate = self
             appOpenLoadTime = Date()
+            if let ad = appOpenAd {
+                fullScreenAdUnitIDs[ObjectIdentifier(ad)] = adUnitID.adUnitIDString
+            }
+            AdMetricsTracker.shared.trackLoaded(adUnit: adUnitID.adUnitIDString)
 
             // Track ad revenue
             appOpenAd?.paidEventHandler = { adValue in
@@ -63,6 +68,7 @@ extension AdMobHelper {
             // Keep it showing if we're about to show the ad immediately
         } catch {
             debugPrint("App open ad failed to load with error: \(error.localizedDescription)")
+            AdMetricsTracker.shared.trackLoadFailed(adUnit: adUnitID.adUnitIDString)
             appOpenAd = nil
             appOpenLoadTime = nil
             // Hide loading view when load fails

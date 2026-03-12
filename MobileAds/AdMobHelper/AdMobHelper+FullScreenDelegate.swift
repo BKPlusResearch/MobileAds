@@ -6,10 +6,16 @@ import UIKit
 extension AdMobHelper: FullScreenContentDelegate {
     public func adDidRecordImpression(_ ad: FullScreenPresentingAd) {
         debugPrint("Ad recorded an impression.")
+        if let adUnit = fullScreenAdUnitIDs[ObjectIdentifier(ad)] {
+            AdMetricsTracker.shared.trackImpression(adUnit: adUnit)
+        }
     }
 
     public func adDidRecordClick(_ ad: FullScreenPresentingAd) {
         debugPrint("Ad recorded a click.")
+        if let adUnit = fullScreenAdUnitIDs[ObjectIdentifier(ad)] {
+            AdMetricsTracker.shared.trackClick(adUnit: adUnit)
+        }
         
         // Mark ad click (will verify in background handler if app actually leaves)
         markAdClick()
@@ -17,6 +23,9 @@ extension AdMobHelper: FullScreenContentDelegate {
 
     public func adWillPresentFullScreenContent(_ ad: FullScreenPresentingAd) {
         debugPrint("Ad will be presented.")
+        if let adUnit = fullScreenAdUnitIDs[ObjectIdentifier(ad)] {
+            AdMetricsTracker.shared.trackShow(adUnit: adUnit)
+        }
         
         // Hide loading view when ad is about to be presented (success case)
         if ad === appOpenAd {
@@ -49,6 +58,9 @@ extension AdMobHelper: FullScreenContentDelegate {
 
     public func adDidDismissFullScreenContent(_ ad: FullScreenPresentingAd) {
         debugPrint("Ad was dismissed.")
+
+        // Clean up ad unit ID mapping
+        fullScreenAdUnitIDs.removeValue(forKey: ObjectIdentifier(ad))
 
         // Clear the ad and reset showing state
         if ad === interstitialAd {
@@ -89,6 +101,9 @@ extension AdMobHelper: FullScreenContentDelegate {
         didFailToPresentFullScreenContentWithError error: Error
     ) {
         debugPrint("Ad failed to present with error: \(error.localizedDescription)")
+
+        // Clean up ad unit ID mapping
+        fullScreenAdUnitIDs.removeValue(forKey: ObjectIdentifier(ad))
 
         // Clear the ad and reset showing state
         if ad === interstitialAd {

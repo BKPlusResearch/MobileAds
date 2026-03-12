@@ -27,6 +27,7 @@ extension AdMobHelper {
             adUnitID: adUnitID.adUnitIDString, rootViewController: rootViewController,
             adTypes: [.native], options: nil)
         adLoader.delegate = delegate
+        AdMetricsTracker.shared.trackRequest(adUnit: adUnitID.adUnitIDString, adType: .native)
         adLoader.load(Request())
         return adLoader
     }

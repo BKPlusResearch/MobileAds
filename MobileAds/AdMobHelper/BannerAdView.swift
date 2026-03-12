@@ -65,32 +65,39 @@ public class BannerAdView: UIView {
         isCollapsible: Bool = false,
         collapsiblePlacement: BannerCollapsiblePlacement = .bottom
     ) {
-        // Skip nếu đã có banner đang hiển thị
-        if let existing = bannerView, existing.superview != nil {
+        let cacheKey = adUnitID.adUnitIDString
+
+        // 1. Nếu là banner thường và đã có ad đang hiển thị -> Chỉ cần track SHOW (metrics nội bộ)
+        if !isCollapsible, let existing = bannerView, existing.superview != nil {
+            AdMetricsTracker.shared.trackShow(adUnit: cacheKey)
             return
         }
 
-        // Consent check
+        // 2. Consent check
         guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
             isHidden = true
             return
         }
 
-        // Reveal view (có thể bị ẩn sau clearAd())
+        // Reveal view
         isHidden = false
 
-        let cacheKey = adUnitID.adUnitIDString
-
-        // Cache hit → serve ngay, không cần network request
-        if let entry = BannerAdView.cache[cacheKey], entry.isValid {
+        // 3. Cache hit logic
+        // KHÔNG dùng cache cho collapsible banner để đảm bảo hiệu ứng thu phóng luôn hoạt động
+        if !isCollapsible, let entry = BannerAdView.cache[cacheKey], entry.isValid {
             debugPrint("✅ [BannerAdView] Cache hit for '\(cacheKey)'")
             displayCached(entry.bannerView, cacheKey: cacheKey)
+            AdMetricsTracker.shared.trackShow(adUnit: cacheKey)
             return
         }
 
-        // Cache miss / expired
+        // 4. Cache miss / Fresh load (Collapsible luôn lọt vào đây)
         BannerAdView.cache.removeValue(forKey: cacheKey)
-        debugPrint("⏳ [BannerAdView] Cache miss for '\(cacheKey)', loading from network...")
+        if isCollapsible {
+            debugPrint("🔄 [BannerAdView] Force network load for COLLAPSIBLE '\(cacheKey)'")
+        } else {
+            debugPrint("⏳ [BannerAdView] Cache miss for '\(cacheKey)', loading from network...")
+        }
 
         // Cleanup previous
         adDelegate = nil
@@ -112,7 +119,7 @@ public class BannerAdView: UIView {
 
         let delegate = BannerAdViewDelegate(container: self, cacheKey: cacheKey)
         banner.delegate = delegate
-        adDelegate = delegate  // strong ref — BannerView.delegate là weak
+        adDelegate = delegate
 
         bannerView = banner
         addSubview(banner)
@@ -126,6 +133,9 @@ public class BannerAdView: UIView {
             extras.additionalParameters = ["collapsible": collapsiblePlacement.rawValue]
             request.register(extras)
         }
+        
+        // Track Request (Show will be tracked in bannerViewDidReceiveAd)
+        AdMetricsTracker.shared.trackRequest(adUnit: cacheKey, adType: .banner)
         banner.load(request)
     }
 
@@ -187,6 +197,8 @@ private class BannerAdViewDelegate: NSObject, BannerViewDelegate {
             bannerView: bannerView,
             loadedTime: Date()
         )
+        AdMetricsTracker.shared.trackLoaded(adUnit: cacheKey)
+        AdMetricsTracker.shared.trackShow(adUnit: cacheKey)
         debugPrint("📦 [BannerAdView] Cached banner for '\(cacheKey)' — waiting for impression")
         container?.hideLoading()
         container?.isHidden = false
@@ -194,6 +206,7 @@ private class BannerAdViewDelegate: NSObject, BannerViewDelegate {
 
     func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: Error) {
         print("BannerAdView: ❌ \(error.localizedDescription)")
+        AdMetricsTracker.shared.trackLoadFailed(adUnit: cacheKey)
         BannerAdView.cache.removeValue(forKey: cacheKey)
         container?.hideLoading()
         container?.isHidden = true
@@ -201,7 +214,12 @@ private class BannerAdViewDelegate: NSObject, BannerViewDelegate {
 
     func bannerViewDidRecordImpression(_ bannerView: BannerView) {
         // Ad đã được user thấy → xoá cache, lần sau load fresh
+        AdMetricsTracker.shared.trackImpression(adUnit: cacheKey)
         BannerAdView.cache.removeValue(forKey: cacheKey)
         debugPrint("🗑️ [BannerAdView] Cache cleared after impression for '\(cacheKey)'")
+    }
+
+    func bannerViewDidRecordClick(_ bannerView: BannerView) {
+        AdMetricsTracker.shared.trackClick(adUnit: cacheKey)
     }
 }
