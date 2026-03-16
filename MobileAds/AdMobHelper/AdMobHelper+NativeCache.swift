@@ -85,6 +85,7 @@ extension AdMobHelper {
     private static var preloadingKeys: Set<String> = []
     private static var activeDelegates: [String: CacheNativeAdLoaderDelegate] = [:]
     private static var activeAdLoaders: [String: AdLoader] = [:]
+    private static var activeDummyVCs: [String: UIViewController] = [:]
 
     // Track which cache key is associated with currently showing native ad
     // This allows us to clear cache on impression
@@ -153,6 +154,7 @@ extension AdMobHelper {
         AdMobHelper.preloadingKeys.removeAll()
         AdMobHelper.activeDelegates.removeAll()
         AdMobHelper.activeAdLoaders.removeAll()
+        AdMobHelper.activeDummyVCs.removeAll()
         AdMobHelper.nativeAdCacheKeyMap.removeAll()
         debugPrint("🗑️ [VUNT_CACHE] Cleared all cached native ads")
     }
@@ -223,9 +225,15 @@ extension AdMobHelper {
 
                 // Cache the ad
                 self.cacheNativeAd(nativeAd, for: request.cacheKey)
+                
+                // Track loaded + store ad unit ID mapping for impression tracking
+                AdMetricsTracker.shared.trackLoaded(adUnit: request.adUnitID.adUnitIDString)
+                AdMobHelper.nativeAdUnitIDMap[nativeAd] = request.adUnitID.adUnitIDString
+                
                 AdMobHelper.preloadingKeys.remove(request.cacheKey)
                 AdMobHelper.activeDelegates.removeValue(forKey: request.cacheKey)
                 AdMobHelper.activeAdLoaders.removeValue(forKey: request.cacheKey)
+                AdMobHelper.activeDummyVCs.removeValue(forKey: request.cacheKey)
                 successCount += 1
                 dispatchGroup.leave()
             }
@@ -233,14 +241,23 @@ extension AdMobHelper {
             delegateHelper.onAdFailed = { (error: Error) in
                 debugPrint("❌ [VUNT_CACHE] onAdFailed closure executing for key: \(request.cacheKey)")
                 debugPrint("❌ [VUNT_CACHE] Failed to preload ad for key: \(request.cacheKey) - \(error.localizedDescription)")
+                AdMetricsTracker.shared.trackLoadFailed(adUnit: request.adUnitID.adUnitIDString)
                 AdMobHelper.preloadingKeys.remove(request.cacheKey)
                 AdMobHelper.activeDelegates.removeValue(forKey: request.cacheKey)
                 AdMobHelper.activeAdLoaders.removeValue(forKey: request.cacheKey)
+                AdMobHelper.activeDummyVCs.removeValue(forKey: request.cacheKey)
                 dispatchGroup.leave()
             }
 
-            // Load the ad (use a dummy root VC for preloading)
+            // Load the ad (use a retained dummy root VC for preloading)
+            // Must retain dummyVC to prevent FB Audience Network SDK crash
+            // when it tries to call methods on a deallocated rootViewController
             let dummyVC = UIViewController()
+            AdMobHelper.activeDummyVCs[request.cacheKey] = dummyVC
+            
+            // Track request for metrics
+            AdMetricsTracker.shared.trackRequest(adUnit: request.adUnitID.adUnitIDString, adType: .native)
+            
             let adLoader = self.loadNativeAd(
                 adUnitID: request.adUnitID,
                 rootViewController: dummyVC,
@@ -430,6 +447,11 @@ extension AdMobHelper {
         // Store cache key association for impression tracking
         associateNativeAdCacheKey(cacheKey, with: nativeAd)
         debugPrint("📦 [NATIVE_CACHE] Native ad displayed, waiting for impression to clear cache")
+
+        // Track Show metric (ad served from cache and displayed)
+        if let adUnitID = AdMobHelper.nativeAdUnitIDMap[nativeAd] {
+            AdMetricsTracker.shared.trackShow(adUnit: adUnitID)
+        }
 
         statusCallback?(true)
     }
