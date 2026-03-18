@@ -122,6 +122,12 @@ public class BannerAdView: UIView {
         adDelegate = delegate
 
         bannerView = banner
+
+        // Track ad revenue (Facebook AD_IMPRESSION, Adjust, TikTok, Firebase)
+        banner.paidEventHandler = { adValue in
+            ADJustManager.shared.logRevenue(adType: .banner, adValue: adValue)
+        }
+
         addSubview(banner)
         banner.snp.makeConstraints { make in
             make.edges.equalToSuperview()
