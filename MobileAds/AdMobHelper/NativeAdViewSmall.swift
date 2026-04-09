@@ -8,18 +8,17 @@
 import UIKit
 @preconcurrency import GoogleMobileAds
 
-/// Custom view class for managing NativeAdViewSmall.xib
+/// Custom view class for `NativeAdViewSmall.xib`
+/// Layout follows Google’s native **small** template: square media (≤25% width) + headline + Ad badge + secondary line + CTA.
+/// See <https://developers.google.com/admob/ios/native/templates>
 public class NativeAdViewSmall: NativeAdView {
 
     // MARK: - IBOutlets
-    // These outlets are already connected in the XIB file
-    // They are inherited from GADNativeAdView:
-    // @IBOutlet weak var headlineView: UIView!
-    // @IBOutlet weak var bodyView: UIView!
-    // @IBOutlet weak var callToActionView: UIView!
-    // @IBOutlet weak var iconView: UIView!
+    // headlineView, bodyView, callToActionView, iconView, mediaView: `NativeAdView`
     @IBOutlet weak var boundView: UIView!
     @IBOutlet weak var adsLabelView: UIView!
+    /// Wraps `MediaView` + icon fallback; hidden when neither media nor icon applies.
+    @IBOutlet weak var mediaContainerView: UIView!
 
     // MARK: - Initialization
 
@@ -51,21 +50,20 @@ public class NativeAdViewSmall: NativeAdView {
     // MARK: - Configuration
 
     private func setupUI() {
-        // Use system colors as defaults - can be customized via configuration if needed
         boundView.backgroundColor = .systemBackground
-        boundView.cornerRadius = 12
+        boundView.cornerRadius = 8
         boundView.borderWidth = 1
-        boundView.borderColor = .separator // Use system separator color
+        boundView.borderColor = .separator
 
-        // Setup ads label view with bottom-right corner radius only
-        adsLabelView.layer.cornerRadius = 2
-        adsLabelView.layer.maskedCorners = [.layerMaxXMaxYCorner] // Bottom-right corner only
+        adsLabelView.layer.cornerRadius = 4
         adsLabelView.layer.masksToBounds = true
 
-        // Setup headline and body view styling
-        setupTextViews()
+        if let mediaView = mediaView {
+            mediaView.layer.cornerRadius = 8
+            mediaView.clipsToBounds = true
+        }
 
-        // Setup call to action button
+        setupTextViews()
         setupCallToActionGradient()
     }
 
@@ -92,9 +90,9 @@ public class NativeAdViewSmall: NativeAdView {
 
             // Setup call to action button with config or default values
             if let callToActionView = self.callToActionView as? UIButton {
-                callToActionView.titleLabel?.font = config.callToActionFont ?? UIFont.systemFont(ofSize: 16, weight: .bold)
+                callToActionView.titleLabel?.font = config.callToActionFont ?? UIFont.systemFont(ofSize: 15, weight: .bold)
                 callToActionView.setTitleColor(config.callToActionTextColor ?? .white, for: .normal)
-                callToActionView.layer.cornerRadius = 12
+                callToActionView.layer.cornerRadius = 8
             }
         }
     }
@@ -109,8 +107,7 @@ public class NativeAdViewSmall: NativeAdView {
 
             let config = NativeAdConfiguration.shared
             
-            // Set corner radius
-            callToActionView.layer.cornerRadius = 12
+            callToActionView.layer.cornerRadius = 8
             
             // Remove any existing gradient layers first
             callToActionView.layer.sublayers?.forEach { layer in
@@ -129,7 +126,7 @@ public class NativeAdViewSmall: NativeAdView {
                 gradientLayer.startPoint = config.callToActionGradientStartPoint
                 gradientLayer.endPoint = config.callToActionGradientEndPoint
             gradientLayer.frame = callToActionView.bounds
-            gradientLayer.cornerRadius = 12
+            gradientLayer.cornerRadius = 8
 
             // Insert gradient layer at the bottom
             callToActionView.layer.insertSublayer(gradientLayer, at: 0)
@@ -149,17 +146,30 @@ public class NativeAdViewSmall: NativeAdView {
 
         // Update gradient layer frame when view layout changes
         if let callToActionView = callToActionView as? UIButton {
-            // Ensure corner radius is set
-            callToActionView.layer.cornerRadius = 12
-            
-            // Update gradient layer frame if exists
+            callToActionView.layer.cornerRadius = 8
             callToActionView.layer.sublayers?.forEach { layer in
                 if let gradientLayer = layer as? CAGradientLayer {
                     gradientLayer.frame = callToActionView.bounds
-                    gradientLayer.cornerRadius = 12
+                    gradientLayer.cornerRadius = 8
                 }
             }
         }
+        if let mediaView = mediaView {
+            mediaView.layer.cornerRadius = 8
+        }
+    }
+
+    /// Collapse media column when there is no media and no icon (Google-style thin row).
+    /// Call after `nativeAd` and asset views are populated.
+    func updateMediaVisibility(hasMedia: Bool) {
+        guard mediaContainerView != nil else { return }
+        let iconSet = (iconView as? UIImageView)?.image != nil
+        mediaView?.isHidden = !hasMedia
+        if let iv = iconView as? UIImageView {
+            iv.isHidden = hasMedia || !iconSet
+        }
+        let showColumn = hasMedia || iconSet
+        mediaContainerView.isHidden = !showColumn
     }
 
     /// Apply configuration to customize appearance
@@ -211,7 +221,7 @@ public class NativeAdViewSmall: NativeAdView {
                 gradientLayer.startPoint = config.callToActionGradientStartPoint
                 gradientLayer.endPoint = config.callToActionGradientEndPoint
                 gradientLayer.frame = callToActionView.bounds
-                gradientLayer.cornerRadius = 12
+                gradientLayer.cornerRadius = 8
                 
                 // Insert gradient layer at the bottom
                 callToActionView.layer.insertSublayer(gradientLayer, at: 0)

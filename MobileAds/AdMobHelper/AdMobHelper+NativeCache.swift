@@ -411,7 +411,13 @@ extension AdMobHelper {
 
         // Body
         if let bodyView = nativeAdView.bodyView as? UILabel {
-            bodyView.text = nativeAd.body
+            if nativeAdView is NativeAdViewSmall {
+                let body = nativeAd.body ?? ""
+                let advertiser = nativeAd.advertiser ?? ""
+                bodyView.text = body.isEmpty ? advertiser : body
+            } else {
+                bodyView.text = nativeAd.body
+            }
         }
 
         // Call to action button
@@ -428,6 +434,12 @@ extension AdMobHelper {
         // Media view
         if let mediaView = nativeAdView.mediaView {
             mediaView.mediaContent = nativeAd.mediaContent
+        }
+
+        if let small = nativeAdView as? NativeAdViewSmall {
+            let hasMedia = nativeAd.mediaContent != nil &&
+                (nativeAd.mediaContent.hasVideoContent || nativeAd.mediaContent.mainImage != nil)
+            small.updateMediaVisibility(hasMedia: hasMedia)
         }
 
         // Add view to container

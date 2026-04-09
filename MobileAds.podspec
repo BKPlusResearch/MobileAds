@@ -16,8 +16,8 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "MobileAds"
-  spec.version      = "1.2.0"
-  spec.summary      = "A Swift framework extending Google Mobile Ads SDK with convenient configuration and singleton-based native ad styling"
+  spec.version      = "1.2.1"
+  spec.summary      = "Google Mobile Ads + IAP for iOS; native small template aligned with AdMob Native Templates layout"
 
   # This description is used to generate tags and improve search results.
   #   * Think: What does it do? Why did you write it? What is the focus?
@@ -26,6 +26,7 @@ Pod::Spec.new do |spec|
   #   * Finally, don't worry about the indent, CocoaPods strips it!
   spec.description  = <<-DESC
   MobileAds is a Swift framework that supports all base display ad types from Google Mobile Ads SDK and In-App Purchase management, making it convenient to configure and use. Features include:
+  - Native **small** layout aligned with Google AdMob Native Templates (media column, headline, Ad badge + secondary, CTA)
   - Singleton-based configuration for global native ad styling
   - Gradient support for call-to-action buttons
   - Automatic consent management integration
