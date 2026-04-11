@@ -9,14 +9,15 @@ import UIKit
 @preconcurrency import GoogleMobileAds
 
 /// Custom view class for `NativeAdViewSmall.xib`
-/// Layout follows Google’s native **small** template: square media (≤25% width) + headline + Ad badge + secondary line + CTA.
-/// See <https://developers.google.com/admob/ios/native/templates>
+/// Compact row: icon/media, headline + body, trailing CTA. Styling is driven by `NativeAdConfiguration` the same way as `NativeAdViewMedium`.
 public class NativeAdViewSmall: NativeAdView {
 
     // MARK: - IBOutlets
-    // headlineView, bodyView, callToActionView, iconView, mediaView: `NativeAdView`
+
     @IBOutlet weak var boundView: UIView!
     @IBOutlet weak var adsLabelView: UIView!
+    /// Horizontal stack (icon | text | CTA); exposed like `NativeAdViewMedium.mainStackView` for host tweaks.
+    @IBOutlet weak var mainStackView: UIStackView!
     /// Wraps `MediaView` + icon fallback; hidden when neither media nor icon applies.
     @IBOutlet weak var mediaContainerView: UIView!
 
@@ -38,8 +39,6 @@ public class NativeAdViewSmall: NativeAdView {
 
     // MARK: - Factory Method
 
-    /// Load NativeAdViewSmall from XIB
-    /// This is the recommended way to create an instance
     static func loadFromXib() -> NativeAdViewSmall? {
         let bundle = Bundle(for: NativeAdViewSmall.self)
         return UINib(nibName: "NativeAdViewSmall", bundle: bundle)
@@ -50,92 +49,97 @@ public class NativeAdViewSmall: NativeAdView {
     // MARK: - Configuration
 
     private func setupUI() {
-        boundView.backgroundColor = .systemBackground
         boundView.cornerRadius = 8
-        boundView.borderWidth = 1
-        boundView.borderColor = .separator
+        boundView.clipsToBounds = true
 
-        adsLabelView.layer.cornerRadius = 4
+        // Small template: "Ad" sits top-leading — round all corners (medium uses bottom-trailing mask only).
+        adsLabelView.cornerRadius = 8
+        adsLabelView.layer.maskedCorners = [
+            .layerMinXMinYCorner, .layerMaxXMinYCorner,
+            .layerMinXMaxYCorner, .layerMaxXMaxYCorner,
+        ]
         adsLabelView.layer.masksToBounds = true
+
+        if let mediaContainerView = mediaContainerView {
+            mediaContainerView.cornerRadius = 8
+            mediaContainerView.clipsToBounds = true
+        }
 
         if let mediaView = mediaView {
             mediaView.layer.cornerRadius = 8
             mediaView.clipsToBounds = true
         }
 
+        if let iconView = iconView as? UIImageView {
+            iconView.layer.cornerRadius = 8
+            iconView.clipsToBounds = true
+        }
+
+        if let ads = adsLabelView {
+            boundView.bringSubviewToFront(ads)
+        }
+
         setupTextViews()
         setupCallToActionGradient()
     }
 
-    /// Setup font and text color for headline and body views
-    /// Default values are set here, respecting configuration if available
+    /// Same pattern as `NativeAdViewMedium.setupTextViews` (defaults → `NativeAdConfiguration.shared`).
     private func setupTextViews() {
-        // Delay to ensure outlets are connected when loading from XIB
         DispatchQueue.main.async { [weak self] in
             guard let self = self else { return }
 
             let config = NativeAdConfiguration.shared
 
-            // Setup headline view with config or default values
             if let headlineView = self.headlineView as? UILabel {
-                headlineView.font = config.headlineFont ?? UIFont.systemFont(ofSize: 14, weight: .medium)
+                headlineView.font = config.headlineFont ?? UIFont.systemFont(ofSize: 15, weight: .semibold)
                 headlineView.textColor = config.headlineTextColor ?? .label
             }
 
-            // Setup body view with config or default values
             if let bodyView = self.bodyView as? UILabel {
-                bodyView.font = config.bodyFont ?? UIFont.systemFont(ofSize: 12, weight: .regular)
-                bodyView.textColor = config.bodyTextColor ?? .label
+                bodyView.font = config.bodyFont ?? UIFont.systemFont(ofSize: 14, weight: .regular)
+                bodyView.textColor = config.bodyTextColor ?? .secondaryLabel
             }
 
-            // Setup call to action button with config or default values
             if let callToActionView = self.callToActionView as? UIButton {
-                callToActionView.titleLabel?.font = config.callToActionFont ?? UIFont.systemFont(ofSize: 15, weight: .bold)
+                callToActionView.titleLabel?.font = config.callToActionFont ?? UIFont.systemFont(ofSize: 12, weight: .bold)
+                callToActionView.titleLabel?.adjustsFontSizeToFitWidth = true
+                callToActionView.titleLabel?.minimumScaleFactor = 0.85
+                callToActionView.cornerRadius = 16
                 callToActionView.setTitleColor(config.callToActionTextColor ?? .white, for: .normal)
-                callToActionView.layer.cornerRadius = 8
             }
         }
     }
 
-    /// Setup gradient background for call to action button
-    /// Applies configuration from NativeAdConfiguration.shared singleton
+    /// Same pattern as `NativeAdViewMedium.setupCallToActionGradient`.
     private func setupCallToActionGradient() {
-        // Delay to ensure outlets are connected when loading from XIB
         DispatchQueue.main.async { [weak self] in
             guard let self = self,
                   let callToActionView = self.callToActionView as? UIButton else { return }
 
             let config = NativeAdConfiguration.shared
-            
-            callToActionView.layer.cornerRadius = 8
-            
-            // Remove any existing gradient layers first
+
+            callToActionView.cornerRadius = 16
+
             callToActionView.layer.sublayers?.forEach { layer in
                 if layer is CAGradientLayer {
                     layer.removeFromSuperlayer()
                 }
             }
 
-            // Apply gradient or solid background color from shared configuration
             if config.useGradientForCallToAction,
                let startColor = config.callToActionGradientStartColor,
                let endColor = config.callToActionGradientEndColor {
-                // Apply gradient
-            let gradientLayer = CAGradientLayer()
+                let gradientLayer = CAGradientLayer()
                 gradientLayer.colors = [startColor.cgColor, endColor.cgColor]
                 gradientLayer.startPoint = config.callToActionGradientStartPoint
                 gradientLayer.endPoint = config.callToActionGradientEndPoint
-            gradientLayer.frame = callToActionView.bounds
-            gradientLayer.cornerRadius = 8
-
-            // Insert gradient layer at the bottom
-            callToActionView.layer.insertSublayer(gradientLayer, at: 0)
-            callToActionView.backgroundColor = .clear
+                gradientLayer.frame = callToActionView.bounds
+                gradientLayer.cornerRadius = 12
+                callToActionView.layer.insertSublayer(gradientLayer, at: 0)
+                callToActionView.backgroundColor = .clear
             } else if let backgroundColor = config.callToActionBackgroundColor {
-                // Apply solid background color
                 callToActionView.backgroundColor = backgroundColor
             } else {
-                // Default fallback color if no configuration is set
                 callToActionView.backgroundColor = .systemBlue
             }
         }
@@ -144,23 +148,23 @@ public class NativeAdViewSmall: NativeAdView {
     public override func layoutSubviews() {
         super.layoutSubviews()
 
-        // Update gradient layer frame when view layout changes
         if let callToActionView = callToActionView as? UIButton {
-            callToActionView.layer.cornerRadius = 8
+            callToActionView.cornerRadius = 16
             callToActionView.layer.sublayers?.forEach { layer in
                 if let gradientLayer = layer as? CAGradientLayer {
                     gradientLayer.frame = callToActionView.bounds
-                    gradientLayer.cornerRadius = 8
+                    gradientLayer.cornerRadius = 16
                 }
             }
         }
         if let mediaView = mediaView {
             mediaView.layer.cornerRadius = 8
         }
+        if let ads = adsLabelView {
+            boundView.bringSubviewToFront(ads)
+        }
     }
 
-    /// Collapse media column when there is no media and no icon (Google-style thin row).
-    /// Call after `nativeAd` and asset views are populated.
     func updateMediaVisibility(hasMedia: Bool) {
         guard mediaContainerView != nil else { return }
         let iconSet = (iconView as? UIImageView)?.image != nil
@@ -172,13 +176,10 @@ public class NativeAdViewSmall: NativeAdView {
         mediaContainerView.isHidden = !showColumn
     }
 
-    /// Apply configuration to customize appearance
-    /// - Parameter configuration: Configuration for customizing ad appearance. If nil, uses `NativeAdConfiguration.shared` singleton
+    /// Mirrors `NativeAdViewMedium.applyConfiguration(_:)` — same `NativeAdConfiguration` keys.
     func applyConfiguration(_ configuration: NativeAdConfiguration?) {
-        // Use provided configuration or fall back to shared singleton
         let config = configuration ?? NativeAdConfiguration.shared
 
-        // Apply headline font and color
         if let headlineView = headlineView as? UILabel {
             if let font = config.headlineFont {
                 headlineView.font = font
@@ -188,7 +189,6 @@ public class NativeAdViewSmall: NativeAdView {
             }
         }
 
-        // Apply body font and color
         if let bodyView = bodyView as? UILabel {
             if let font = config.bodyFont {
                 bodyView.font = font
@@ -198,45 +198,37 @@ public class NativeAdViewSmall: NativeAdView {
             }
         }
 
-        // Apply call to action button styling
         if let callToActionView = callToActionView as? UIButton {
             if let font = config.callToActionFont {
                 callToActionView.titleLabel?.font = font
             }
-            
-            // Remove any existing gradient layers first
+
             callToActionView.layer.sublayers?.forEach { layer in
                 if layer is CAGradientLayer {
                     layer.removeFromSuperlayer()
                 }
             }
-            
-            // Apply gradient or solid background color
+
             if config.useGradientForCallToAction,
                let startColor = config.callToActionGradientStartColor,
                let endColor = config.callToActionGradientEndColor {
-                // Apply gradient
                 let gradientLayer = CAGradientLayer()
                 gradientLayer.colors = [startColor.cgColor, endColor.cgColor]
                 gradientLayer.startPoint = config.callToActionGradientStartPoint
                 gradientLayer.endPoint = config.callToActionGradientEndPoint
                 gradientLayer.frame = callToActionView.bounds
-                gradientLayer.cornerRadius = 8
-                
-                // Insert gradient layer at the bottom
+                gradientLayer.cornerRadius = 16
                 callToActionView.layer.insertSublayer(gradientLayer, at: 0)
                 callToActionView.backgroundColor = .clear
             } else if let backgroundColor = config.callToActionBackgroundColor {
-                // Apply solid background color
                 callToActionView.backgroundColor = backgroundColor
             }
-            
+
             if let textColor = config.callToActionTextColor {
                 callToActionView.setTitleColor(textColor, for: .normal)
             }
         }
 
-        // Apply border customization
         if let borderColor = config.borderColor {
             boundView.borderColor = borderColor
         }
@@ -244,15 +236,12 @@ public class NativeAdViewSmall: NativeAdView {
             boundView.borderWidth = borderWidth
         }
 
-        // Apply background customization
         if let backgroundColor = config.backgroundColor {
             boundView.backgroundColor = backgroundColor
         }
 
-        // Apply ads label background color
         if let adsLabelBgColor = config.adsLabelBackgroundColor {
             adsLabelView.backgroundColor = adsLabelBgColor
         }
     }
 }
-
