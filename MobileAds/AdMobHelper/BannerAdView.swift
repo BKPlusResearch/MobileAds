@@ -111,7 +111,7 @@ public class BannerAdView: UIView {
         bringSubviewToFront(loadingView)
 
         let width = bounds.width > 0 ? bounds.width : UIScreen.main.bounds.width
-        let adSize = currentOrientationAnchoredAdaptiveBanner(width: width)
+        let adSize = largeAnchoredAdaptiveBanner(width: width)
 
         let banner = BannerView(adSize: adSize)
         banner.adUnitID = cacheKey

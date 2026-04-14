@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "MobileAds"
-  spec.version      = "1.2.2"
+  spec.version      = "1.3.0"
   spec.summary      = "Google Mobile Ads + IAP for iOS; native small/medium templates with shared NativeAdConfiguration theming"
 
   # This description is used to generate tags and improve search results.
@@ -159,7 +159,7 @@ Pod::Spec.new do |spec|
   spec.dependency 'FirebaseCrashlytics', '~> 11.15.0'
   spec.dependency 'FirebaseAnalytics', '~> 11.15.0'
   spec.dependency 'Firebase/RemoteConfig', '~> 11.15.0'
-  spec.dependency "Google-Mobile-Ads-SDK", '~> 12.0.0'
+  spec.dependency "Google-Mobile-Ads-SDK", '~> 13.0'
   spec.dependency "GoogleUserMessagingPlatform", '~> 3.0.0'
   spec.dependency "SnapKit", '~> 5.7.1'
   spec.dependency "Adjust", '~> 5.5.0'
