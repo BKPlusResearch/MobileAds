@@ -17,7 +17,7 @@ Pod::Spec.new do |spec|
 
   spec.name         = "MobileAds"
   spec.version      = "1.3.0"
-  spec.summary      = "Google Mobile Ads + IAP for iOS; native small/medium templates with shared NativeAdConfiguration theming"
+  spec.summary      = "Google Mobile Ads + IAP for iOS; SwiftUI support, native small/medium templates with shared NativeAdConfiguration theming"
 
   # This description is used to generate tags and improve search results.
   #   * Think: What does it do? Why did you write it? What is the focus?
@@ -26,6 +26,8 @@ Pod::Spec.new do |spec|
   #   * Finally, don't worry about the indent, CocoaPods strips it!
   spec.description  = <<-DESC
   MobileAds is a Swift framework that supports all base display ad types from Google Mobile Ads SDK and In-App Purchase management, making it convenient to configure and use. Features include:
+  - **SwiftUI support** via UIViewRepresentable wrappers and ViewModifiers for Banner, Native, Interstitial, Rewarded, RewardedInterstitial, and App Open ads
+  - IAPViewModel ObservableObject for reactive purchase state in SwiftUI
   - Native **small** compact row (icon/media, headline, body, CTA) with `mainStackView`; styling via same `NativeAdConfiguration` as medium
   - Singleton-based configuration for global native ad styling
   - Gradient support for call-to-action buttons
@@ -89,7 +91,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.source       = { :git => "https://github.com/AperoVN/MobileAds.git", :tag => "#{spec.version}" }
-  spec.frameworks   = "Foundation", "UIKit", "Photos", "AVFoundation"
+  spec.frameworks   = "Foundation", "UIKit", "SwiftUI", "Photos", "AVFoundation"
   spec.swift_version = '5.5'
 # spec.source       = { :git => "https://github.com/AperoVN-iOS/MobileAds.git", :tag => "#{spec.version}" }
 
