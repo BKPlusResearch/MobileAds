@@ -40,6 +40,8 @@ extension AdMobHelper: FullScreenContentDelegate {
             hideRewardedAdLoadingView()
             // Notify that ad was presented successfully
             rewardedAdStatusCallback?(.didPresent)
+        } else if ad === rewardedInterstitialAd {
+            rewardedInterstitialAdStatusCallback?(.didPresent)
         }
     }
 
@@ -53,6 +55,8 @@ extension AdMobHelper: FullScreenContentDelegate {
             interstitialAdStatusCallback?(.willDismiss)
         } else if ad === rewardedAd {
             rewardedAdStatusCallback?(.willDismiss)
+        } else if ad === rewardedInterstitialAd {
+            rewardedInterstitialAdStatusCallback?(.willDismiss)
         }
     }
 
@@ -83,6 +87,8 @@ extension AdMobHelper: FullScreenContentDelegate {
             rewardedAd = nil
             isRewardedShowing = false
         } else if ad === rewardedInterstitialAd {
+            rewardedInterstitialAdStatusCallback?(.didDismiss)
+            rewardedInterstitialAdStatusCallback = nil
             rewardedInterstitialAd = nil
             isRewardedInterstitialShowing = false
         } else if ad === appOpenAd {
@@ -128,6 +134,8 @@ extension AdMobHelper: FullScreenContentDelegate {
             rewardedAd = nil
             isRewardedShowing = false
         } else if ad === rewardedInterstitialAd {
+            rewardedInterstitialAdStatusCallback?(.didFailToPresent)
+            rewardedInterstitialAdStatusCallback = nil
             rewardedInterstitialAd = nil
             isRewardedInterstitialShowing = false
         } else if ad === appOpenAd {
