@@ -6,7 +6,7 @@ extension AdMobHelper {
     
     /// Load a rewarded video ad.
     /// - Parameter adUnitID: The ad unit identifier for rewarded video ads.
-    public func loadRewardedAd(adUnitID: AdUnitIdentifiable) async throws {
+    public func loadRewardedAd(adUnitID: AdUnitIdentifiable, showLoading: Bool = true) async throws {
         guard !isRewardedLoading, rewardedAd == nil else {
             return
         }
@@ -18,7 +18,9 @@ extension AdMobHelper {
         isRewardedLoading = true
         AdMetricsTracker.shared.trackRequest(adUnit: adUnitID.adUnitIDString, adType: .reward)
         // Show loading view when starting to load ad
-        showRewardedAdLoadingView()
+        if showLoading {
+            showRewardedAdLoadingView()
+        }
         initializeSDK()
 
         do {
@@ -41,7 +43,9 @@ extension AdMobHelper {
             AdMetricsTracker.shared.trackLoadFailed(adUnit: adUnitID.adUnitIDString)
             rewardedAd = nil
             // Hide loading view when load fails
-            hideRewardedAdLoadingView()
+            if showLoading {
+                hideRewardedAdLoadingView()
+            }
             throw error
         }
 
@@ -68,7 +72,7 @@ extension AdMobHelper {
         rewardedAdStatusCallback = statusCallback
 
         if rewardedAd == nil {
-            try await loadRewardedAd(adUnitID: adUnitID)
+            try await loadRewardedAd(adUnitID: adUnitID, showLoading: true)
         }
 
         guard let rewardedAd = rewardedAd else {
