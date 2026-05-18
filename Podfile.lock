@@ -1,110 +1,119 @@
 PODS:
-  - Adjust (5.5.0):
-    - Adjust/Adjust (= 5.5.0)
-  - Adjust/Adjust (5.5.0):
-    - AdjustSignature (= 3.62.0)
-  - AdjustSignature (3.62.0)
-  - FBAEMKit (18.0.2):
-    - FBSDKCoreKit_Basics (= 18.0.2)
-  - FBSDKCoreKit (18.0.2):
-    - FBAEMKit (= 18.0.2)
-    - FBSDKCoreKit_Basics (= 18.0.2)
-  - FBSDKCoreKit_Basics (18.0.2)
-  - Firebase (12.7.0):
-    - Firebase/Core (= 12.7.0)
-  - Firebase/Core (12.7.0):
+  - Adjust (5.6.2):
+    - Adjust/Adjust (= 5.6.2)
+  - Adjust/Adjust (5.6.2):
+    - AdjustSignature (= 3.67.0)
+  - AdjustSignature (3.67.0)
+  - Ads-Global (7.9.1.1):
+    - Ads-Global/BUAdSDK (= 7.9.1.1)
+  - Ads-Global/BUAdSDK (7.9.1.1):
+    - Ads-Global/PangleSDK
+    - Ads-Global/TikTokBusinessSDK
+  - Ads-Global/PangleSDK (7.9.1.1)
+  - Ads-Global/TikTokBusinessSDK (7.9.1.1)
+  - AppLovinSDK (13.6.2)
+  - FBAEMKit (18.0.3):
+    - FBSDKCoreKit_Basics (= 18.0.3)
+  - FBAudienceNetwork (6.21.1)
+  - FBSDKCoreKit (18.0.3):
+    - FBAEMKit (= 18.0.3)
+    - FBSDKCoreKit_Basics (= 18.0.3)
+  - FBSDKCoreKit_Basics (18.0.3)
+  - Firebase (12.13.0):
+    - Firebase/Core (= 12.13.0)
+  - Firebase/Core (12.13.0):
     - Firebase/CoreOnly
-    - FirebaseAnalytics (~> 12.7.0)
-  - Firebase/CoreOnly (12.7.0):
-    - FirebaseCore (~> 12.7.0)
-  - Firebase/RemoteConfig (12.7.0):
+    - FirebaseAnalytics (~> 12.13.0)
+  - Firebase/CoreOnly (12.13.0):
+    - FirebaseCore (~> 12.13.0)
+  - Firebase/RemoteConfig (12.13.0):
     - Firebase/CoreOnly
-    - FirebaseRemoteConfig (~> 12.7.0)
-  - FirebaseABTesting (12.7.0):
-    - FirebaseCore (~> 12.7.0)
-  - FirebaseAnalytics (12.7.0):
-    - FirebaseAnalytics/Default (= 12.7.0)
-    - FirebaseCore (~> 12.7.0)
-    - FirebaseInstallations (~> 12.7.0)
+    - FirebaseRemoteConfig (~> 12.13.0)
+  - FirebaseABTesting (12.13.0):
+    - FirebaseCore (~> 12.13.0)
+  - FirebaseAnalytics (12.13.0):
+    - FirebaseAnalytics/Default (= 12.13.0)
+    - FirebaseCore (~> 12.13.0)
+    - FirebaseInstallations (~> 12.13.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/MethodSwizzler (~> 8.1)
     - GoogleUtilities/Network (~> 8.1)
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
     - nanopb (~> 3.30910.0)
-  - FirebaseAnalytics/Default (12.7.0):
-    - FirebaseCore (~> 12.7.0)
-    - FirebaseInstallations (~> 12.7.0)
-    - GoogleAppMeasurement/Default (= 12.7.0)
+  - FirebaseAnalytics/Default (12.13.0):
+    - FirebaseCore (~> 12.13.0)
+    - FirebaseInstallations (~> 12.13.0)
+    - GoogleAppMeasurement/Default (= 12.13.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/MethodSwizzler (~> 8.1)
     - GoogleUtilities/Network (~> 8.1)
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
     - nanopb (~> 3.30910.0)
-  - FirebaseCore (12.7.0):
-    - FirebaseCoreInternal (~> 12.7.0)
+  - FirebaseCore (12.13.0):
+    - FirebaseCoreInternal (~> 12.13.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/Logger (~> 8.1)
-  - FirebaseCoreExtension (12.7.0):
-    - FirebaseCore (~> 12.7.0)
-  - FirebaseCoreInternal (12.7.0):
+  - FirebaseCoreExtension (12.13.0):
+    - FirebaseCore (~> 12.13.0)
+  - FirebaseCoreInternal (12.13.0):
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
-  - FirebaseCrashlytics (12.7.0):
-    - FirebaseCore (~> 12.7.0)
-    - FirebaseInstallations (~> 12.7.0)
-    - FirebaseRemoteConfigInterop (~> 12.7.0)
-    - FirebaseSessions (~> 12.7.0)
+  - FirebaseCrashlytics (12.13.0):
+    - FirebaseCore (~> 12.13.0)
+    - FirebaseInstallations (~> 12.13.0)
+    - FirebaseRemoteConfigInterop (~> 12.13.0)
+    - FirebaseSessions (~> 12.13.0)
     - GoogleDataTransport (~> 10.1)
     - GoogleUtilities/Environment (~> 8.1)
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
-  - FirebaseInstallations (12.7.0):
-    - FirebaseCore (~> 12.7.0)
+  - FirebaseInstallations (12.13.0):
+    - FirebaseCore (~> 12.13.0)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/UserDefaults (~> 8.1)
     - PromisesObjC (~> 2.4)
-  - FirebaseRemoteConfig (12.7.0):
-    - FirebaseABTesting (~> 12.7.0)
-    - FirebaseCore (~> 12.7.0)
-    - FirebaseInstallations (~> 12.7.0)
-    - FirebaseRemoteConfigInterop (~> 12.7.0)
-    - FirebaseSharedSwift (~> 12.7.0)
+  - FirebaseRemoteConfig (12.13.0):
+    - FirebaseABTesting (~> 12.13.0)
+    - FirebaseCore (~> 12.13.0)
+    - FirebaseInstallations (~> 12.13.0)
+    - FirebaseRemoteConfigInterop (~> 12.13.0)
+    - FirebaseSharedSwift (~> 12.13.0)
     - GoogleUtilities/Environment (~> 8.1)
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
-  - FirebaseRemoteConfigInterop (12.7.0)
-  - FirebaseSessions (12.7.0):
-    - FirebaseCore (~> 12.7.0)
-    - FirebaseCoreExtension (~> 12.7.0)
-    - FirebaseInstallations (~> 12.7.0)
+  - FirebaseRemoteConfigInterop (12.13.0)
+  - FirebaseSessions (12.13.0):
+    - FirebaseCore (~> 12.13.0)
+    - FirebaseCoreExtension (~> 12.13.0)
+    - FirebaseInstallations (~> 12.13.0)
     - GoogleDataTransport (~> 10.1)
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/UserDefaults (~> 8.1)
     - nanopb (~> 3.30910.0)
     - PromisesSwift (~> 2.1)
-  - FirebaseSharedSwift (12.7.0)
-  - Google-Mobile-Ads-SDK (12.14.0):
+  - FirebaseSharedSwift (12.13.0)
+  - Google-Mobile-Ads-SDK (13.3.0):
     - GoogleUserMessagingPlatform (>= 1.1)
-  - GoogleAdsOnDeviceConversion (3.2.0):
+  - GoogleAdsOnDeviceConversion (3.5.0):
     - GoogleUtilities/Environment (~> 8.1)
     - GoogleUtilities/Logger (~> 8.1)
     - GoogleUtilities/Network (~> 8.1)
     - nanopb (~> 3.30910.0)
-  - GoogleAppMeasurement/Core (12.7.0):
+  - GoogleAppMeasurement/Core (12.13.0):
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/MethodSwizzler (~> 8.1)
     - GoogleUtilities/Network (~> 8.1)
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
     - nanopb (~> 3.30910.0)
-  - GoogleAppMeasurement/Default (12.7.0):
-    - GoogleAdsOnDeviceConversion (~> 3.2.0)
-    - GoogleAppMeasurement/Core (= 12.7.0)
-    - GoogleAppMeasurement/IdentitySupport (= 12.7.0)
+  - GoogleAppMeasurement/Default (12.13.0):
+    - GoogleAdsOnDeviceConversion (~> 3.5.0)
+    - GoogleAppMeasurement/Core (= 12.13.0)
+    - GoogleAppMeasurement/IdentitySupport (= 12.13.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/MethodSwizzler (~> 8.1)
     - GoogleUtilities/Network (~> 8.1)
     - "GoogleUtilities/NSData+zlib (~> 8.1)"
     - nanopb (~> 3.30910.0)
-  - GoogleAppMeasurement/IdentitySupport (12.7.0):
-    - GoogleAppMeasurement/Core (= 12.7.0)
+  - GoogleAppMeasurement/IdentitySupport (12.13.0):
+    - GoogleAppMeasurement/Core (= 12.13.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 8.1)
     - GoogleUtilities/MethodSwizzler (~> 8.1)
     - GoogleUtilities/Network (~> 8.1)
@@ -113,6 +122,27 @@ PODS:
   - GoogleDataTransport (10.1.0):
     - nanopb (~> 3.30910.0)
     - PromisesObjC (~> 2.4)
+  - GoogleMobileAdsMediationAppLovin (13.6.2.0):
+    - AppLovinSDK (= 13.6.2)
+    - Google-Mobile-Ads-SDK (~> 13.0)
+  - GoogleMobileAdsMediationFacebook (6.21.1.0):
+    - FBAudienceNetwork (= 6.21.1)
+    - Google-Mobile-Ads-SDK (~> 13.0)
+  - GoogleMobileAdsMediationIronSource (9.4.1.0.0):
+    - Google-Mobile-Ads-SDK (~> 13.0)
+    - IronSourceSDK (= 9.4.1.0)
+  - GoogleMobileAdsMediationMintegral (8.1.3.1):
+    - Google-Mobile-Ads-SDK (~> 13.3.0)
+    - MintegralAdSDK/All (= 8.1.3)
+  - GoogleMobileAdsMediationPangle (7.9.1.1.0):
+    - Ads-Global (= 7.9.1.1)
+    - Google-Mobile-Ads-SDK (~> 13.0)
+  - GoogleMobileAdsMediationUnity (4.18.0.0):
+    - Google-Mobile-Ads-SDK (~> 13.0)
+    - UnityAds (= 4.18.0)
+  - GoogleMobileAdsMediationVungle (7.7.2.1):
+    - Google-Mobile-Ads-SDK (~> 13.3.0)
+    - VungleAds (= 7.7.2)
   - GoogleUserMessagingPlatform (3.1.0)
   - GoogleUtilities/AppDelegateSwizzler (8.1.0):
     - GoogleUtilities/Environment
@@ -141,11 +171,45 @@ PODS:
   - GoogleUtilities/UserDefaults (8.1.0):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
+  - IronSourceAdQualitySDK (9.5.1)
+  - IronSourceSDK (9.4.1.0):
+    - IronSourceSDK/AdQuality (= 9.4.1.0)
+    - IronSourceSDK/Ads (= 9.4.1.0)
+  - IronSourceSDK/AdQuality (9.4.1.0):
+    - IronSourceAdQualitySDK (~> 9.5.0)
+  - IronSourceSDK/Ads (9.4.1.0)
+  - MintegralAdSDK/All (8.1.3):
+    - MintegralAdSDK/BannerAd
+    - MintegralAdSDK/BidNativeAd
+    - MintegralAdSDK/InterstitialVideoAd
+    - MintegralAdSDK/NativeAd
+    - MintegralAdSDK/NativeAdvancedAd
+    - MintegralAdSDK/NewInterstitialAd
+    - MintegralAdSDK/RewardVideoAd
+    - MintegralAdSDK/SplashAd
+  - MintegralAdSDK/BannerAd (8.1.3):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/BidNativeAd (8.1.3):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/InterstitialVideoAd (8.1.3):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/NativeAd (8.1.3)
+  - MintegralAdSDK/NativeAdvancedAd (8.1.3):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/NewInterstitialAd (8.1.3):
+    - MintegralAdSDK/InterstitialVideoAd
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/RewardVideoAd (8.1.3):
+    - MintegralAdSDK/NativeAd
+  - MintegralAdSDK/SplashAd (8.1.3):
+    - MintegralAdSDK/NativeAd
   - nanopb (3.30910.0):
     - nanopb/decode (= 3.30910.0)
     - nanopb/encode (= 3.30910.0)
   - nanopb/decode (3.30910.0)
   - nanopb/encode (3.30910.0)
+  - PremiumAdmobAdapter (2.2.6):
+    - Google-Mobile-Ads-SDK
   - PromisesObjC (2.4.0)
   - PromisesSwift (2.4.0):
     - PromisesObjC (= 2.4.0)
@@ -153,6 +217,9 @@ PODS:
   - SnapKit (5.7.1)
   - TikTokBusinessSDK (1.3.8)
   - Toast-Swift (5.1.1)
+  - UnityAds (4.18.0):
+    - IronSourceAdQualitySDK (< 10.0.0)
+  - VungleAds (7.7.2)
 
 DEPENDENCIES:
   - Adjust
@@ -161,7 +228,15 @@ DEPENDENCIES:
   - Firebase/RemoteConfig
   - FirebaseAnalytics
   - FirebaseCrashlytics
-  - Google-Mobile-Ads-SDK
+  - Google-Mobile-Ads-SDK (~> 13.0)
+  - GoogleMobileAdsMediationAppLovin
+  - GoogleMobileAdsMediationFacebook
+  - GoogleMobileAdsMediationIronSource
+  - GoogleMobileAdsMediationMintegral
+  - GoogleMobileAdsMediationPangle
+  - GoogleMobileAdsMediationUnity
+  - GoogleMobileAdsMediationVungle
+  - PremiumAdmobAdapter
   - SkeletonView
   - SnapKit
   - TikTokBusinessSDK (~> 1.3.0)
@@ -171,7 +246,10 @@ SPEC REPOS:
   trunk:
     - Adjust
     - AdjustSignature
+    - Ads-Global
+    - AppLovinSDK
     - FBAEMKit
+    - FBAudienceNetwork
     - FBSDKCoreKit
     - FBSDKCoreKit_Basics
     - Firebase
@@ -190,48 +268,77 @@ SPEC REPOS:
     - GoogleAdsOnDeviceConversion
     - GoogleAppMeasurement
     - GoogleDataTransport
+    - GoogleMobileAdsMediationAppLovin
+    - GoogleMobileAdsMediationFacebook
+    - GoogleMobileAdsMediationIronSource
+    - GoogleMobileAdsMediationMintegral
+    - GoogleMobileAdsMediationPangle
+    - GoogleMobileAdsMediationUnity
+    - GoogleMobileAdsMediationVungle
     - GoogleUserMessagingPlatform
     - GoogleUtilities
+    - IronSourceAdQualitySDK
+    - IronSourceSDK
+    - MintegralAdSDK
     - nanopb
+    - PremiumAdmobAdapter
     - PromisesObjC
     - PromisesSwift
     - SkeletonView
     - SnapKit
     - TikTokBusinessSDK
     - Toast-Swift
+    - UnityAds
+    - VungleAds
 
 SPEC CHECKSUMS:
-  Adjust: a0095eda439b925f809b0efbf64923c05701e937
-  AdjustSignature: 682d788005a6e21557913a9dc0381ae8d943ca0a
-  FBAEMKit: 56a4f5a9607957b547b6458b17a98c5bb2736367
-  FBSDKCoreKit: 54f1240567e16862ab71c53c33dc347db5c524c5
-  FBSDKCoreKit_Basics: eb530cd6a79030dbb11df460aafb2767bcad9028
-  Firebase: 2d19a10c9a2e48ac532a4303115d3fc9b2798396
-  FirebaseABTesting: 72e4636929660d40844f2a4db15be9d551fc27d6
-  FirebaseAnalytics: e423129866107aeacf6010a280b9c9829f9ea50d
-  FirebaseCore: c7b57863ce0859281a66d16ca36d665c45d332b5
-  FirebaseCoreExtension: 731a5744970bcd73ad95ab2a2b8a1f46353e86dd
-  FirebaseCoreInternal: 571a2dd8c975410966199623351db3a3265c874d
-  FirebaseCrashlytics: 9ce9ce4bb179e31ab91a937d0a73d302a9752d1b
-  FirebaseInstallations: 6d05424a046b68ca146b4de4376f05b4e9262fc3
-  FirebaseRemoteConfig: 555e7aea9d097d9eaa5b761522f607c353964988
-  FirebaseRemoteConfigInterop: 0bae7d21510b3a0a79af727961c4973aac585add
-  FirebaseSessions: bc59e7d0ba90f96f40325fd1defbdec86ba26f20
-  FirebaseSharedSwift: a652f2174ce29ce333d1f67df955499d2db009f6
-  Google-Mobile-Ads-SDK: 4534fd2dfcd3f705c5485a6633c5188d03d4eed2
-  GoogleAdsOnDeviceConversion: d68c69dd9581a0f5da02617b6f377e5be483970f
-  GoogleAppMeasurement: 8f59e08efecfa1bcd57f0a56fab07d079366268c
+  Adjust: 62ea53a252534df416676e7ac2f1558d60e6e39e
+  AdjustSignature: 9498705a4ac67b719e31828be4d74fbb8656950c
+  Ads-Global: 6890d7d95686da725eda5105f3c56071599a8f05
+  AppLovinSDK: 91a47db42b6c0e2b83224006aa46b0b88c62c16f
+  FBAEMKit: 2a6b529993713c185b02bc36f8c91129bf78dfb0
+  FBAudienceNetwork: 85d18a65c9e35bc426bd4664cf3ae2a1172d7b60
+  FBSDKCoreKit: 65d7f7a7d6fcc3aa6eb6e093ec737a4184fc6049
+  FBSDKCoreKit_Basics: 7bc9d8fde8f70985fba2ed7c1d07e319f969a991
+  Firebase: 7d62445aeabdaea36f7d372f33052fed9a72514f
+  FirebaseABTesting: a308446df8bd5fd29d2535ddfb124a7011dadbc2
+  FirebaseAnalytics: 853fa849aca9e418f163c2de5ed0a867efa4fddf
+  FirebaseCore: 58905958aa00a061397a0fd759ae4b55bddb3576
+  FirebaseCoreExtension: 5b94169f1ee96ecc2dbde40bc53690e4d65eb652
+  FirebaseCoreInternal: 37bee58388fc6d183f0ab1b32d69ae44f2cf8aad
+  FirebaseCrashlytics: 8bb2d41cb47e8f3ea34200d99361499a59995e0d
+  FirebaseInstallations: 134bde50e477628ded76070efdb12d515d53f948
+  FirebaseRemoteConfig: 672634c19a4a5bc329fd85e84cfea51fce514c4b
+  FirebaseRemoteConfigInterop: 4801ab93a543ef8fedfb40ae2f66d03e3fdcb864
+  FirebaseSessions: 0e5f64cd99400275798fcb5e2b773dd000ca02c1
+  FirebaseSharedSwift: 76bdd9de8ff1da7a601236ee058253e36206978e
+  Google-Mobile-Ads-SDK: 7692126a35ed859f20635af281c50a2162be8bea
+  GoogleAdsOnDeviceConversion: 914d95386d0dd6815e8b1d70c465fe1d13312a1e
+  GoogleAppMeasurement: 01e991b4c0c025dd66558dbc5133b5d70ccdf88e
   GoogleDataTransport: aae35b7ea0c09004c3797d53c8c41f66f219d6a7
+  GoogleMobileAdsMediationAppLovin: b32db78894088699b8261c2050228c603c7236c5
+  GoogleMobileAdsMediationFacebook: c28fe93a3e6ba02c3a7e09fa9c45682ad9b1e9c6
+  GoogleMobileAdsMediationIronSource: 01656af1b7d2eba4fbf74d6f63ce0a8ca085fc17
+  GoogleMobileAdsMediationMintegral: 8f37099cbffee402c9b08b384ec89aba6c2c7dab
+  GoogleMobileAdsMediationPangle: b2ba2996fc5d7333d4631ddc57a8308f539be705
+  GoogleMobileAdsMediationUnity: edf6aecc0442a304d7ed171c6516f00657cc3a05
+  GoogleMobileAdsMediationVungle: f08c411498b7a4577ec7b39e16ffee8e71670141
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
+  IronSourceAdQualitySDK: d3f89c7eb4afc6b6c45fc3d83d64789a9977148f
+  IronSourceSDK: d12f8939bf36dd4e28bb4f6134bcde9a53af15db
+  MintegralAdSDK: 0858525ba50c372960c98cd0151921d69907d08d
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
+  PremiumAdmobAdapter: e71da1649e28739d2cb3ec739599f228b441f991
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
   PromisesSwift: 9d77319bbe72ebf6d872900551f7eeba9bce2851
   SkeletonView: 5a050f6411e697abd4cda0a8d767013399dccd69
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
   TikTokBusinessSDK: db839e24b244c2693c1e3bb635a4c3cae4a8ab6d
   Toast-Swift: 7a03a532afe3a560d4044bc7c237e2864d295173
+  UnityAds: 841571b44ea0c0adff40fabf2112f3c4a96a5db6
+  VungleAds: 03d93126f39d6056055a8b9edca701c6a3391d8b
 
-PODFILE CHECKSUM: 08793cfd1fbbc71c3671886099e8d617ec3cac8f
+PODFILE CHECKSUM: 9432e748cec86b02a3aad813307cdf0d1b400f94
 
 COCOAPODS: 1.16.2

@@ -170,6 +170,13 @@ Pod::Spec.new do |spec|
   spec.dependency 'TikTokBusinessSDK', '~> 1.3.0'
   spec.dependency 'FBSDKCoreKit', '~> 18.0'
   spec.dependency 'PremiumAdmobAdapter'
+  spec.dependency 'GoogleMobileAdsMediationAppLovin'
+  spec.dependency 'GoogleMobileAdsMediationIronSource'
+  spec.dependency 'GoogleMobileAdsMediationVungle'
+  spec.dependency 'GoogleMobileAdsMediationFacebook'
+  spec.dependency 'GoogleMobileAdsMediationMintegral'
+  spec.dependency 'GoogleMobileAdsMediationPangle'
+  spec.dependency 'GoogleMobileAdsMediationUnity'
 
 
 end
