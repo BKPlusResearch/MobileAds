@@ -167,7 +167,7 @@ Pod::Spec.new do |spec|
   spec.dependency 'Toast-Swift', '~> 5.1.1'
   spec.dependency 'TikTokBusinessSDK', '~> 1.3.8'
   spec.dependency 'FBSDKCoreKit', '~> 18.0.3'
-  spec.dependency 'PremiumAdmobAdapter'
+  spec.dependency 'PremiumAdsGoogleAdapter'
   spec.dependency 'GoogleMobileAdsMediationAppLovin', '~> 13.6.2.0'
   spec.dependency 'GoogleMobileAdsMediationIronSource', '~> 9.4.1.0.0'
   spec.dependency 'GoogleMobileAdsMediationVungle', '~> 7.7.2.1'
