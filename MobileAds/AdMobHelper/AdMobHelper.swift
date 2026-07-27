@@ -130,7 +130,22 @@ public class AdMobHelper: NSObject {
     public func checkEnableShowAds() -> Bool {
         return isEnableShowAds
     }
-    
+
+    // MARK: - Presentation Safety
+
+    /// Whether it is safe to present a full-screen ad right now.
+    ///
+    /// Presenting while the app is in the background (e.g. an on-demand ad
+    /// finishes loading after the user has left the app) leaves the ad
+    /// half-presented: its `adWillPresentFullScreenContent` never fires, so the
+    /// "Loading ads…" overlay is never removed and the `is*Showing` flag stays
+    /// stuck — the user comes back to an ad they cannot dismiss. Only `.active`
+    /// and `.inactive` (the brief foreground transition used by resume App-Open)
+    /// are safe to present in.
+    var canPresentFullScreenAd: Bool {
+        UIApplication.shared.applicationState != .background
+    }
+
     // MARK: - App Resume Control
     
     /// Check if there was a recent ad click within specified time window
@@ -326,5 +341,7 @@ public enum AdMobHelperError: Error {
     case consentNotGranted
     case adNotLoaded
     case adAlreadyShowing
+    /// The app is backgrounded, so a full-screen ad must not be presented now.
+    case appInBackground
 }
 

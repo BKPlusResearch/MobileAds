@@ -118,6 +118,16 @@ extension AdMobHelper {
             return
         }
 
+        // Never present while backgrounded — the ad would render half-presented
+        // and its loading overlay would get stuck. Hide the overlay, report the
+        // failure, and keep the loaded ad for the next foreground attempt.
+        guard canPresentFullScreenAd else {
+            debugPrint("App is backgrounded, skipping app open ad.")
+            hideAppOpenAdLoadingView()
+            statusCallback?(.didFailToPresent)
+            return
+        }
+
         if let appOpenAd = appOpenAd {
             // Store callback for status events
             appOpenAdStatusCallback = statusCallback
