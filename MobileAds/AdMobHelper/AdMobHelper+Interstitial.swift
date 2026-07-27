@@ -73,6 +73,14 @@ extension AdMobHelper {
             throw AdMobHelperError.adNotLoaded
         }
 
+        // Never present while backgrounded — the ad would render half-presented
+        // and its loading overlay would get stuck. Hide the overlay and keep the
+        // loaded ad so it can present on the next attempt once foregrounded.
+        guard canPresentFullScreenAd else {
+            hideInterstitialAdLoadingView()
+            throw AdMobHelperError.appInBackground
+        }
+
         // Store callback for status events
         interstitialAdStatusCallback = statusCallback
 

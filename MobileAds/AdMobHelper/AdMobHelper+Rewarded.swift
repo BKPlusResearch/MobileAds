@@ -75,6 +75,15 @@ extension AdMobHelper {
             throw AdMobHelperError.adNotLoaded
         }
 
+        // Never present while backgrounded — the ad would render half-presented
+        // and its loading overlay would get stuck. Hide the overlay and keep the
+        // loaded ad so it can present on the next attempt once foregrounded.
+        guard canPresentFullScreenAd else {
+            hideRewardedAdLoadingView()
+            rewardedAdStatusCallback = nil
+            throw AdMobHelperError.appInBackground
+        }
+
         // Loading view should already be showing from loadRewardedAd
         // If not showing, show it now (in case ad was pre-loaded)
         if rewardedAdLoadingView == nil {
