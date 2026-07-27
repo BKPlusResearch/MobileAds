@@ -16,6 +16,7 @@
 
 @preconcurrency import GoogleMobileAds
 import UIKit
+import AppTrackingTransparency
 
 /// Main helper class for managing Google Mobile Ads SDK across all ad types.
 @MainActor
@@ -199,13 +200,27 @@ public class AdMobHelper: NSObject {
                 debugPrint("Consent gathering error: \(error.localizedDescription)")
             }
 
-            if GoogleMobileAdsConsentManager.shared.canRequestAds {
-                self?.initializeSDK()
+            // Request App Tracking Transparency before initializing the SDK, so
+            // Google Mobile Ads reads the final tracking status. Call configAds
+            // from a foreground view controller (e.g. the app's splash) so the
+            // prompt can present.
+            if #available(iOS 14, *) {
+                ATTrackingManager.requestTrackingAuthorization { _ in
+                    Task { @MainActor in self?.finishConfigAds(completion) }
+                }
+            } else {
+                self?.finishConfigAds(completion)
             }
-
-            // Call completion handler after consent is gathered
-            completion?()
         }
+    }
+
+    /// Initializes the SDK when consent allows, then invokes the caller's
+    /// completion. Split out so the ATT request can gate SDK init.
+    private func finishConfigAds(_ completion: (() -> Void)?) {
+        if GoogleMobileAdsConsentManager.shared.canRequestAds {
+            initializeSDK()
+        }
+        completion?()
     }
 
     /// Initialize the Google Mobile Ads SDK.
