@@ -139,19 +139,39 @@ enum AppAdUnitID: AdUnitIdentifiable {
 
 ### 2. Khởi tạo SDK & consent
 
-Gọi `configAds` sớm, ví dụ trong `AppDelegate`:
+`configAds` chạy tuần tự và chỉ gọi `completion` khi cả ba bước đã xong:
+
+```
+UMP consent  →  ATT  →  initialize SDK  →  completion
+```
+
+Thứ tự UMP trước, ATT sau là **bắt buộc** theo tài liệu Google: UMP chỉ load được
+IDFA explainer message khi tracking status còn `.notDetermined`. Gọi ATT trước sẽ
+vô hiệu hoá message đó vĩnh viễn.
+
+`completion` chỉ chạy khi ATT đã thực sự có kết quả — không phải khi callback của
+`requestTrackingAuthorization` fire. Hai thứ đó khác nhau: callback trả về ngay
+lập tức (báo `.notDetermined`, không hiện gì) khi app chưa `.active`, hoặc khi
+prompt từ phiên trước còn treo chưa trả lời. Nếu tin callback, SDK sẽ init và ad
+request bắt đầu bắn trong lúc alert vẫn đang hiển thị.
+
+Có timeout 30s để một lần launch không bị treo vĩnh viễn nếu prompt không bao giờ
+hiện được.
+
+**Gọi từ một view controller đang foreground (ví dụ splash), không phải từ
+`didFinishLaunching`** — cả UMP form lẫn ATT prompt đều cần presenter còn sống:
 
 ```swift
 import MobileAds
 
-@main
-class AppDelegate: UIResponder, UIApplicationDelegate {
-    func application(
-        _ application: UIApplication,
-        didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
-    ) -> Bool {
-        AdMobHelper.shared.configAds(from: nil)
-        return true
+final class SplashViewController: UIViewController {
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        AdMobHelper.shared.configAds(from: self) {
+            // Tới đây: consent đã xong, ATT đã có kết quả, SDK đã init.
+            // Giờ mới an toàn để load ad hoặc đọc Remote Config.
+        }
     }
 }
 ```
