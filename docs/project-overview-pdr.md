@@ -107,19 +107,31 @@ Every ad impression is automatically tracked across:
 
 | Dependency | Version | Purpose |
 |---|---|---|
-| `Google-Mobile-Ads-SDK` | ~> 13.0 | Core ad display |
-| `GoogleUserMessagingPlatform` | ~> 3.0.0 | Consent management (UMP) |
-| `Firebase` | ~> 11.15.0 | Core Firebase |
-| `FirebaseCrashlytics` | ~> 11.15.0 | Crash reporting |
-| `FirebaseAnalytics` | ~> 11.15.0 | Analytics & revenue logging |
-| `Firebase/RemoteConfig` | ~> 11.15.0 | Remote configuration |
-| `Adjust` | ~> 5.5.0 | Attribution & revenue tracking |
-| `TikTokBusinessSDK` | ~> 1.3.0 | TikTok attribution |
-| `FBSDKCoreKit` | ~> 18.0 | Facebook ad impression tracking |
+| `Google-Mobile-Ads-SDK` | ~> 13.3.0 | Core ad display |
+| `GoogleUserMessagingPlatform` | ~> 3.1.0 | Consent management (UMP) |
+| `Firebase` | ~> 12.13.0 | Core Firebase |
+| `FirebaseCrashlytics` | ~> 12.13.0 | Crash reporting |
+| `FirebaseAnalytics` | ~> 12.13.0 | Analytics & revenue logging |
+| `Firebase/RemoteConfig` | ~> 12.13.0 | Remote configuration |
+| `Adjust` | ~> 5.6.2 | Attribution & revenue tracking |
+| `TikTokBusinessSDK` | ~> 1.3.8 | TikTok attribution |
+| `FBSDKCoreKit` | ~> 18.0.3 | Facebook ad impression tracking |
 | `SnapKit` | ~> 5.7.1 | Auto Layout DSL |
 | `SkeletonView` | ~> 1.29.2 | Loading shimmer animations |
-| `Toast-Swift` | ~> 5.0.1 | Toast notifications |
-| `PremiumAdmobAdapter` | latest | Premium mediation adapter |
+| `Toast-Swift` | ~> 5.1.1 | Toast notifications |
+| `PremiumAdsGoogleAdapter` | latest | Premium mediation adapter |
+
+### Mediation adapters
+
+| Adapter | Version |
+|---|---|
+| `GoogleMobileAdsMediationAppLovin` | ~> 13.6.2.0 |
+| `GoogleMobileAdsMediationIronSource` | ~> 9.4.1.0.0 |
+| `GoogleMobileAdsMediationVungle` | ~> 7.7.2.1 |
+| `GoogleMobileAdsMediationFacebook` | ~> 6.21.1.0 |
+| `GoogleMobileAdsMediationMintegral` | ~> 8.1.3.1 |
+| `GoogleMobileAdsMediationPangle` | ~> 7.9.1.1.0 |
+| `GoogleMobileAdsMediationUnity` | ~> 4.18.0.0 |
 
 ---
 
