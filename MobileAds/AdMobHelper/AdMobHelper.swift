@@ -193,6 +193,17 @@ public class AdMobHelper: NSObject {
 
     // MARK: - SDK Initialization
 
+    /// Longest the tracking-authorization step will block `configAds`.
+    ///
+    /// Only reached while the ATT alert is genuinely on screen unanswered, which
+    /// is user-paced — the wait normally ends within a few hundred milliseconds
+    /// of the user tapping. The cap exists so a launch cannot stall forever if
+    /// the alert never presents.
+    private static let trackingAuthorizationTimeout: TimeInterval = 30
+
+    /// Poll step while waiting for the app to become active or for ATT to resolve.
+    private static let trackingAuthorizationPollNanoseconds: UInt64 = 200_000_000
+
     /// Configure ads by gathering consent and initializing SDK.
     /// This is the recommended entry point when importing the framework.
     /// Call this method in your AppDelegate or SceneDelegate's didFinishLaunching.
@@ -203,17 +214,67 @@ public class AdMobHelper: NSObject {
                 debugPrint("Consent gathering error: \(error.localizedDescription)")
             }
 
-            // Request App Tracking Transparency before initializing the SDK, so
-            // Google Mobile Ads reads the final tracking status. Call configAds
-            // from a foreground view controller (e.g. the app's splash) so the
-            // prompt can present.
-            if #available(iOS 14, *) {
-                ATTrackingManager.requestTrackingAuthorization { _ in
-                    Task { @MainActor in self?.finishConfigAds(completion) }
+            // UMP first, then ATT — this is the order Google documents, because
+            // the UMP IDFA explainer message can only load while the tracking
+            // status is still `.notDetermined`. Requesting ATT first would
+            // permanently prevent that message from ever being shown.
+            Task { @MainActor in
+                guard let self else {
+                    completion?()
+                    return
                 }
-            } else {
-                self?.finishConfigAds(completion)
+                await self.resolveTrackingAuthorization()
+                self.finishConfigAds(completion)
             }
+        }
+    }
+
+    /// Blocks until App Tracking Transparency has actually reached a decided
+    /// state, rather than until its callback happens to fire.
+    ///
+    /// `requestTrackingAuthorization` returns immediately — reporting
+    /// `.notDetermined` and presenting nothing — in two situations that both
+    /// occur in normal use:
+    ///
+    /// 1. The app is not `.active`. During launch, or while another system
+    ///    alert owns the screen, iOS silently declines to present the prompt.
+    /// 2. A prompt queued by an earlier session has not been answered yet. iOS
+    ///    re-presents that one asynchronously, and the callback does not wait
+    ///    for it.
+    ///
+    /// Treating the callback as "ATT resolved" therefore lets the SDK
+    /// initialize, and ad requests start, while the alert is still on screen.
+    private func resolveTrackingAuthorization() async {
+        // Already answered. This is also the path taken when the UMP IDFA
+        // explainer presented the alert itself during `gatherConsent`, in which
+        // case there is nothing left to ask.
+        guard ATTrackingManager.trackingAuthorizationStatus == .notDetermined else { return }
+
+        let deadline = Date().addingTimeInterval(Self.trackingAuthorizationTimeout)
+
+        // The prompt only presents while the app is active.
+        await waitWhile(before: deadline) {
+            UIApplication.shared.applicationState != .active
+        }
+
+        await withCheckedContinuation { continuation in
+            ATTrackingManager.requestTrackingAuthorization { _ in
+                continuation.resume()
+            }
+        }
+
+        // The callback can land before the user has answered, so the status is
+        // the authority, not the callback. This exits as soon as they tap.
+        await waitWhile(before: deadline) {
+            ATTrackingManager.trackingAuthorizationStatus == .notDetermined
+        }
+    }
+
+    /// Yields in small steps while `condition` holds and the deadline is unmet.
+    /// Suspends rather than blocks, so the main actor stays responsive.
+    private func waitWhile(before deadline: Date, _ condition: () -> Bool) async {
+        while condition(), Date() < deadline {
+            try? await Task.sleep(nanoseconds: Self.trackingAuthorizationPollNanoseconds)
         }
     }
 
