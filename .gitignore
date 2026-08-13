@@ -91,3 +91,9 @@ iOSInjectionProject/
 .DS_Store
 .agent
 plans
+
+# AI agent tooling — local-only, never part of the framework
+.claude/
+.agentkit/
+.repomixignore
+release-manifest.json
