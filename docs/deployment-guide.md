@@ -32,7 +32,7 @@ Then `pod install`.
 6. **Tag & push** to match the podspec version:
    ```bash
    git tag 1.3.0
-   git push origin new-MobileAds --tags
+   git push origin HEAD --tags
    ```
 7. Consumer apps update their `Podfile` tag and run `pod update MobileAds`.
 
@@ -43,7 +43,7 @@ Required setup in the host app before ads/telemetry work:
 - **Info.plist:** `GADApplicationIdentifier` (AdMob app ID), SKAdNetwork items, `NSUserTrackingUsageDescription` for ATT, Facebook (`FacebookAppID`, `FacebookClientToken`), and any mediation network keys.
 - **Firebase:** add `GoogleService-Info.plist`.
 - **Adjust / TikTok / Facebook:** initialize with app tokens via `AppADJustConfig` / `TikTokAppConfig` and the respective managers.
-- **Consent:** call `AdMobHelper.shared.configAds(from:)` early (AppDelegate/SceneDelegate `didFinishLaunching`).
+- **Consent + ATT:** call `AdMobHelper.shared.configAds(from:)` from a foreground view controller (e.g. a splash screen), **not** from `didFinishLaunching` — both the UMP form and the ATT prompt need a live presenter, and iOS silently declines to present ATT while the app is not yet `.active`. See the Initialize SDK section in `README.md`.
 
 ## Build Notes
 

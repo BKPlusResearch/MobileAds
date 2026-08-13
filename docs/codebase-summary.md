@@ -1,14 +1,11 @@
 # MobileAds — Codebase Summary
 
-## Quick Stats
+Navigation map for the framework source. For current size or file counts, ask the tree rather than this page:
 
-| Metric | Value |
-|---|---|
-| **Swift files** | 47 |
-| **Total lines of code** | ~7,068 |
-| **Modules** | 9 |
-| **Xib templates** | 2 (NativeAdViewSmall, NativeAdViewMedium) |
-| **Asset files** | 6 PNG images (icons, star ratings) |
+```bash
+find MobileAds -name '*.swift' | wc -l
+find MobileAds -name '*.swift' -exec cat {} + | wc -l
+```
 
 ---
 
@@ -16,13 +13,14 @@
 
 ```
 MobileAds/
-├── AdMobHelper/        # 🎯 Core — Ad lifecycle management (27 files, ~3,500 LOC)
+├── AdMobHelper/        # 🎯 Core — Ad lifecycle management
 ├── AdMob/              # 📊 Supporting — Metrics, models, enums
 │   ├── Service/        #    AdMetricsTracker, AdMetricsMonitorView, AdMetricsWindow
 │   ├── Model/          #    AdMetrics data model
 │   ├── AdNative/       #    Native ad view templates (FreeSize, Medium, Small, Unified)
 │   └── (empty dirs)    #    AdBanner, AdInterstitial, AdResume, Constants, Enum, Manager, Extension
-├── IAP/                # 💰 In-App Purchase service (8 files, ~1,200 LOC)
+├── SwiftUI/            # 🧩 SwiftUI entry points wrapping the UIKit views
+├── IAP/                # 💰 In-App Purchase service
 ├── ADJustManager/      # 📈 Adjust SDK attribution wrapper
 ├── TikTokManager/      # 📊 TikTok Business SDK wrapper
 ├── FacebookManager/    # 📘 Facebook SDK AD_IMPRESSION logger
@@ -41,42 +39,38 @@ MobileAds/
 
 The heart of the framework. `AdMobHelper` is a `@MainActor` singleton that manages the Google Mobile Ads SDK lifecycle.
 
-**Key files:**
+**Where to look:**
 
-| File | Purpose | LOC |
-|---|---|---|
-| `AdMobHelper.swift` | Singleton, SDK init, consent, properties, enums | 327 |
-| `AdMobHelper+Banner.swift` | Banner ad load/display via singleton | ~300 |
-| `AdMobHelper+BannerCache.swift` | Banner caching logic | ~120 |
-| `AdMobHelper+Interstitial.swift` | Interstitial load/show | ~100 |
-| `AdMobHelper+Rewarded.swift` | Rewarded ad load/show | ~110 |
-| `AdMobHelper+RewardedInterstitial.swift` | Rewarded interstitial load/show | ~95 |
-| `AdMobHelper+AppOpen.swift` | App open ad load/show with expiry | ~140 |
-| `AdMobHelper+Native.swift` | Native ad loading delegation | ~40 |
-| `AdMobHelper+NativeCache.swift` | Native ad cache system | ~500 |
-| `AdMobHelper+NativeDelegate.swift` | Native ad delegate callbacks | ~70 |
-| `AdMobHelper+FullScreenDelegate.swift` | Full-screen ad lifecycle delegate | 149 |
-| `AdMobHelper+LoadingViews.swift` | Loading overlay management | ~50 |
-| `AdUnitID.swift` | `AdUnitIdentifiable` protocol | 30 |
-| `NativeAdService.swift` | Native ad load/display service | 558 |
-| `BannerAdView.swift` | Self-contained banner (no singleton) | 232 |
-| `GoogleMobileAdsConsentManager.swift` | UMP consent wrapper | ~80 |
-| `NativeAdViewSmall.swift` | Small native ad XIB view | ~260 |
-| `NativeAdViewMedium.swift` | Medium native ad XIB view | ~300 |
-| `NativeAdLoaderDelegateHelper.swift` | Ad loader delegate bridge | ~45 |
-| `AppOpenAdLoadingView.swift` | App open loading overlay | ~60 |
-| `BannerAdLoadingView.swift` | Banner shimmer loading | ~55 |
-| `NativeAdLoadingView.swift` | Native ad loading view | ~110 |
-| `NativeAdSmallLoadingView.swift` | Small native shimmer | ~110 |
-| `NativeAdMediumLoadingView.swift` | Medium native shimmer | ~170 |
+| Concern | Files |
+|---|---|
+| Singleton, SDK init, consent + ATT gating, shared state | `AdMobHelper.swift`, `GoogleMobileAdsConsentManager.swift` |
+| Per-format load/show | `AdMobHelper+{Banner,Interstitial,Rewarded,RewardedInterstitial,AppOpen,Native}.swift` |
+| Caching | `AdMobHelper+BannerCache.swift`, `AdMobHelper+NativeCache.swift` |
+| Delegates | `AdMobHelper+FullScreenDelegate.swift`, `AdMobHelper+NativeDelegate.swift`, `NativeAdLoaderDelegateHelper.swift` |
+| Loading overlays / shimmer | `AdMobHelper+LoadingViews.swift`, `*LoadingView.swift` |
+| Non-singleton banner | `BannerAdView.swift` |
+| Native rendering | `NativeAdService.swift`, `NativeAdView{Small,Medium}.swift` |
+| Consumer-facing protocol | `AdUnitID.swift` |
 
 **Key patterns:**
 - Singleton `AdMobHelper.shared` for most ad operations
 - `BannerAdView` as a non-singleton alternative for multiple banners
 - Status enums for type-safe lifecycle callbacks
 - `@MainActor` isolation throughout
+- Full-screen presentation is refused while backgrounded; the throwing path hides its own overlay and keeps the loaded ad
 
-### 2. IAP (In-App Purchases)
+### 2. SwiftUI
+
+Entry points for SwiftUI consumers. No ad logic lives here — each type forwards to the same `AdMobHelper` / `BannerAdView` / `NativeAdService` path UIKit uses, so both surfaces share one cache, one metrics stream, and one attribution pipeline.
+
+| File | Surface |
+|---|---|
+| `BannerAdSwiftUI.swift`, `NativeAdSwiftUI.swift` | `UIViewRepresentable` views |
+| `InterstitialModifier.swift`, `RewardedModifier.swift`, `RewardedInterstitialModifier.swift`, `AppOpenModifier.swift` | `ViewModifier`s exposed as `.interstitialAd(…)`, `.rewardedAd(…)`, `.rewardedInterstitialAd(…)`, `.appOpenAd(…)` |
+| `ViewControllerResolver.swift` | Finds the presenting `UIViewController` that full-screen formats require |
+| `IAPViewModel.swift` | `ObservableObject` wrapper over `IAPService` for reactive purchase state |
+
+### 3. IAP (In-App Purchases)
 
 StoreKit 2 integration with async/await.
 
@@ -91,7 +85,7 @@ StoreKit 2 integration with async/await.
 | `IAPUserDefaultsStorage.swift` | UserDefaults storage (current) |
 | `IAPMigration.swift` | Keychain → UserDefaults migration |
 
-### 3. ADJustManager
+### 4. ADJustManager
 
 Wraps the Adjust SDK for ad revenue attribution and custom event tracking.
 
@@ -101,7 +95,7 @@ Wraps the Adjust SDK for ad revenue attribution and custom event tracking.
 
 **Revenue flow:** When an ad pays → `ADJustManager.logRevenue()` dispatches to ALL attribution platforms simultaneously.
 
-### 4. TikTokManager
+### 5. TikTokManager
 
 Comprehensive TikTok Business SDK integration.
 
@@ -111,7 +105,7 @@ Comprehensive TikTok Business SDK integration.
 | `TikTokConfig.swift` | Configuration model |
 | `TikTokEventType.swift` | Standard + custom event type enum |
 
-### 5. FacebookManager
+### 6. FacebookManager
 
 Minimal Facebook SDK integration focused on `AD_IMPRESSION` event logging.
 
@@ -119,7 +113,7 @@ Minimal Facebook SDK integration focused on `AD_IMPRESSION` event logging.
 |---|---|
 | `FacebookManager.swift` | Log ad impressions to Facebook for in-app ad revenue optimization |
 
-### 6. FirebaseLogger
+### 7. FirebaseLogger
 
 Type-safe Firebase Analytics wrapper.
 
@@ -129,7 +123,7 @@ Type-safe Firebase Analytics wrapper.
 | `AnalyticsEvent.swift` | Event name enum |
 | `LogParameter.swift` | Parameter key enum |
 
-### 7. RemoteConfig
+### 8. RemoteConfig
 
 Firebase Remote Config wrapper with protocol-based key management.
 
@@ -137,7 +131,7 @@ Firebase Remote Config wrapper with protocol-based key management.
 |---|---|
 | `RemoteConfigService.swift` | Fetch, activate, query remote config values |
 
-### 8. AdMob/Service (Metrics)
+### 9. AdMob/Service (Metrics)
 
 Debug-only ad performance monitoring.
 

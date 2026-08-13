@@ -17,6 +17,7 @@ MobileAds/                          # Repository root
 │   ├── FacebookManager/            # Facebook attribution module
 │   ├── FirebaseLogger/             # Firebase Analytics module
 │   ├── RemoteConfig/               # Remote Config module
+│   ├── SwiftUI/                    # SwiftUI wrappers over the UIKit ad views
 │   ├── Extension/                  # Shared utilities
 │   ├── Assets/                     # Image assets
 │   └── MobileAds.docc/            # Documentation catalog
@@ -161,30 +162,18 @@ Ad Impression
 
 ## 6. Error Handling
 
-### Ad Errors
+Ad and IAP operations throw typed enums rather than returning optionals or `NSError`. The cases are owned by the source, not by this document:
 
-```swift
-public enum AdMobHelperError: Error {
-    case consentNotGranted
-    case adNotLoaded
-    case adAlreadyShowing
-}
-```
+| Enum | Owner |
+|---|---|
+| `AdMobHelperError` | `MobileAds/AdMobHelper/AdMobHelper.swift` |
+| `IAPError` | `MobileAds/IAP/IAPModels.swift` |
 
-### IAP Errors
+Rules when adding a case:
 
-```swift
-public enum IAPError: Error, LocalizedError {
-    case productNotFound
-    case purchaseCancelled
-    case purchaseFailed(String)
-    case verificationFailed
-    case receiptNotFound
-    case validationFailed(Int)
-    case networkError(Error)
-    case unknown(Error)
-}
-```
+- A refused *presentation* is an error, not a silent no-op — the caller must be able to distinguish "no ad" from "ad exists but cannot show now" (`.adNotLoaded` vs `.appInBackground`).
+- Whatever throws must first undo its own UI: hide the loading overlay and leave the loaded ad intact so the next attempt can reuse it.
+- `IAPError` conforms to `LocalizedError`; ad errors do not, because ad failures are handled by the integrating app rather than shown to users.
 
 ---
 
@@ -217,7 +206,5 @@ Consistent debug print patterns:
 
 ## 9. Version Management
 
-- Version tracked in `MobileAds.podspec` (`spec.version`).
-- Git tags for releases (e.g., `1.0.19`, `1.3.0`).
-- Active branch: `new-MobileAds`.
-- Dependencies pinned with pessimistic version constraints (`~>`).
+- Version tracked in `MobileAds.podspec` (`spec.version`); git tags for releases.
+- Dependencies pinned with pessimistic version constraints (`~>`) in both `Podfile` and the podspec. The two must agree with `Podfile.lock` before a release — see `deployment-guide.md`.

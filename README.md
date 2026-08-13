@@ -5,6 +5,8 @@ A Swift framework for iOS monetization — wraps Google Mobile Ads SDK, StoreKit
 ## Features
 
 - **All AdMob formats** — Banner, Interstitial, Rewarded, Rewarded Interstitial, App Open, Native (Small/Medium)
+- **UIKit and SwiftUI** — Same ads from either surface; SwiftUI gets `UIViewRepresentable` views, `.interstitialAd`/`.rewardedAd`/`.rewardedInterstitialAd`/`.appOpenAd` modifiers, and `IAPViewModel`
+- **AdMob mediation** — AppLovin, IronSource, Vungle, Facebook, Mintegral, Pangle, Unity adapters bundled
 - **Self-contained `BannerAdView`** — Drop-in UIView, no singleton conflicts for multiple banners
 - **Native Ad Cache** — Preload for instant display with 1-hour auto-expiry
 - **In-App Purchases** — StoreKit 2 with async/await, receipt validation, subscription management
@@ -205,9 +207,12 @@ TikTokManager.shared.configure(with: ttConfig)
 | Document | Description |
 |---|---|
 | [Project Overview & PDR](docs/project-overview-pdr.md) | Product requirements and feature overview |
-| [Codebase Summary](docs/codebase-summary.md) | Module breakdown, file listings, key patterns |
+| [Codebase Summary](docs/codebase-summary.md) | Module map — where each concern lives |
 | [Code Standards](docs/code-standards.md) | Naming conventions, architecture patterns, style guide |
 | [System Architecture](docs/system-architecture.md) | Dependency graph, ad lifecycle flows, threading model |
+| [Design Guidelines](docs/design-guidelines.md) | Native ad theming and loading UX |
+| [Deployment Guide](docs/deployment-guide.md) | Release checklist, consumer setup, rollback |
+| [Project Roadmap](docs/project-roadmap.md) | Shipped work and open items |
 | [Native Ad Cache](NATIVE_AD_CACHE.md) | Native ad caching system details |
 
 ## License

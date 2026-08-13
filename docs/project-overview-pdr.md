@@ -29,11 +29,12 @@ Building iOS apps with ad-based monetization requires integrating multiple SDKs 
 4. **In-App Purchase support** — StoreKit 2 with async/await, Keychain storage, receipt validation.
 5. **Configurable Native Ads** — XIB-based templates (small/medium) with global theming via `NativeAdConfiguration`.
 6. **Debug tooling** — Built-in `AdMetricsTracker` and on-screen monitor view for development.
+7. **SwiftUI parity** — Every ad format reachable from SwiftUI without the consumer writing bridging code.
 
 ## 4. Non-Goals
 
 - Server-side ad mediation or custom ad network integration (relies on AdMob mediation).
-- SwiftUI-native views (current implementation is UIKit-based).
+- A SwiftUI-native rendering path. The SwiftUI layer wraps the existing UIKit views via `UIViewRepresentable`; UIKit stays the single implementation so both entry points share one lifecycle, cache, and attribution path.
 - Support for platforms other than iOS (no macOS, tvOS, watchOS).
 
 ---
