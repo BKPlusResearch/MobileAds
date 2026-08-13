@@ -75,10 +75,32 @@ enum AppAdUnitID: AdUnitIdentifiable {
 
 ### 2. Initialize SDK
 
-```swift
-// AppDelegate.swift
-AdMobHelper.shared.configAds(from: nil)
+`configAds` runs three steps in order and only calls `completion` once all of them finish:
+
 ```
+UMP consent  →  ATT  →  initialize SDK  →  completion
+```
+
+UMP must come before ATT: the UMP IDFA explainer message can only load while the tracking status is still `.notDetermined`, so requesting ATT first would permanently suppress it.
+
+`completion` fires when ATT has actually resolved — not when `requestTrackingAuthorization`'s callback fires. Those differ: the callback returns immediately, reporting `.notDetermined` and presenting nothing, when the app is not yet `.active` or when a prompt queued by an earlier session is still unanswered. Trusting it would let the SDK initialize and ad requests start while the alert is still on screen. A 30s cap keeps a launch from stalling forever if the prompt never presents.
+
+**Call it from a foreground view controller (e.g. your splash), not from `didFinishLaunching`** — both the UMP form and the ATT prompt need a live presenter:
+
+```swift
+final class SplashViewController: UIViewController {
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        AdMobHelper.shared.configAds(from: self) {
+            // Consent gathered, ATT resolved, SDK initialized.
+            // Only now is it safe to load ads or read Remote Config.
+        }
+    }
+}
+```
+
+Full-screen ads (App Open, Interstitial, Rewarded, Rewarded Interstitial) refuse to present while the app is backgrounded — the show methods throw `AdMobHelperError.appInBackground` and keep the loaded ad for the next foreground attempt, instead of leaving a stuck loading overlay.
 
 ### 3. Banner
 
