@@ -168,12 +168,14 @@ Ad and IAP operations throw typed enums rather than returning optionals or `NSEr
 |---|---|
 | `AdMobHelperError` | `MobileAds/AdMobHelper/AdMobHelper.swift` |
 | `IAPError` | `MobileAds/IAP/IAPModels.swift` |
+| `EntitlementFailure` | `MobileAds/IAP/EntitlementOutcome.swift` |
 
 Rules when adding a case:
 
 - A refused *presentation* is an error, not a silent no-op — the caller must be able to distinguish "no ad" from "ad exists but cannot show now" (`.adNotLoaded` vs `.appInBackground`).
 - Whatever throws must first undo its own UI: hide the loading overlay and leave the loaded ad intact so the next attempt can reuse it.
 - `IAPError` conforms to `LocalizedError`; ad errors do not, because ad failures are handled by the integrating app rather than shown to users.
+- `EntitlementFailure` is a classification, not a message: it does not conform to `LocalizedError`, and system-supplied text is confined to its `.unknown` case for logging. The host maps cases to its own localized copy. The remaining `Entitlement*` types are outcomes rather than errors — see [Codebase Summary](codebase-summary.md) §3 for the file map.
 
 ---
 

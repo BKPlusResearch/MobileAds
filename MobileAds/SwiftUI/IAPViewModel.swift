@@ -4,6 +4,16 @@ import StoreKit
 /// Thin `ObservableObject` wrapper for `IAPService`.
 /// Provides reactive `isPurchased` state for SwiftUI views.
 ///
+/// - Important: This is the **legacy** IAP layer. It reads entitlement from `UserDefaults`,
+///   so premium is lost on reinstall or on a new device until the user taps Restore, and
+///   Ask to Buy is reported as an error. New apps should use `EntitlementService`, which
+///   derives entitlement from `Transaction.currentEntitlements` instead.
+///
+/// - Warning: Do not use both layers in one app. Merely constructing an `IAPViewModel`
+///   creates `IAPService.shared`, whose initializer starts its own `Transaction.updates`
+///   listener, so an app running both ends up with two sources of truth that drift apart
+///   and finish each other's transactions. See the README.
+///
 /// Usage:
 /// ```swift
 /// @StateObject var iapVM = IAPViewModel()

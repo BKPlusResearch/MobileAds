@@ -72,7 +72,24 @@ Entry points for SwiftUI consumers. No ad logic lives here — each type forward
 
 ### 3. IAP (In-App Purchases)
 
-StoreKit 2 integration with async/await.
+StoreKit 2 integration with async/await. The module holds **two independent layers**; an app uses one or the other, never both.
+
+| Layer | Use when | Status |
+|---|---|---|
+| `EntitlementService` | New apps | Recommended. Entitlement derived from `Transaction.currentEntitlements`, nothing persisted. **Not yet exercised on a device** |
+| `IAPService` / `IAPViewModel` | The four apps already on it | Frozen. Entitlement read from `UserDefaults` — **premium lost on reinstall**; `.pending` (Ask to Buy) surfaced as an error |
+
+Running both in one app gives it two `Transaction.updates` listeners and two sources of truth. Constructing an `IAPViewModel` is enough to start the legacy one.
+
+**Entitlements-first layer**
+
+| File | Purpose |
+|---|---|
+| `EntitlementService.swift` | Derives entitlement from `currentEntitlements`; purchase, restore, intro-offer eligibility |
+| `EntitlementConfig.swift` | Host-supplied product IDs (required, non-empty) and optional subscription group |
+| `EntitlementOutcome.swift` | Typed outcomes: purchase, restore, failure, and the three-state `EntitlementVerification` |
+
+**Legacy layer**
 
 | File | Purpose |
 |---|---|

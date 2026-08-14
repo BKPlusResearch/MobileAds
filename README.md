@@ -5,11 +5,11 @@ A Swift framework for iOS monetization — wraps Google Mobile Ads SDK, StoreKit
 ## Features
 
 - **All AdMob formats** — Banner, Interstitial, Rewarded, Rewarded Interstitial, App Open, Native (Small/Medium)
-- **UIKit and SwiftUI** — Same ads from either surface; SwiftUI gets `UIViewRepresentable` views, `.interstitialAd`/`.rewardedAd`/`.rewardedInterstitialAd`/`.appOpenAd` modifiers, and `IAPViewModel`
+- **UIKit and SwiftUI** — Same ads from either surface; SwiftUI gets `UIViewRepresentable` views, `.interstitialAd`/`.rewardedAd`/`.rewardedInterstitialAd`/`.appOpenAd` modifiers, and `IAPViewModel` (legacy IAP layer — see [In-App Purchases](#in-app-purchases) before gating ads on it)
 - **AdMob mediation** — AppLovin, IronSource, Vungle, Facebook, Mintegral, Pangle, Unity adapters bundled
 - **Self-contained `BannerAdView`** — Drop-in UIView, no singleton conflicts for multiple banners
 - **Native Ad Cache** — Preload for instant display with 1-hour auto-expiry
-- **In-App Purchases** — StoreKit 2 with async/await, receipt validation, subscription management
+- **In-App Purchases** — Two layers: `EntitlementService` (entitlements-first, recommended for new apps) and the legacy `IAPService`. Pick one per app; never both
 - **Unified Revenue Attribution** — Every impression auto-tracked to Adjust, Firebase, TikTok, Facebook
 - **Consent Management** — Integrated Google UMP for GDPR/ATT
 - **Remote Config** — Type-safe Firebase Remote Config wrapper
@@ -169,6 +169,127 @@ NativeAdConfiguration.shared.callToActionGradientEndColor = .systemPink
 
 ## In-App Purchases
 
+The pod ships **two independent IAP layers**. Choose one per app.
+
+| Layer | Use when | Status |
+|---|---|---|
+| `EntitlementService` | New apps | Recommended. **Not yet exercised on a device** — see below |
+| `IAPService` / `IAPViewModel` | The four apps already on it | Frozen. Entitlement is read from `UserDefaults` — **premium is lost on reinstall**, and Ask to Buy is reported as an error |
+
+> **Never use both in one app.** Simply creating an `IAPViewModel` constructs `IAPService.shared` and starts its own `Transaction.updates` listener, so the two layers end up with two sources of truth that drift apart and finish each other's transactions.
+
+### EntitlementService (recommended)
+
+Entitlement is derived from `Transaction.currentEntitlements` on every check, so reinstalls, device changes, refunds, grace periods and Family Sharing are all handled by StoreKit rather than by local storage. The layer is generic: it holds no product IDs of its own and never presents UI — the host supplies configuration and builds its own paywall.
+
+> **Status: not verified on a device.** This layer is written against the StoreKit 2 documentation, and no app has run it yet. It has been through a red-team pass and a code review, both of which found real defects by reading alone — so assume the ones that only surface at runtime are still there. There is no StoreKit test configuration in this repo, which makes the checklist below the only control that exists. **If you are the first integrator, please run it and report the results.**
+
+#### 1. Configure — once, before `bootstrap()`
+
+```swift
+EntitlementService.shared.configure(
+    EntitlementConfig(productIDs: ["your.weekly", "your.yearly"],
+                      subscriptionGroupID: "your_group")
+)
+```
+
+`productIDs` is required and has no default. There is no "empty means accept everything" mode: `currentEntitlements` also emits unfinished consumables and expired non-renewing purchases, so a permissive set would let a coin pack grant permanent access.
+
+If product IDs come from Remote Config, **fetch first, then configure** — the service decides nothing until it is configured, and it refuses to be reconfigured afterwards.
+
+#### 2. Bootstrap at launch
+
+```swift
+EntitlementService.shared.bootstrap()   // NOT async — deliberately
+```
+
+It returns immediately so the first frame can never block on StoreKit. Observe `verification` instead of awaiting anything.
+
+#### 3. Refresh on foreground
+
+```swift
+await EntitlementService.shared.refresh()   // 30s debounce built in
+```
+
+#### Reading state
+
+```swift
+@ObservedObject private var entitlements = EntitlementService.shared
+
+var body: some View {
+    Group {
+        if entitlements.verification == .verified && entitlements.isEntitled {
+            PremiumContent()
+        } else {
+            FreeContent()
+                .appOpenAd(adUnitID: AppAdUnitID.appOpen,
+                           isEnabled: !entitlements.isEntitled)
+        }
+    }
+}
+```
+
+| Property | Meaning |
+|---|---|
+| `verification` | `.pending` / `.verified` / `.timedOut` — has StoreKit answered? |
+| `isEntitled` | Holds a configured product. Only meaningful once `.verified` |
+| `activeProductID` | Which configured product granted access |
+| `expiryDate` | `nil` for lifetime/non-consumable — **`nil` is not "expired"** |
+| `isIntroOfferEligible` | `false` until the catalog loads and eligibility resolves. Still check the specific product's `introductoryOffer` before printing trial copy |
+| `products` | Loaded `Product`s by ID; `displayPrice(for:)` for the localized price |
+| `shouldProactivelyPromptRestore` | Whether to *suggest* restoring — **not** whether to show the button |
+
+```swift
+switch await EntitlementService.shared.purchase("your.yearly") {
+case .purchased:        dismissPaywall()
+case .cancelled:        break
+case .pending:          showAwaitingApprovalMessage()   // Ask to Buy — not an error
+case .failed(let why):  log(why)
+}
+
+switch await EntitlementService.shared.restore() {
+case .restored:          dismissPaywall()
+case .nothingToRestore:  showNothingToRestore()
+case .cancelled:         break                          // sign-in dismissed — not an error
+case .failed(let why):   showError(why)
+}
+```
+
+#### Five traps
+
+1. **Unlock only when `verification == .verified`.** `.pending` means *not known yet*; `.timedOut` means StoreKit did not answer within 5s. **Recommended default at `.timedOut`: treat the user as free and show ads.** That favors revenue; the cost is that a subscriber on a bad network sees ads for a few seconds until `verify()` answers, then they disappear. Choose differently only with a reason.
+2. **Nothing is cached — anywhere.** There is no stored entitlement and no "last known" state. `isEntitled` is `false` until verification completes, even for a long-standing subscriber. **Do not add a cache on the host side to smooth this over** — that is precisely the defect the legacy layer has.
+3. **With `@Observable` (iOS 17+), mirror — do not forward.** `var isPremium: Bool { base.isEntitled }` compiles but the UI **never updates**, because `@Observable` does not track an `ObservableObject`'s `objectWillChange`. Sink the `@Published` values into stored properties instead.
+4. **Do not mix with `IAPService` / `IAPViewModel`.** See the warning above — constructing `IAPViewModel` alone is enough to start the second listener.
+5. **The Restore button must always be visible.** `shouldProactivelyPromptRestore` only answers "should I proactively suggest it". Gating the button itself on that flag is a direct path to a Guideline 3.1.1 rejection. Call `markRestorePrompted()` after showing your own suggestion UI.
+
+#### Sandbox checklist for the first integrator
+
+| # | Case | Expected |
+|---|---|---|
+| 1 | Purchase | Entitled immediately, UI updates without restart |
+| 2 | Kill and relaunch | Still entitled |
+| 3 | Delete app, reinstall, tap nothing | Entitled within ~1s |
+| 4 | Refund via StoreKit Transaction Manager | Access lost after refresh |
+| 5 | Ask to Buy | Outcome `.pending`, not an error |
+| 6 | Sign in with a different Apple ID | Access lost |
+| 7 | Restore in case 6 | Sign-in prompt appears |
+| 8 | Airplane mode, device **had** verified before | Still entitled — `currentEntitlements` is served from StoreKit's on-device transaction cache |
+| 9 | Airplane mode + **fresh install** | `verification` becomes `.timedOut` after 5s; by the default policy the host shows ads |
+| 10 | Non-consumable / lifetime | Entitled permanently, `expiryDate` is `nil` |
+| 11 | **Consumable** (if the app sells one) | Grants **no** entitlement, yet `purchase()` still returns `.purchased` |
+| 12 | **Intro offer** — 2+ products, only one with a trial | `isIntroOfferEligible` answers for the right product, consistently across runs |
+| 13 | **Purchase while a verify is in flight** | Access is not lost once the purchase completes |
+| 14 | **Second launch as a subscriber** | Free UI for a few tens of ms, then premium. Report back if the flicker is objectionable |
+| 15 | **Subscription group where no product has an introductory offer** | `isIntroOfferEligible` stays `false` — never a trial badge on a plan that bills immediately |
+| 16 | **Launch offline, reconnect, then open the paywall immediately** (inside the 30s debounce) | **All** prices appear and `purchase()` works. Buying one plan must not leave the others priceless for the rest of the session |
+
+Case 3 is the reason this layer exists. Cases 11–13 are defects the red-team pass found and 15–16 are defects the code review found; dropping any of them discards the value of those reviews. Case 14 measures the cost of having no cache.
+
+Two further cases need a host that can cancel: calling `refresh()` from a `.task {}` that is cancelled mid-flight must not drop a subscriber to free, and calling `bootstrap()` before `configure()` must leave `bootstrap()` still usable afterwards rather than wedging `verification` at `.pending`.
+
+### IAPService (legacy)
+
 ```swift
 // Define product IDs
 enum AppProductID: String, IAPProductIdentifiable {
@@ -185,7 +306,7 @@ let restored = try await IAPService.shared.restorePurchases()
 let isActive = IAPService.shared.isSubscriptionActive(for: AppProductID.premiumMonthly)
 ```
 
-> **Note:** Subscription status is stored locally. Users must tap "Restore Purchases" on new devices.
+> **Note:** Subscription status is stored locally, so **premium is lost on reinstall or on a new device** until the user taps "Restore Purchases", and a `.pending` (Ask to Buy) purchase is surfaced as an error. New apps should use `EntitlementService` instead.
 
 ## Revenue Attribution Setup
 
