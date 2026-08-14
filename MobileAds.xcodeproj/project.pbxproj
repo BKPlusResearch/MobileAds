@@ -11,6 +11,7 @@
 		042F528327D8E09E008D5330 /* MobileAds.h in Headers */ = {isa = PBXBuildFile; fileRef = 042F528027D8E09E008D5330 /* MobileAds.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0C394CF39AA865F4527BF54D /* AdMetricsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D91E64429E11BA3D41DE93 /* AdMetricsWindow.swift */; };
 		0E7215CB2A36224700759DCA /* close.png in Resources */ = {isa = PBXBuildFile; fileRef = 0E7215CA2A36224700759DCA /* close.png */; };
+		1563F94AFAD42FF771502DA2 /* EntitlementOutcome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 093FD69BCD67B53CB301402F /* EntitlementOutcome.swift */; };
 		1CE6E1D4249761C4A7BEE781 /* TikTokConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6374FCB0183272131E3A60C1 /* TikTokConfig.swift */; };
 		2DE9A75D01576F7E7046C9AE /* TikTokManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF091AE0EFF03CD62861AAC /* TikTokManager.swift */; };
 		43D524075E619A4B7D677E4E /* TikTokEventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BDFFC3EA5DE4641F337DF8 /* TikTokEventType.swift */; };
@@ -64,7 +65,9 @@
 		715F7BF5E4AC429ADEFBFE85 /* AdMetricsTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB7BEB15EFD8699A10A9E7E4 /* AdMetricsTracker.swift */; };
 		768BF63F283F244D00737CEF /* RemoteConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 768BF63E283F244D00737CEF /* RemoteConfigService.swift */; };
 		8B411726E979E2DC7D1D11CE /* AdMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 086243DA6593B6E6259A9EF2 /* AdMetrics.swift */; };
+		8E577E230960F6465DB1AADE /* EntitlementConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59331D136AA011CF73F48AD8 /* EntitlementConfig.swift */; };
 		9518C34C82D27DEB7F343B3D /* Pods_MobileAds.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFA7FFED897F79E7EE95595D /* Pods_MobileAds.framework */; };
+		A2090944D2FE66C50F6AD58F /* EntitlementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31E7242F9BBC04F54E1A836E /* EntitlementService.swift */; };
 		B82A037AB16483E6202C759B /* AdMetricsMonitorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BECBF1604C6E579D9E7E399 /* AdMetricsMonitorView.swift */; };
 /* End PBXBuildFile section */
 
@@ -73,7 +76,9 @@
 		042F528027D8E09E008D5330 /* MobileAds.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MobileAds.h; sourceTree = "<group>"; };
 		042F528127D8E09E008D5330 /* MobileAds.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = MobileAds.docc; sourceTree = "<group>"; };
 		086243DA6593B6E6259A9EF2 /* AdMetrics.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdMetrics.swift; path = /Users/shjn/work_space/BKPlus/MobileAds/MobileAds/AdMob/Model/AdMetrics.swift; sourceTree = "<absolute>"; };
+		093FD69BCD67B53CB301402F /* EntitlementOutcome.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EntitlementOutcome.swift; sourceTree = "<group>"; };
 		0E7215CA2A36224700759DCA /* close.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close.png; sourceTree = "<group>"; };
+		31E7242F9BBC04F54E1A836E /* EntitlementService.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EntitlementService.swift; sourceTree = "<group>"; };
 		3AF091AE0EFF03CD62861AAC /* TikTokManager.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TikTokManager.swift; sourceTree = "<group>"; };
 		3D6191E3A787BACD7741EE30 /* Pods-MobileAds.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileAds.release.xcconfig"; path = "Target Support Files/Pods-MobileAds/Pods-MobileAds.release.xcconfig"; sourceTree = "<group>"; };
 		502BC1B32F4D8BB60090CE3E /* BannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerAdView.swift; sourceTree = "<group>"; };
@@ -125,6 +130,7 @@
 		50FF24D72EEBAECF00EAF530 /* NativeAdMediumLoadingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NativeAdMediumLoadingView.swift; sourceTree = "<group>"; };
 		50FF30432EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+NativeDelegate.swift"; sourceTree = "<group>"; };
 		53BDFFC3EA5DE4641F337DF8 /* TikTokEventType.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TikTokEventType.swift; sourceTree = "<group>"; };
+		59331D136AA011CF73F48AD8 /* EntitlementConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EntitlementConfig.swift; sourceTree = "<group>"; };
 		6374FCB0183272131E3A60C1 /* TikTokConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TikTokConfig.swift; sourceTree = "<group>"; };
 		760580A727E3221800975794 /* TestAdsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestAdsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		760580B127E3221800975794 /* TestAdsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestAdsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -238,6 +244,9 @@
 				5079816D2EE813B9009B6C5D /* IAPService.swift */,
 				5079816E2EE813B9009B6C5D /* IAPService+Receipt.swift */,
 				5079816F2EE813B9009B6C5D /* IAPService+Subscription.swift */,
+				59331D136AA011CF73F48AD8 /* EntitlementConfig.swift */,
+				093FD69BCD67B53CB301402F /* EntitlementOutcome.swift */,
+				31E7242F9BBC04F54E1A836E /* EntitlementService.swift */,
 			);
 			path = IAP;
 			sourceTree = "<group>";
@@ -586,6 +595,9 @@
 				715F7BF5E4AC429ADEFBFE85 /* AdMetricsTracker.swift in Sources */,
 				B82A037AB16483E6202C759B /* AdMetricsMonitorView.swift in Sources */,
 				0C394CF39AA865F4527BF54D /* AdMetricsWindow.swift in Sources */,
+				8E577E230960F6465DB1AADE /* EntitlementConfig.swift in Sources */,
+				1563F94AFAD42FF771502DA2 /* EntitlementOutcome.swift in Sources */,
+				A2090944D2FE66C50F6AD58F /* EntitlementService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
