@@ -41,6 +41,11 @@ extension AdMobHelper {
         }
 
         isAppOpenLoading = true
+        // Released on every exit, including the rethrow below. Clearing it only after the
+        // do/catch left the flag stuck true after a single failed load, and the guard
+        // above then returned without requesting anything for the rest of the process —
+        // killing the fallback unit and every later app open ad, splash and resume alike.
+        defer { isAppOpenLoading = false }
         AdMetricsTracker.shared.trackRequest(adUnit: adUnitID.adUnitIDString, adType: .appOpen)
         // Show loading view when starting to load ad (if enabled)
         if shouldShowLoadingView {
@@ -75,8 +80,6 @@ extension AdMobHelper {
             hideAppOpenAdLoadingView()
             throw error
         }
-
-        isAppOpenLoading = false
     }
 
     /// Show an app open ad if available.

@@ -16,6 +16,10 @@ extension AdMobHelper {
         }
 
         isRewardedLoading = true
+        // Released on every exit, including the rethrow below. Clearing it only after the
+        // do/catch left the flag stuck true after a single failed load, so the guard above
+        // then declined every later rewarded load in the process.
+        defer { isRewardedLoading = false }
         AdMetricsTracker.shared.trackRequest(adUnit: adUnitID.adUnitIDString, adType: .reward)
         // Show loading view when starting to load ad
         showRewardedAdLoadingView()
@@ -44,8 +48,6 @@ extension AdMobHelper {
             hideRewardedAdLoadingView()
             throw error
         }
-
-        isRewardedLoading = false
     }
     
     /// Show a rewarded video ad from the specified view controller.

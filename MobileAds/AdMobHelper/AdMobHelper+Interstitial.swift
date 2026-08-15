@@ -21,6 +21,11 @@ extension AdMobHelper {
         }
 
         isInterstitialLoading = true
+        // Released on every exit, including the rethrow below. Clearing it only after the
+        // do/catch left the flag stuck true after a single failed load, so the guard above
+        // then declined every later interstitial in the process — including the fallback
+        // unit callers request straight after a highfloor failure.
+        defer { isInterstitialLoading = false }
         AdMetricsTracker.shared.trackRequest(adUnit: adUnitID.adUnitIDString, adType: .interstitial)
         // Show loading view when starting to load ad (if enabled)
         if shouldShowLoadingView {
@@ -51,8 +56,6 @@ extension AdMobHelper {
             hideInterstitialAdLoadingView()
             throw error
         }
-
-        isInterstitialLoading = false
     }
     
     /// Show an interstitial ad from the specified view controller.

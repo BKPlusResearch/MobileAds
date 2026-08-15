@@ -16,6 +16,10 @@ extension AdMobHelper {
         }
 
         isRewardedInterstitialLoading = true
+        // Released on every exit, including the rethrow below. Clearing it only after the
+        // do/catch left the flag stuck true after a single failed load, so the guard above
+        // then declined every later rewarded interstitial load in the process.
+        defer { isRewardedInterstitialLoading = false }
         AdMetricsTracker.shared.trackRequest(adUnit: adUnitID.adUnitIDString, adType: .reward)
         initializeSDK()
 
@@ -41,8 +45,6 @@ extension AdMobHelper {
             rewardedInterstitialAd = nil
             throw error
         }
-
-        isRewardedInterstitialLoading = false
     }
     
     /// Show a rewarded interstitial ad from the specified view controller.
