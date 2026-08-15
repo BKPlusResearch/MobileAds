@@ -7,9 +7,9 @@ import StoreKit
 /// supplies its product IDs through `EntitlementConfig`, builds its own paywall, and
 /// decides its own gating policy. The base never shows UI and never hardcodes a product.
 ///
-/// **Do not use this in the same app as `IAPService` / `IAPViewModel`.** Merely creating
-/// an `IAPViewModel` spins up `IAPService.shared` and its own `Transaction.updates`
-/// listener, giving the app two sources of truth that will drift apart.
+/// This is the only IAP layer the pod ships. If the app has a `Transaction.updates`
+/// listener of its own, retire it — two listeners finish each other's transactions and
+/// give the app two sources of truth that drift apart.
 ///
 /// Integration:
 /// ```swift
@@ -157,6 +157,19 @@ public final class EntitlementService: ObservableObject {
         _ = await (productsDone, verifyDone)
 
         deadline.cancel()
+
+        // Retry anything left undelivered. `Transaction.updates` only reports transactions
+        // created or changed while listening, so a consumable the host failed to credit
+        // last session — or one that arrived before `configure()` — has no other way back.
+        // Without this drain, `onUnfinished` returning `false` would be a one-way trip.
+        await drainUnfinished()
+    }
+
+    /// Re-offers already-known unfinished transactions to the delivery path.
+    private func drainUnfinished() async {
+        for await result in Transaction.unfinished {
+            await handle(result)
+        }
     }
 
     /// Re-derives entitlement. Debounced to 30s unless `force` is set.
@@ -250,10 +263,58 @@ public final class EntitlementService: ObservableObject {
         if active { shouldProactivelyPromptRestore = false }
     }
 
+    /// Builds the receipt the host sees for `transaction`.
+    private func receipt(for transaction: Transaction) -> EntitlementPurchaseReceipt {
+        EntitlementPurchaseReceipt(
+            transactionID: String(transaction.id),
+            productID: transaction.productID,
+            purchaseDate: transaction.purchaseDate,
+            productType: transaction.productType
+        )
+    }
+
+    /// Offers a consumable to the host's delivery hook, and reports whether the
+    /// transaction may now be finished.
+    ///
+    /// The single delivery point for both entry paths — the `Transaction.updates` listener
+    /// and `purchase()` — so a consumable is offered exactly once however it arrives, and
+    /// the host has exactly one place to credit.
+    ///
+    /// Returns `true` (finish it) for everything that is not an undelivered consumable:
+    /// non-consumables and subscriptions re-derive their entitlement from
+    /// `currentEntitlements`, and a revoked transaction must never be delivered at all.
+    private func deliverIfNeeded(_ transaction: Transaction) async -> Bool {
+        guard let deliver = config?.onUnfinished else { return true }
+        // Refunded or family-revoked. Delivering goods here is a giveaway; the caller
+        // still refreshes, so the entitlement itself drops through the normal path.
+        guard transaction.revocationDate == nil else { return true }
+        // Only consumables can be lost by finishing. Offering renewals to the hook invites
+        // a host to reject a product it does not recognize, which would wedge that renewal
+        // in permanent redelivery.
+        guard transaction.productType == .consumable else { return true }
+
+        return await deliver(receipt(for: transaction))
+    }
+
     private func handle(_ result: VerificationResult<Transaction>) async {
         switch result {
         case .verified(let transaction):
-            await transaction.finish()
+            // Unconfigured: the hook cannot exist yet, so finishing here would destroy a
+            // consumable that nothing has credited. Leave it unfinished — StoreKit
+            // redelivers after `configure()`, which is recoverable; finishing is not.
+            guard config != nil else {
+                #if DEBUG
+                print("⚠️ [EntitlementService] Transaction arrived before configure(). Left unfinished for redelivery.")
+                #endif
+                return
+            }
+
+            let mayFinish = await deliverIfNeeded(transaction)
+            if mayFinish {
+                await transaction.finish()
+            }
+            // Runs either way. A failed delivery must not also freeze entitlement state —
+            // that would turn one undelivered coin pack into a stale `isEntitled`.
             await refresh(force: true)
 
         case .unverified(let transaction, let error):
@@ -368,10 +429,22 @@ public final class EntitlementService: ObservableObject {
                 guard case .verified(let transaction) = result else {
                     return .failed(.verificationFailed)
                 }
-                await transaction.finish()
+                // Built before `finish()`: afterwards the transaction is closed and these
+                // fields are no longer a dependable record of what was bought.
+                let receipt = self.receipt(for: transaction)
+                // Same delivery path as the listener, so a consumable bought in the
+                // foreground is credited by the same hook that catches the ones arriving
+                // out of band. Without this the most common purchase path would be the one
+                // path the hook never covered.
+                if await deliverIfNeeded(transaction) {
+                    await transaction.finish()
+                }
                 // Updates entitlement state; not used to judge this purchase.
                 await refresh(force: true)
-                return .purchased
+                // `.purchased` regardless: the customer was charged and the receipt is
+                // real. An undelivered consumable stays unfinished and comes back through
+                // the listener — that is recovery, not failure of this purchase.
+                return .purchased(receipt)
 
             case .userCancelled:
                 return .cancelled
