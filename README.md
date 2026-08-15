@@ -5,11 +5,11 @@ A Swift framework for iOS monetization — wraps Google Mobile Ads SDK, StoreKit
 ## Features
 
 - **All AdMob formats** — Banner, Interstitial, Rewarded, Rewarded Interstitial, App Open, Native (Small/Medium)
-- **UIKit and SwiftUI** — Same ads from either surface; SwiftUI gets `UIViewRepresentable` views, `.interstitialAd`/`.rewardedAd`/`.rewardedInterstitialAd`/`.appOpenAd` modifiers, and `IAPViewModel` (legacy IAP layer — see [In-App Purchases](#in-app-purchases) before gating ads on it)
+- **UIKit and SwiftUI** — Same ads from either surface; SwiftUI gets `UIViewRepresentable` views and `.interstitialAd`/`.rewardedAd`/`.rewardedInterstitialAd`/`.appOpenAd` modifiers
 - **AdMob mediation** — AppLovin, IronSource, Vungle, Facebook, Mintegral, Pangle, Unity adapters bundled
 - **Self-contained `BannerAdView`** — Drop-in UIView, no singleton conflicts for multiple banners
 - **Native Ad Cache** — Preload for instant display with 1-hour auto-expiry
-- **In-App Purchases** — Two layers: `EntitlementService` (entitlements-first, recommended for new apps) and the legacy `IAPService`. Pick one per app; never both
+- **In-App Purchases** — `EntitlementService`: entitlement derived from StoreKit on every check, never cached, with an `onUnfinished` delivery hook for consumables
 - **Unified Revenue Attribution** — Every impression auto-tracked to Adjust, Firebase, TikTok, Facebook
 - **Consent Management** — Integrated Google UMP for GDPR/ATT
 - **Remote Config** — Type-safe Firebase Remote Config wrapper
@@ -28,7 +28,10 @@ A Swift framework for iOS monetization — wraps Google Mobile Ads SDK, StoreKit
 pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git"
 
 # Specific version
-pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '1.3.0'
+pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '2.0.0'
+
+# Last release with the legacy IAPService layer (see "Upgrading from 1.x to 2.0")
+pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '1.4.0'
 ```
 
 ```bash
@@ -169,16 +172,10 @@ NativeAdConfiguration.shared.callToActionGradientEndColor = .systemPink
 
 ## In-App Purchases
 
-The pod ships **two independent IAP layers**. Choose one per app.
+`EntitlementService` is the pod's only IAP layer. The legacy `IAPService` / `IAPViewModel`
+layer was **removed in 2.0.0** — see [Upgrading from 1.x to 2.0](#upgrading-from-1x-to-20).
 
-| Layer | Use when | Status |
-|---|---|---|
-| `EntitlementService` | New apps | Recommended. **Not yet exercised on a device** — see below |
-| `IAPService` / `IAPViewModel` | The four apps already on it | Frozen. Entitlement is read from `UserDefaults` — **premium is lost on reinstall**, and Ask to Buy is reported as an error |
-
-> **Never use both in one app.** Simply creating an `IAPViewModel` constructs `IAPService.shared` and starts its own `Transaction.updates` listener, so the two layers end up with two sources of truth that drift apart and finish each other's transactions.
-
-### EntitlementService (recommended)
+### EntitlementService
 
 Entitlement is derived from `Transaction.currentEntitlements` on every check, so reinstalls, device changes, refunds, grace periods and Family Sharing are all handled by StoreKit rather than by local storage. The layer is generic: it holds no product IDs of its own and never presents UI — the host supplies configuration and builds its own paywall.
 
@@ -241,7 +238,10 @@ var body: some View {
 
 ```swift
 switch await EntitlementService.shared.purchase("your.yearly") {
-case .purchased:        dismissPaywall()
+case .purchased(let receipt):
+    // Do NOT credit consumables here — `onUnfinished` has already been offered this
+    // transaction and is the one place to credit. See "Consumables".
+    dismissPaywall()
 case .cancelled:        break
 case .pending:          showAwaitingApprovalMessage()   // Ask to Buy — not an error
 case .failed(let why):  log(why)
@@ -258,10 +258,80 @@ case .failed(let why):   showError(why)
 #### Five traps
 
 1. **Unlock only when `verification == .verified`.** `.pending` means *not known yet*; `.timedOut` means StoreKit did not answer within 5s. **Recommended default at `.timedOut`: treat the user as free and show ads.** That favors revenue; the cost is that a subscriber on a bad network sees ads for a few seconds until `verify()` answers, then they disappear. Choose differently only with a reason.
-2. **Nothing is cached — anywhere.** There is no stored entitlement and no "last known" state. `isEntitled` is `false` until verification completes, even for a long-standing subscriber. **Do not add a cache on the host side to smooth this over** — that is precisely the defect the legacy layer has.
+2. **Nothing is cached — anywhere.** There is no stored entitlement and no "last known" state. `isEntitled` is `false` until verification completes, even for a long-standing subscriber. **Do not add a cache on the host side to smooth this over** — that is precisely the defect the removed 1.x layer had, and the reason it was removed.
 3. **With `@Observable` (iOS 17+), mirror — do not forward.** `var isPremium: Bool { base.isEntitled }` compiles but the UI **never updates**, because `@Observable` does not track an `ObservableObject`'s `objectWillChange`. Sink the `@Published` values into stored properties instead.
-4. **Do not mix with `IAPService` / `IAPViewModel`.** See the warning above — constructing `IAPViewModel` alone is enough to start the second listener.
+4. **One `Transaction.updates` listener per app.** This layer runs one. If the app keeps its own — a subscription tracker, an analytics observer — the two finish each other's transactions and drift apart. Retire the app's listener, or route it through `onUnfinished`.
 5. **The Restore button must always be visible.** `shouldProactivelyPromptRestore` only answers "should I proactively suggest it". Gating the button itself on that flag is a direct path to a Guideline 3.1.1 rejection. Call `markRestorePrompted()` after showing your own suggestion UI.
+
+#### Consumables — you must supply `onUnfinished`
+
+An app selling only subscriptions or non-consumables can stop reading here. An app
+selling coin packs, credits, or lives **must** supply `onUnfinished`, or it will charge
+customers and deliver nothing.
+
+**Why crediting at the `purchase()` return is not enough.** It is tempting to credit coins
+where `purchase()` returns and call it done. But StoreKit delivers consumables through
+`Transaction.updates` — where no `purchase()` call is waiting — in at least four ordinary
+situations:
+
+- the app was killed or crashed between payment and delivery;
+- Ask to Buy was approved by a parent minutes or days later;
+- the purchase started on another device on the same Apple ID;
+- a previous delivery attempt was interrupted.
+
+In every one of those the library sees a transaction the host never sees. Without the
+hook it finishes and discards it. **A consumable never enters `currentEntitlements`**, so
+unlike a subscription there is nothing left to re-derive from: the money is gone and the
+coins never existed.
+
+`onUnfinished` covers **both** routes: `purchase()` offers its transaction to the same
+hook before finishing it. So there is exactly one place to credit, and it catches
+everything.
+
+```swift
+EntitlementService.shared.configure(
+    EntitlementConfig(
+        // Coin SKUs must be listed here too — purchase() rejects anything absent.
+        // Listing them does NOT let them grant premium; verify() filters consumables
+        // by Transaction.productType.
+        productIDs: ["your.weekly", "your.yearly", "your.coins.100"],
+        subscriptionGroupID: "your_group",
+        onUnfinished: { receipt in
+            // Write the credit BEFORE returning true, and de-duplicate on transactionID.
+            await CoinLedger.creditOnce(receipt.transactionID, productID: receipt.productID)
+        }
+    )
+)
+```
+
+The contract, and each clause is load-bearing:
+
+| Rule | What goes wrong otherwise |
+|---|---|
+| Persist the credit **before** returning `true` | Crash between the two and you have reintroduced the exact loss the hook prevents |
+| De-duplicate on `receipt.transactionID` | StoreKit redelivers; crediting per delivery double-credits |
+| Credit **only** here | Every consumable is offered to this hook exactly once, including the ones bought in the foreground through `purchase()`. Also crediting at the `purchase()` return credits twice |
+| Make the credit write atomic | A read-then-write across an actor hop or an App Group `UserDefaults` shared with a widget loses concurrent credits |
+| Return `false` **only** when the write genuinely failed | It is not an error channel. A permanent `false` means permanent redelivery |
+
+The hook is deliberately **not** called for:
+
+| Not called for | Why |
+|---|---|
+| Subscriptions and non-consumables | Entitlement re-derives from `currentEntitlements`, so finishing them loses nothing. If the hook saw renewals, a host rejecting an unrecognized product would wedge that renewal in permanent redelivery |
+| Revoked / refunded transactions | Delivering goods for a refund is a giveaway. `refresh()` still runs, so the entitlement drops correctly |
+| Transactions that fail verification | Honoring them grants goods against unverifiable proof |
+
+**Known gap:** because of the last row, a charged-but-unverifiable consumable is still
+lost. Closing that properly requires server-side receipt validation, which this library
+does not do.
+
+Two behaviors worth knowing:
+
+- **Transactions arriving before `configure()` are left unfinished**, not discarded, and
+  are retried once the app configures. Finishing them would be unrecoverable.
+- **`bootstrap()` re-offers anything still unfinished** from previous sessions, so
+  returning `false` is a retry rather than a one-way trip.
 
 #### Sandbox checklist for the first integrator
 
@@ -277,36 +347,91 @@ case .failed(let why):   showError(why)
 | 8 | Airplane mode, device **had** verified before | Still entitled — `currentEntitlements` is served from StoreKit's on-device transaction cache |
 | 9 | Airplane mode + **fresh install** | `verification` becomes `.timedOut` after 5s; by the default policy the host shows ads |
 | 10 | Non-consumable / lifetime | Entitled permanently, `expiryDate` is `nil` |
-| 11 | **Consumable** (if the app sells one) | Grants **no** entitlement, yet `purchase()` still returns `.purchased` |
+| 11 | **Consumable** (if the app sells one) | Grants **no** entitlement, yet `purchase()` still returns `.purchased(receipt)` |
 | 12 | **Intro offer** — 2+ products, only one with a trial | `isIntroOfferEligible` answers for the right product, consistently across runs |
 | 13 | **Purchase while a verify is in flight** | Access is not lost once the purchase completes |
 | 14 | **Second launch as a subscriber** | Free UI for a few tens of ms, then premium. Report back if the flicker is objectionable |
 | 15 | **Subscription group where no product has an introductory offer** | `isIntroOfferEligible` stays `false` — never a trial badge on a plan that bills immediately |
 | 16 | **Launch offline, reconnect, then open the paywall immediately** (inside the 30s debounce) | **All** prices appear and `purchase()` works. Buying one plan must not leave the others priceless for the rest of the session |
+| 17 | **Consumable bought in the foreground** (consumable sellers only) | `onUnfinished` fires once; coins credited once; `purchase()` returns `.purchased(receipt)` |
+| 18 | **Consumable, app killed mid-purchase** | Coins credited on the next launch via `onUnfinished`, exactly once |
+| 19 | **Consumable via Ask to Buy, approved after relaunch** | Coins credited once approval arrives, exactly once |
+| 20 | **`onUnfinished` returns `false`** | Transaction NOT finished; re-offered at the next `bootstrap()` |
+| 21 | **Refund a consumable via StoreKit Transaction Manager** | `onUnfinished` does **not** fire again; no extra coins credited |
+| 22 | **Subscription renews while `onUnfinished` is supplied** | Hook does **not** fire; renewal finishes; `expiryDate` updates |
+| 23 | **Transaction arrives before `configure()`** | Left unfinished, then credited after `configure()` + `bootstrap()` |
 
-Case 3 is the reason this layer exists. Cases 11–13 are defects the red-team pass found and 15–16 are defects the code review found; dropping any of them discards the value of those reviews. Case 14 measures the cost of having no cache.
+Case 3 is the reason this layer exists. Cases 11–13 are defects the red-team pass found, 15–16 came from the first code review, and 17–23 from the review of the 2.0 delivery hook — each one is a specific way money went missing on paper; dropping any of them discards the value of those reviews. Case 14 measures the cost of having no cache.
 
 Two further cases need a host that can cancel: calling `refresh()` from a `.task {}` that is cancelled mid-flight must not drop a subscriber to free, and calling `bootstrap()` before `configure()` must leave `bootstrap()` still usable afterwards rather than wedging `verification` at `.pending`.
 
-### IAPService (legacy)
+### Upgrading from 1.x to 2.0
+
+**2.0.0 removed the legacy IAP layer.** `IAPService`, `IAPViewModel`,
+`IAPProductIdentifiable`, `IAPError`, `ProductType`, and the Keychain/UserDefaults
+storage behind them no longer exist. An app on 1.x will not compile against 2.0 until it
+migrates. Staying on 1.x is a valid choice — pin `:tag => '1.4.0'`.
+
+Why it went: entitlement was read from local storage, so **premium was lost on reinstall
+or on a new device** until the user found "Restore Purchases", and Ask to Buy was
+reported to the user as an error.
+
+API mapping:
+
+| 1.x | 2.0 |
+|---|---|
+| `IAPService.shared.hasActiveSubscription()` | `EntitlementService.shared.isEntitled` |
+| `IAPService.shared.fetchProducts(_:)` | `configure()` + `bootstrap()`, then read `products` |
+| `IAPService.shared.purchase(_:)` | `EntitlementService.shared.purchase(id)` → outcome |
+| `IAPService.shared.restorePurchases()` | `EntitlementService.shared.restore()` |
+| `IAPService.shared.sharedSecret = …` | Removed. Rotating the secret is a separate task — deleting this line does not invalidate it |
+| `catch IAPError.purchaseCancelled` | `case .cancelled` |
+| `catch let e as IAPError` | `case .failed(let failure)` |
+| `ProductType` | Declare it app-side; the pod no longer vends one |
+
+**Already on `EntitlementService` from 1.4.0?** One source-breaking change affects you too:
+`EntitlementPurchaseOutcome.purchased` now carries a payload.
+
+| 1.4.0 | 2.0 |
+|---|---|
+| `case .purchased` | `case .purchased(let receipt)` — the payload-less pattern still compiles, but `outcome == .purchased` no longer does |
+| `EntitlementConfig(productIDs:subscriptionGroupID:)` | Unchanged; `onUnfinished:` is a new optional third parameter |
+
+**The trap that will cost you a day: `isEntitled` is not synchronous.**
+`hasActiveSubscription()` read `UserDefaults`, so it always had an answer immediately.
+`isEntitled` is `false` until verification completes. Every ad gate and paywall check
+that runs at launch will see `false` and show ads to a paying subscriber.
+
+A `-> Bool` shim cannot fix this. The gate has to distinguish "not premium" from "don't
+know yet", and something has to notify the UI when the answer arrives:
 
 ```swift
-// Define product IDs
-enum AppProductID: String, IAPProductIdentifiable {
-    case premiumMonthly = "com.yourapp.premium.monthly"
-    var productIDString: String { rawValue }
+// Gate must be able to say "unknown"
+static func premiumState() -> (isPremium: Bool, isKnown: Bool) {
+    let service = EntitlementService.shared
+    return (service.isEntitled, service.verification == .verified)
 }
 
-// Fetch, purchase, restore
-let products = try await IAPService.shared.fetchProducts([AppProductID.premiumMonthly])
-let result = try await IAPService.shared.purchase(AppProductID.premiumMonthly)
-let restored = try await IAPService.shared.restorePurchases()
-
-// Check subscription
-let isActive = IAPService.shared.isSubscriptionActive(for: AppProductID.premiumMonthly)
+// Without a bridge the UI reads once and never updates again
+static func startBridge() {
+    cancellable = EntitlementService.shared.$isEntitled
+        .removeDuplicates()
+        .sink { _ in NotificationCenter.default.post(name: .premiumStatusDidChange, object: nil) }
+}
 ```
 
-> **Note:** Subscription status is stored locally, so **premium is lost on reinstall or on a new device** until the user taps "Restore Purchases", and a `.pending` (Ask to Buy) purchase is surfaced as an error. New apps should use `EntitlementService` instead.
+`startBridge()` must be called explicitly — a `static` on an `enum` is a lazy global and
+never runs if nothing touches it.
+
+Bridging to RxSwift: sink `$isEntitled`. Do **not** use `objectWillChange` — it fires in
+`willSet` and carries no value, so the relay stays one step behind. It compiles cleanly,
+so no build check will catch it.
+
+Selling consumables? Read [Consumables](#consumables--you-must-supply-onunfinished)
+before starting; `onUnfinished` is mandatory there.
+
+Per-app migration notes, including known traps in each existing consumer, are in the pod
+repo under `plans/260814-1621-remove-legacy-iap/plan.md` ("Migration notes").
 
 ## Revenue Attribution Setup
 

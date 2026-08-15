@@ -185,14 +185,19 @@ override func viewDidAppear(_ animated: Bool) {
 // PremiumVC.swift
 func purchaseProduct() {
     Task {
-        do {
-            try await IAPService.shared.purchase(productId: "premium_yearly")
+        switch await EntitlementService.shared.purchase("premium_yearly") {
+        case .purchased(let receipt):
             FirebaseLogger.shared.logEvent(.purchaseSuccess, params: [
-                .productId: "premium_yearly",
+                .productId: receipt.productID,
                 .price: 49.99
             ])
-        } catch {
-            FirebaseLogger.shared.logError(error, context: "Purchase failed")
+        case .cancelled, .pending:
+            break   // Neither is an error; do not log one.
+        case .failed(let failure):
+            FirebaseLogger.shared.logEvent(.purchaseFailed, params: [
+                .productId: "premium_yearly",
+                .errorMessage: String(describing: failure)
+            ])
         }
     }
 }

@@ -12,11 +12,9 @@ import SwiftUI
 ///     )
 /// ```
 ///
-/// - Important: The pod ships two independent IAP layers and this ad gate can be driven
-///   by either — but an app must use only one. `EntitlementService` is recommended for
-///   new apps; `IAPViewModel` / `IAPService` is the legacy layer, which loses entitlement
-///   on reinstall. Creating an `IAPViewModel` at all starts a second `Transaction.updates`
-///   listener, so mixing the two gives the app two sources of truth. See the README.
+/// - Important: Gate on `EntitlementService.isEntitled`, and only once
+///   `verification == .verified` — `isEntitled` is `false` until StoreKit answers, so
+///   gating on it too early shows ads to a paying subscriber. See the README.
 @available(iOS 15.0, *)
 public struct AppOpenModifier: ViewModifier {
     let adUnitID: AdUnitIdentifiable
