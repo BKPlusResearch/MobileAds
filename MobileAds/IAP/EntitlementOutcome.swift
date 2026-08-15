@@ -1,4 +1,5 @@
 import Foundation
+import StoreKit
 
 /// Why an entitlement operation failed.
 ///
@@ -17,13 +18,46 @@ public enum EntitlementFailure: Equatable {
     case unknown(String)
 }
 
+/// Proof that one specific transaction happened.
+///
+/// Carried out of the library so a host selling **consumables** can credit the purchase
+/// and record what it credited. `transactionID` is the de-duplication key: StoreKit may
+/// deliver the same transaction more than once (relaunch, Ask to Buy approval, an
+/// interrupted delivery), and crediting per delivery instead of per ID double-credits.
+///
+/// The library keeps no copy of this. Persisting it is the host's job.
+@available(iOS 15.0, *)
+public struct EntitlementPurchaseReceipt: Equatable, Sendable {
+    /// Stable per transaction, and the only safe key for "have I already credited this?".
+    public let transactionID: String
+    public let productID: String
+    public let purchaseDate: Date
+    /// What kind of product this was. Carried so the host never has to infer it from the
+    /// shape of a product ID — a naming convention is not evidence of a product's type,
+    /// and guessing wrong here means crediting the wrong thing.
+    public let productType: Product.ProductType
+
+    public init(transactionID: String,
+                productID: String,
+                purchaseDate: Date,
+                productType: Product.ProductType) {
+        self.transactionID = transactionID
+        self.productID = productID
+        self.purchaseDate = purchaseDate
+        self.productType = productType
+    }
+}
+
 /// Result of a single purchase attempt.
 ///
 /// This describes *that one purchase*, never the global entitlement state — a
 /// consumable purchase succeeds without ever appearing in `currentEntitlements`.
 @available(iOS 15.0, *)
 public enum EntitlementPurchaseOutcome: Equatable {
-    case purchased
+    /// Carries the receipt so a consumable seller can credit *this* purchase. A
+    /// subscription/non-consumable host may ignore the payload and re-derive
+    /// entitlement from `isEntitled` as before.
+    case purchased(EntitlementPurchaseReceipt)
     case cancelled
     /// Ask to Buy and other deferred approvals. Resolved later through the
     /// `Transaction.updates` listener — the host should dismiss the paywall and say
