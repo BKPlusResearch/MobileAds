@@ -21,14 +21,6 @@
 		5050C43C2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5050C43B2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift */; };
 		5050C43E2F3D6BF90057F86C /* PremiumAdsAdapterCompatibilityShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5050C43D2F3D6BF90057F86C /* PremiumAdsAdapterCompatibilityShim.swift */; };
 		50535B702EF8F2BB00D6549D /* ADJustManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50535B6C2EF8F2BB00D6549D /* ADJustManager.swift */; };
-		5066FDE72F541A7400A50463 /* IAPMigration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5066FDE52F541A7400A50463 /* IAPMigration.swift */; };
-		5066FDE82F541A7400A50463 /* IAPUserDefaultsStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5066FDE62F541A7400A50463 /* IAPUserDefaultsStorage.swift */; };
-		507981712EE813B9009B6C5D /* IAPProductIdentifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816C2EE813B9009B6C5D /* IAPProductIdentifiable.swift */; };
-		507981722EE813B9009B6C5D /* IAPService+Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816F2EE813B9009B6C5D /* IAPService+Subscription.swift */; };
-		507981732EE813B9009B6C5D /* IAPModels.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816B2EE813B9009B6C5D /* IAPModels.swift */; };
-		507981742EE813B9009B6C5D /* IAPKeychainStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816A2EE813B9009B6C5D /* IAPKeychainStorage.swift */; };
-		507981752EE813B9009B6C5D /* IAPService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816D2EE813B9009B6C5D /* IAPService.swift */; };
-		507981762EE813B9009B6C5D /* IAPService+Receipt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5079816E2EE813B9009B6C5D /* IAPService+Receipt.swift */; };
 		508D29432C6F2E5B005801DA /* ic_info.png in Resources */ = {isa = PBXBuildFile; fileRef = 508D29422C6F2E5B005801DA /* ic_info.png */; };
 		508D29482C6F3202005801DA /* stars_3_5.png in Resources */ = {isa = PBXBuildFile; fileRef = 508D29442C6F3202005801DA /* stars_3_5.png */; };
 		508D29492C6F3202005801DA /* stars_4.png in Resources */ = {isa = PBXBuildFile; fileRef = 508D29452C6F3202005801DA /* stars_4.png */; };
@@ -88,14 +80,6 @@
 		5050C43D2F3D6BF90057F86C /* PremiumAdsAdapterCompatibilityShim.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumAdsAdapterCompatibilityShim.swift; sourceTree = "<group>"; };
 		50535B6C2EF8F2BB00D6549D /* ADJustManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADJustManager.swift; sourceTree = "<group>"; };
 		50535B6D2EF8F2BB00D6549D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
-		5066FDE52F541A7400A50463 /* IAPMigration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPMigration.swift; sourceTree = "<group>"; };
-		5066FDE62F541A7400A50463 /* IAPUserDefaultsStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPUserDefaultsStorage.swift; sourceTree = "<group>"; };
-		5079816A2EE813B9009B6C5D /* IAPKeychainStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPKeychainStorage.swift; sourceTree = "<group>"; };
-		5079816B2EE813B9009B6C5D /* IAPModels.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPModels.swift; sourceTree = "<group>"; };
-		5079816C2EE813B9009B6C5D /* IAPProductIdentifiable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPProductIdentifiable.swift; sourceTree = "<group>"; };
-		5079816D2EE813B9009B6C5D /* IAPService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IAPService.swift; sourceTree = "<group>"; };
-		5079816E2EE813B9009B6C5D /* IAPService+Receipt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IAPService+Receipt.swift"; sourceTree = "<group>"; };
-		5079816F2EE813B9009B6C5D /* IAPService+Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "IAPService+Subscription.swift"; sourceTree = "<group>"; };
 		508D29422C6F2E5B005801DA /* ic_info.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ic_info.png; sourceTree = "<group>"; };
 		508D29442C6F3202005801DA /* stars_3_5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stars_3_5.png; sourceTree = "<group>"; };
 		508D29452C6F3202005801DA /* stars_4.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stars_4.png; sourceTree = "<group>"; };
@@ -238,14 +222,6 @@
 		507981702EE813B9009B6C5D /* IAP */ = {
 			isa = PBXGroup;
 			children = (
-				5066FDE52F541A7400A50463 /* IAPMigration.swift */,
-				5066FDE62F541A7400A50463 /* IAPUserDefaultsStorage.swift */,
-				5079816A2EE813B9009B6C5D /* IAPKeychainStorage.swift */,
-				5079816B2EE813B9009B6C5D /* IAPModels.swift */,
-				5079816C2EE813B9009B6C5D /* IAPProductIdentifiable.swift */,
-				5079816D2EE813B9009B6C5D /* IAPService.swift */,
-				5079816E2EE813B9009B6C5D /* IAPService+Receipt.swift */,
-				5079816F2EE813B9009B6C5D /* IAPService+Subscription.swift */,
 				59331D136AA011CF73F48AD8 /* EntitlementConfig.swift */,
 				093FD69BCD67B53CB301402F /* EntitlementOutcome.swift */,
 				31E7242F9BBC04F54E1A836E /* EntitlementService.swift */,
@@ -550,8 +526,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5066FDE72F541A7400A50463 /* IAPMigration.swift in Sources */,
-				5066FDE82F541A7400A50463 /* IAPUserDefaultsStorage.swift in Sources */,
 				509F87042EE11DD500DAEACF /* AdUnitID.swift in Sources */,
 				502BC1B42F4D8BB60090CE3E /* BannerAdView.swift in Sources */,
 				509F87052EE11DD500DAEACF /* NativeAdLoadingView.swift in Sources */,
@@ -559,13 +533,7 @@
 				509F87152EE125BF00DAEACF /* NativeAdService.swift in Sources */,
 				509F87062EE11DD500DAEACF /* NativeAdLoaderDelegateHelper.swift in Sources */,
 				509F87072EE11DD500DAEACF /* AdMobHelper.swift in Sources */,
-				507981712EE813B9009B6C5D /* IAPProductIdentifiable.swift in Sources */,
-				507981722EE813B9009B6C5D /* IAPService+Subscription.swift in Sources */,
-				507981732EE813B9009B6C5D /* IAPModels.swift in Sources */,
 				5050C43C2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift in Sources */,
-				507981742EE813B9009B6C5D /* IAPKeychainStorage.swift in Sources */,
-				507981752EE813B9009B6C5D /* IAPService.swift in Sources */,
-				507981762EE813B9009B6C5D /* IAPService+Receipt.swift in Sources */,
 				50FF30442EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift in Sources */,
 				509F87082EE11DD500DAEACF /* NativeAdViewSmall.swift in Sources */,
 				509F87092EE11DD500DAEACF /* AppOpenAdLoadingView.swift in Sources */,
