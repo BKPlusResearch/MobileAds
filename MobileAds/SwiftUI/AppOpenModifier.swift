@@ -8,9 +8,13 @@ import SwiftUI
 /// ContentView()
 ///     .appOpenAd(
 ///         adUnitID: AppAdUnit.appOpen,
-///         isEnabled: !iapVM.isPurchased
+///         isEnabled: !entitlements.isEntitled
 ///     )
 /// ```
+///
+/// - Important: Gate on `EntitlementService.isEntitled`, and only once
+///   `verification == .verified` — `isEntitled` is `false` until StoreKit answers, so
+///   gating on it too early shows ads to a paying subscriber. See the README.
 @available(iOS 15.0, *)
 public struct AppOpenModifier: ViewModifier {
     let adUnitID: AdUnitIdentifiable
@@ -64,7 +68,8 @@ public extension View {
     /// Attach app open ad behavior — auto-shows on foreground transitions.
     /// - Parameters:
     ///   - adUnitID: Ad unit ID for app open ads
-    ///   - isEnabled: Control flag (e.g. `!isPurchased`)
+    ///   - isEnabled: Control flag (e.g. `!entitlements.isEntitled`, or `!iapVM.isPurchased`
+    ///     on the legacy layer — one or the other, never both)
     ///   - onStatusChange: Optional status callback
     func appOpenAd(
         adUnitID: AdUnitIdentifiable,

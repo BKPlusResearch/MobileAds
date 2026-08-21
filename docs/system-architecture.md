@@ -3,41 +3,41 @@
 ## 1. High-Level Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                     Consumer App                             │
-│  ┌──────────────┐  ┌──────────────┐  ┌───────────────────┐  │
-│  │ AppAdUnitID   │  │ AppProductID │  │ AppRemoteKey      │  │
-│  │ (enum)        │  │ (enum)       │  │ (enum)            │  │
-│  └──────┬───────┘  └──────┬───────┘  └─────────┬─────────┘  │
-│         │                 │                     │            │
-│    AdUnitIdentifiable  IAPProductIdentifiable  RemoteKeyIdentifiable
-│         │                 │                     │            │
-├─────────┼─────────────────┼─────────────────────┼────────────┤
-│         ▼                 ▼                     ▼            │
-│  ┌─────────────────────────────────────────────────────────┐ │
-│  │              MobileAds Framework (Pod)                  │ │
-│  │                                                         │ │
-│  │  ┌───────────────────────────────────────────────────┐ │ │
-│  │  │  SwiftUI layer (optional entry point)             │ │ │
-│  │  │  Representables + ViewModifiers + IAPViewModel     │ │ │
-│  │  └───────────────────────┬───────────────────────────┘ │ │
-│  │                          │ forwards to                  │ │
-│  │  ┌─────────────┐  ┌──────▼───┐  ┌──────────────────┐   │ │
-│  │  │ AdMobHelper  │  │IAPService│  │RemoteConfigService│  │ │
-│  │  │  (Singleton) │  │(Singleton)│  │   (Singleton)    │   │ │
-│  │  └──────┬──────┘  └──────────┘  └──────────────────┘   │ │
-│  │         │                                               │ │
-│  │         ▼                                               │ │
-│  │  ┌──────────────────────────────────────────────┐       │ │
-│  │  │         Revenue Attribution Hub              │       │ │
-│  │  │         (ADJustManager.logRevenue)            │       │ │
-│  │  └──┬──────┬──────────┬───────────┬─────────────┘       │ │
-│  │     │      │          │           │                     │ │
-│  │     ▼      ▼          ▼           ▼                     │ │
-│  │  Adjust  Firebase   TikTok    Facebook                  │ │
-│  │  Manager  Logger    Manager   Manager                   │ │
-│  └─────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────┐
+│                              Consumer App                              │
+│        ┌─────────────┐                         ┌──────────────┐        │
+│        │ AppAdUnitID │                         │ AppRemoteKey │        │
+│        │   (enum)    │                         │    (enum)    │        │
+│        └──────┬──────┘                         └───────┬──────┘        │
+│               │                                        │               │
+│      AdUnitIdentifiable                      RemoteKeyIdentifiable     │
+│               │                                        │               │
+├───────────────┼────────────────────────────────────────┼───────────────┤
+│               ▼                                        ▼               │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                    MobileAds Framework (Pod)                     │  │
+│  │                                                                  │  │
+│  │             ┌──────────────────────────────────────┐             │  │
+│  │             │ SwiftUI layer (optional entry point) │             │  │
+│  │             │ Representables + ViewModifiers       │             │  │
+│  │             └───────────────────┬──────────────────┘             │  │
+│  │                                 │ forwards to                    │  │
+│  │ ┌─────────────┐  ┌──────────────▼─────┐  ┌─────────────────────┐ │  │
+│  │ │ AdMobHelper │  │ EntitlementService │  │ RemoteConfigService │ │  │
+│  │ │ (Singleton) │  │    (Singleton)     │  │     (Singleton)     │ │  │
+│  │ └─────────────┘  └────────────────────┘  └─────────────────────┘ │  │
+│  │        │                                                         │  │
+│  │        ▼                                                         │  │
+│  │ ┌─────────────────────────────────────────┐                      │  │
+│  │ │         Revenue Attribution Hub         │                      │  │
+│  │ │       (ADJustManager.logRevenue)        │                      │  │
+│  │ └─────┬─────────┬─────────┬─────────┬─────┘                      │  │
+│  │       │         │         │         │                            │  │
+│  │       ▼         ▼         ▼         ▼                            │  │
+│  │    Adjust   Firebase   TikTok   Facebook                         │  │
+│  │      SDK    Analytics    SDK       SDK                           │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
+└────────────────────────────────────────────────────────────────────────┘
 
 External SDKs:
   Google-Mobile-Ads-SDK │ Adjust │ Firebase │ TikTok │ Facebook
@@ -76,9 +76,9 @@ External SDKs:
   └───────────┘  └────────────┘  └────────────┘
 
   Independent modules (no cross-dependencies):
-  ┌──────────────┐  ┌──────────┐
-  │ IAPService   │  │RemoteConfig│
-  └──────────────┘  └──────────┘
+  ┌────────────────────┐  ┌──────────────┐
+  │ EntitlementService │  │ RemoteConfig │
+  └────────────────────┘  └──────────────┘
 ```
 
 ---
@@ -261,12 +261,50 @@ NativeAdService.loadNativeAd(containerView:adUnitID:viewType:)
 
 ---
 
-## 5. Data Storage
+## 5. Entitlement Verification Flow
+
+```
+Host: configure(productIDs:)          required, once, before bootstrap
+  │
+Host: bootstrap()                     returns immediately — NOT async
+  │
+  ├── timeout armed first (5s) ───────────────┐
+  │                                           │
+  ├── loadProducts()  ‖  verify()             │  concurrent
+  │                        │                  │
+  │                        ▼                  │
+  │        Transaction.currentEntitlements    │
+  │        drop: unverified, revoked,         │
+  │              unconfigured productID,      │
+  │              consumable, expired          │
+  │                        │                  │
+  │                        ▼                  │
+  │        publish() → verification = .verified
+  │                                           │
+  └── still .pending at 5s ───────────────────┴──► verification = .timedOut
+                                                   (host policy; default: treat
+                                                    as free and show ads)
+
+Transaction.updates listener (process-lifetime)
+  ├── .verified   → finish() → refresh(force:)
+  └── .unverified → log → finish()   (grants nothing either way)
+```
+
+Two invariants worth preserving:
+
+- `verification = .verified` is assigned in exactly one function, `publish()`, and only after `currentEntitlements` has been read to completion. A timeout never stamps "verified" onto an unchecked value.
+- No entitlement value is persisted anywhere, so there is nothing on disk to tamper with and no unverified value that can reach a decision. The cost is that a subscriber sees free UI for a few tens of ms on each launch.
+
+`verify()` carries a generation token: `@MainActor` does not serialize across `await`, so without it a stale verification could overwrite the result of a purchase that just completed.
+
+---
+
+## 6. Data Storage
 
 | Data | Storage | Module |
 |---|---|---|
-| Subscription status | UserDefaults (migrated from Keychain) | IAP |
-| Subscription info (legacy) | Keychain | IAP |
+| Entitlement (`EntitlementService`) | **Not stored** — re-derived from `Transaction.currentEntitlements` on every check | IAP |
+| Restore-prompt flag | UserDefaults (`mobileads.entitlement.restorePrompted`) | IAP |
 | Remote config values | Firebase Remote Config cache | RemoteConfig |
 | Ad cache (banner) | In-memory static dictionary | BannerAdView |
 | Ad cache (native) | In-memory dictionary | AdMobHelper+NativeCache |
@@ -275,7 +313,7 @@ NativeAdService.loadNativeAd(containerView:adUnitID:viewType:)
 
 ---
 
-## 6. Threading Model
+## 7. Threading Model
 
 ```
 ┌─────────────────────────────────────┐
@@ -285,18 +323,13 @@ NativeAdService.loadNativeAd(containerView:adUnitID:viewType:)
 │  AdMobHelper.shared                 │
 │  NativeAdService                    │
 │  NativeAdConfiguration.shared       │
-│  IAPService.shared                  │
+│  EntitlementService.shared          │
+│  (listener runs here too —          │
+│   process-lifetime, never           │
+│   cancelled)                        │
 │  AdMetricsTracker.shared            │
 │  All UIView subclasses              │
 │  All ad lifecycle callbacks         │
-└─────────────────────────────────────┘
-
-┌─────────────────────────────────────┐
-│          Background Thread          │
-│                                     │
-│  IAPService transaction listener    │
-│  (Task.detached for                 │
-│   Transaction.updates)              │
 └─────────────────────────────────────┘
 
 ┌─────────────────────────────────────┐
@@ -312,7 +345,7 @@ NativeAdService.loadNativeAd(containerView:adUnitID:viewType:)
 
 ---
 
-## 7. Integration Points
+## 8. Integration Points
 
 ### App → Framework
 
@@ -323,7 +356,7 @@ NativeAdService.loadNativeAd(containerView:adUnitID:viewType:)
 | Self-contained banner | `BannerAdView().loadAd(...)` |
 | Native ads | `NativeAdService().loadNativeAd(...)` |
 | Native ad theming | `NativeAdConfiguration.shared.{property} = ...` |
-| IAP | `IAPService.shared.purchase(...)` |
+| IAP | `EntitlementService.shared.configure(...)` → `.bootstrap()` → `.purchase(...)` |
 | Remote Config | `RemoteConfigService.shared.fetchCloudValues(...)` |
 | Adjust setup | `ADJustManager.shared.configure(with:)` |
 | TikTok setup | `TikTokManager.shared.configure(with:)` |
@@ -336,7 +369,7 @@ NativeAdService.loadNativeAd(containerView:adUnitID:viewType:)
 | Banner / Native | `BannerAdSwiftUI(...)` / `NativeAdSwiftUI(...)` |
 | Full-screen formats | `.interstitialAd(...)`, `.rewardedAd(...)`, `.rewardedInterstitialAd(...)`, `.appOpenAd(...)` |
 | Presenter lookup | `ViewControllerResolver` (used internally by the modifiers) |
-| IAP state | `@StateObject IAPViewModel()` |
+| IAP state | `@StateObject EntitlementService.shared` |
 
 These are wrappers, not a parallel implementation: they resolve to the same singletons above, so cache, metrics, and revenue attribution behave identically from either surface.
 

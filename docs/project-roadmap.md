@@ -4,13 +4,12 @@
 
 ## Recently Shipped (from git history)
 
-- **SwiftUI layer** — `UIViewRepresentable` wrappers and view modifiers for Banner, Native, Interstitial, Rewarded, Rewarded Interstitial, and App Open; `IAPViewModel` for reactive purchase state.
+- **SwiftUI layer** — `UIViewRepresentable` wrappers and view modifiers for Banner, Native, Interstitial, Rewarded, Rewarded Interstitial, and App Open.
 - **ATT & presentation safety** — `configAds` runs UMP → ATT → SDK init in order and waits for the tracking status to actually resolve; full-screen ads refuse to present while backgrounded (`AdMobHelperError.appInBackground`).
 - **Mediation & SDK upgrade** — Google-Mobile-Ads-SDK → v13.3.0, Firebase → v12.13.0; added 7 mediation adapters (AppLovin, IronSource, Vungle, Facebook, Mintegral, Pangle, Unity); `PremiumAdsGoogleAdapter` replaces `PremiumAdmobAdapter`; podspec versions pinned to `Podfile.lock`.
 - **Facebook AD_IMPRESSION tracking** — auto ad-revenue events to Meta via `ADJustManager.logRevenue()`.
 - **Native ad cache** — single-use preload cache with metrics tracking; fixed dummy VC retention.
 - **Banner revenue** — `paidEventHandler` on banners; `BannerAdView` collapsible support.
-- **IAP storage migration** — Keychain → UserDefaults path (`IAPMigration`).
 - **TikTok** — TikTok Business SDK integration.
 - **Ad metrics overlay** — in-app `AdMetricsWindow` debug monitor.
 

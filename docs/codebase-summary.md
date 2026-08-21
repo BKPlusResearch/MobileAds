@@ -68,22 +68,16 @@ Entry points for SwiftUI consumers. No ad logic lives here — each type forward
 | `BannerAdSwiftUI.swift`, `NativeAdSwiftUI.swift` | `UIViewRepresentable` views |
 | `InterstitialModifier.swift`, `RewardedModifier.swift`, `RewardedInterstitialModifier.swift`, `AppOpenModifier.swift` | `ViewModifier`s exposed as `.interstitialAd(…)`, `.rewardedAd(…)`, `.rewardedInterstitialAd(…)`, `.appOpenAd(…)` |
 | `ViewControllerResolver.swift` | Finds the presenting `UIViewController` that full-screen formats require |
-| `IAPViewModel.swift` | `ObservableObject` wrapper over `IAPService` for reactive purchase state |
 
 ### 3. IAP (In-App Purchases)
 
-StoreKit 2 integration with async/await.
+StoreKit 2 integration with async/await. `EntitlementService` is the only IAP layer the pod ships. Entitlement is derived from `Transaction.currentEntitlements` on every check; nothing is cached except a single UserDefaults flag (`mobileads.entitlement.restorePrompted`). **Not yet exercised on a device.**
 
 | File | Purpose |
 |---|---|
-| `IAPService.swift` | Main service: fetch, purchase, restore, listen |
-| `IAPService+Subscription.swift` | Subscription status management |
-| `IAPService+Receipt.swift` | Receipt validation with Apple server |
-| `IAPModels.swift` | Data models: PurchaseResult, SubscriptionInfo, IAPError |
-| `IAPProductIdentifiable.swift` | Protocol for type-safe product IDs |
-| `IAPKeychainStorage.swift` | Keychain storage (legacy) |
-| `IAPUserDefaultsStorage.swift` | UserDefaults storage (current) |
-| `IAPMigration.swift` | Keychain → UserDefaults migration |
+| `EntitlementService.swift` | Derives entitlement from `currentEntitlements`; purchase, restore, intro-offer eligibility |
+| `EntitlementConfig.swift` | Host-supplied product IDs (required, non-empty), optional subscription group, and the `onUnfinished` delivery hook for consumable sellers |
+| `EntitlementOutcome.swift` | Typed outcomes: purchase, restore, failure, and the three-state `EntitlementVerification` |
 
 ### 4. ADJustManager
 
@@ -149,7 +143,6 @@ Debug-only ad performance monitoring.
 | Protocol | Module | Purpose |
 |---|---|---|
 | `AdUnitIdentifiable` | AdMobHelper | App defines ad unit IDs with test/production variants |
-| `IAPProductIdentifiable` | IAP | App defines product IDs for StoreKit |
 | `RemoteKeyIdentifiable` | RemoteConfig | App defines remote config keys |
 
 ---
@@ -159,7 +152,7 @@ Debug-only ad performance monitoring.
 | Singleton | Thread Safety |
 |---|---|
 | `AdMobHelper.shared` | `@MainActor` |
-| `IAPService.shared` | `@MainActor` |
+| `EntitlementService.shared` | `@MainActor` |
 | `NativeAdConfiguration.shared` | `@MainActor` |
 | `ADJustManager.shared` | Not isolated (thread-safe by design) |
 | `TikTokManager.shared` | Not isolated |
