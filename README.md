@@ -50,12 +50,13 @@ MobileAds is a Swift framework that wraps the Google Mobile Ads SDK and provides
   - Các flag `isInterstitialLoading`, `isRewardedLoading`, `isAppOpenLoading`, `isBannerLoading`, ...
   - Loading overlay cho Interstitial, Rewarded, App Open.
 
-- **In-App Purchase Service với StoreKit 2**
-  - Singleton `IAPService.shared` để quản lý IAP tập trung.
-  - Fetch products, purchase, restore purchases với async/await.
-  - Validate receipt trực tiếp với Apple server.
-  - Quản lý subscription status và lưu trữ an toàn trong Keychain.
-  - Protocol `IAPProductIdentifiable` cho product IDs linh hoạt.
+- **🆕 In-App Purchase entitlements-first với StoreKit 2 (2.0.0 — breaking)**
+  - Singleton `EntitlementService.shared` — layer IAP duy nhất của pod.
+  - Entitlement suy ra từ `Transaction.currentEntitlements` mỗi lần check, **không cache**, nên cài lại app / đổi máy / refund / Family Sharing do StoreKit lo.
+  - Fetch products, purchase, restore với async/await; outcome có kiểu thay vì `throw`.
+  - Hook `onUnfinished` để credit consumable **trước khi** finish transaction.
+  - App tự cấp product ID qua `EntitlementConfig`; pod không hardcode product nào và không hiện UI.
+  - ⚠️ Layer `IAPService` cũ đã bị gỡ ở 2.0.0 — xem mục nâng cấp trong README.
 
 - **🆕 Facebook AD_IMPRESSION Tracking**
   - Tự động log `AD_IMPRESSION` event lên Facebook SDK khi có ad revenue.
@@ -83,6 +84,12 @@ New version:
 
 ```
 pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git"
+```
+
+Bản cuối còn layer `IAPService` cũ (trước khi 2.0.0 gỡ nó):
+
+```
+pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '1.3.0'
 ```
 
 Then, run the following command:
@@ -350,236 +357,242 @@ NativeAdConfiguration.shared.callToActionGradientEndColor = .systemPink
 
 ---
 
-## In-App Purchase (IAP) Service
+## In-App Purchases
 
 **⚠️ Requirements:** iOS 15.0+ (StoreKit 2)
 
-MobileAds cung cấp `IAPService` để quản lý In-App Purchases với StoreKit 2, bao gồm:
-- Fetch products từ App Store
-- Purchase và restore purchases
-- Validate receipt với Apple server
-- Quản lý subscription status trong Keychain
+`EntitlementService` là layer IAP **duy nhất** của pod. Layer `IAPService` cũ đã bị **gỡ ở 2.0.0** — xem [Nâng cấp từ 1.x lên 2.0](#nâng-cấp-từ-1x-lên-20).
 
-### 1. Định nghĩa Product IDs
+Entitlement được suy ra từ `Transaction.currentEntitlements` ở **mỗi lần check**, nên cài lại app, đổi máy, refund, grace period và Family Sharing đều do StoreKit lo, không phải do local storage. Layer này generic: nó không giữ product ID nào của riêng nó và không bao giờ hiện UI — app tự cấu hình và tự dựng paywall.
 
-Tạo enum conform protocol `IAPProductIdentifiable`:
+> **Trạng thái: chưa verify trên máy thật.** Layer này viết theo tài liệu StoreKit 2, chưa app nào chạy. Nó đã qua một lượt red-team và một lượt code review, cả hai đều tìm ra lỗi thật chỉ bằng đọc code — nên cứ giả định các lỗi chỉ lộ ra lúc runtime vẫn còn nguyên. Repo không có StoreKit test configuration, nên checklist bên dưới là biện pháp kiểm soát duy nhất đang có. **Nếu bạn là người tích hợp đầu tiên, hãy chạy nó và báo lại kết quả.**
+
+### 1. Configure — một lần, trước `bootstrap()`
 
 ```swift
-import MobileAds
+EntitlementService.shared.configure(
+    EntitlementConfig(productIDs: ["your.weekly", "your.yearly"],
+                      subscriptionGroupID: "your_group")
+)
+```
 
-enum AppProductID: String, IAPProductIdentifiable {
-    case premiumMonthly = "com.yourapp.premium.monthly"
-    case premiumYearly = "com.yourapp.premium.yearly"
-    case coinsPack100 = "com.yourapp.coins.pack100"
-    
-    var productIDString: String {
-        return self.rawValue
+`productIDs` là bắt buộc, không có default. Không có chế độ "để rỗng nghĩa là chấp nhận tất cả": `currentEntitlements` còn phát ra cả consumable chưa finish và non-renewing đã hết hạn, nên một tập rộng rãi sẽ khiến gói xu cấp quyền vĩnh viễn.
+
+Nếu product ID lấy từ Remote Config, **fetch trước rồi mới configure** — service không quyết định gì cho tới khi được configure, và nó từ chối bị configure lần thứ hai.
+
+### 2. Bootstrap lúc launch
+
+```swift
+EntitlementService.shared.bootstrap()   // KHÔNG async — cố ý
+```
+
+Hàm này trả về ngay để frame đầu tiên không bao giờ phải chờ StoreKit. Hãy quan sát `verification` thay vì `await` bất cứ thứ gì.
+
+### 3. Refresh khi vào foreground
+
+```swift
+await EntitlementService.shared.refresh()   // có sẵn debounce 30s
+```
+
+### 4. Đọc state
+
+`EntitlementService` là `@MainActor ObservableObject`. Pod này thuần UIKit, nên đường chuẩn là sink `@Published` bằng Combine:
+
+```swift
+import Combine
+
+final class PremiumGate {
+    static let shared = PremiumGate()
+    private var bag = Set<AnyCancellable>()
+
+    /// Gate phải phân biệt được "chưa premium" và "chưa biết".
+    var state: (isPremium: Bool, isKnown: Bool) {
+        let s = EntitlementService.shared
+        return (s.isEntitled, s.verification == .verified)
+    }
+
+    func start() {
+        EntitlementService.shared.$isEntitled
+            .removeDuplicates()
+            .sink { isEntitled in
+                AdMobHelper.shared.setEnableShowAds(!isEntitled)   // ví dụ: tắt ads khi có quyền
+                NotificationCenter.default.post(name: .premiumStatusDidChange, object: nil)
+            }
+            .store(in: &bag)
     }
 }
 ```
 
-### 2. Fetch Products
-
-Lấy thông tin sản phẩm từ App Store:
+Nếu app host là SwiftUI, quan sát trực tiếp:
 
 ```swift
-@available(iOS 15.0, *)
-func fetchProducts() async {
-    do {
-        let products = try await IAPService.shared.fetchProducts([
-            AppProductID.premiumMonthly,
-            AppProductID.premiumYearly
-        ])
-        
-        for product in products {
-            print("Product: \(product.displayName), Price: \(product.displayPrice)")
+@ObservedObject private var entitlements = EntitlementService.shared
+
+if entitlements.verification == .verified && entitlements.isEntitled {
+    PremiumContent()
+} else {
+    FreeContent()
+}
+```
+
+| Property | Ý nghĩa |
+|---|---|
+| `verification` | `.pending` / `.verified` / `.timedOut` — StoreKit đã trả lời chưa? |
+| `isEntitled` | Đang giữ một product đã configure. Chỉ có nghĩa khi đã `.verified` |
+| `activeProductID` | Product nào đang cấp quyền |
+| `expiryDate` | `nil` với lifetime/non-consumable — **`nil` không phải là "đã hết hạn"** |
+| `isIntroOfferEligible` | `false` cho tới khi catalog load xong và eligibility có kết quả. Vẫn phải check `introductoryOffer` của đúng product trước khi in chữ về trial |
+| `products` | `Product` đã load, key theo ID; `displayPrice(for:)` để lấy giá đã localize |
+| `shouldProactivelyPromptRestore` | Có nên *chủ động gợi ý* restore — **không phải** có nên hiện nút |
+
+### 5. Purchase & Restore
+
+```swift
+switch await EntitlementService.shared.purchase("your.yearly") {
+case .purchased(let receipt):
+    // KHÔNG credit consumable ở đây — `onUnfinished` đã được mời transaction này
+    // và là nơi duy nhất để credit. Xem mục "Consumables".
+    dismissPaywall()
+case .cancelled:        break
+case .pending:          showAwaitingApprovalMessage()   // Ask to Buy — không phải lỗi
+case .failed(let why):  log(why)
+}
+
+switch await EntitlementService.shared.restore() {
+case .restored:          dismissPaywall()
+case .nothingToRestore:  showNothingToRestore()
+case .cancelled:         break                          // user tắt sheet đăng nhập — không phải lỗi
+case .failed(let why):   showError(why)
+}
+```
+
+### Năm cái bẫy
+
+1. **Chỉ mở khoá khi `verification == .verified`.** `.pending` nghĩa là *chưa biết*; `.timedOut` nghĩa là StoreKit không trả lời trong 5s. **Mặc định khuyến nghị khi `.timedOut`: coi user là free và hiện quảng cáo.** Cách này ưu tiên doanh thu; cái giá là người đã mua đang ở mạng kém sẽ thấy quảng cáo vài giây cho tới khi `verify()` trả lời, rồi quảng cáo biến mất. Chỉ chọn khác nếu có lý do.
+2. **Không cache ở bất cứ đâu.** Không có entitlement nào được lưu, không có state "lần cuối biết". `isEntitled` là `false` cho tới khi verify xong, kể cả với người đã mua từ lâu. **Đừng thêm cache ở phía app để làm mượt chỗ này** — đó chính xác là khuyết tật của layer 1.x đã bị gỡ, và là lý do nó bị gỡ.
+3. **Với `@Observable` (iOS 17+), phải mirror — đừng forward.** `var isPremium: Bool { base.isEntitled }` compile được nhưng UI **không bao giờ update**, vì `@Observable` không theo dõi `objectWillChange` của một `ObservableObject`. Hãy sink các `@Published` vào stored property.
+4. **Mỗi app chỉ một `Transaction.updates` listener.** Layer này đang chạy một cái. Nếu app còn giữ listener riêng — subscription tracker, analytics observer — hai bên sẽ finish transaction của nhau và trôi lệch nhau. Hãy bỏ listener của app, hoặc đưa nó qua `onUnfinished`.
+5. **Nút Restore phải luôn hiện.** `shouldProactivelyPromptRestore` chỉ trả lời "có nên chủ động gợi ý không". Lấy cờ đó để ẩn chính cái nút là đường thẳng tới việc bị reject theo Guideline 3.1.1. Gọi `markRestorePrompted()` sau khi bạn đã hiện UI gợi ý của mình.
+
+### Consumables — bắt buộc phải cấp `onUnfinished`
+
+App chỉ bán subscription hoặc non-consumable có thể dừng đọc ở đây. App bán gói xu, credit, hay lượt chơi **bắt buộc** phải cấp `onUnfinished`, nếu không sẽ thu tiền khách mà không giao hàng.
+
+**Vì sao credit ở chỗ `purchase()` trả về là không đủ.** Rất dễ nghĩ rằng cứ credit xu ngay chỗ `purchase()` trả về là xong. Nhưng StoreKit giao consumable qua `Transaction.updates` — nơi không có lời gọi `purchase()` nào đang chờ — trong ít nhất bốn tình huống bình thường:
+
+- app bị kill hoặc crash giữa lúc trả tiền và lúc giao hàng;
+- Ask to Buy được phụ huynh duyệt vài phút hoặc vài ngày sau;
+- giao dịch bắt đầu từ máy khác cùng Apple ID;
+- lần giao hàng trước bị gián đoạn.
+
+Ở cả bốn trường hợp, library thấy một transaction mà app không thấy. Không có hook thì nó finish rồi vứt đi. **Consumable không bao giờ vào `currentEntitlements`**, nên khác với subscription, không còn gì để suy ra lại: tiền đã mất và số xu chưa từng tồn tại.
+
+`onUnfinished` phủ **cả hai** đường: `purchase()` cũng mời transaction của nó qua đúng hook đó trước khi finish. Nhờ vậy chỉ có đúng một nơi để credit, và nó bắt được mọi trường hợp.
+
+```swift
+EntitlementService.shared.configure(
+    EntitlementConfig(
+        // SKU xu cũng phải liệt kê ở đây — purchase() từ chối mọi ID không có trong này.
+        // Liệt kê KHÔNG khiến chúng cấp premium; verify() lọc consumable
+        // theo Transaction.productType.
+        productIDs: ["your.weekly", "your.yearly", "your.coins.100"],
+        subscriptionGroupID: "your_group",
+        onUnfinished: { receipt in
+            // Ghi credit TRƯỚC khi return true, và khử trùng lặp theo transactionID.
+            await CoinLedger.creditOnce(receipt.transactionID, productID: receipt.productID)
         }
-    } catch {
-        print("Failed to fetch products: \(error)")
-    }
-}
+    )
+)
 ```
 
-### 3. Purchase
+Hợp đồng, và từng dòng đều gánh việc:
 
-Mua sản phẩm:
+| Quy tắc | Không làm thì hỏng thế nào |
+|---|---|
+| Ghi credit **trước** khi return `true` | Crash giữa hai bước là bạn vừa tái tạo lại đúng cái mất mát mà hook này sinh ra để chặn |
+| Khử trùng lặp theo `receipt.transactionID` | StoreKit giao lại; credit theo từng lần giao sẽ credit gấp đôi |
+| **Chỉ** credit ở đây | Mọi consumable được mời qua hook này đúng một lần, kể cả cái mua ở foreground qua `purchase()`. Credit thêm ở chỗ `purchase()` trả về là credit hai lần |
+| Ghi credit phải atomic | Read-then-write qua một actor hop, hoặc vào `UserDefaults` App Group dùng chung với widget, sẽ mất credit khi ghi đồng thời |
+| Chỉ return `false` khi ghi **thật sự** thất bại | Đây không phải kênh báo lỗi. `false` vĩnh viễn nghĩa là giao lại vĩnh viễn |
 
-```swift
-@available(iOS 15.0, *)
-func purchasePremium() async {
-    do {
-        let result = try await IAPService.shared.purchase(AppProductID.premiumMonthly)
-        print("Purchase successful! Transaction ID: \(result.transactionID ?? "N/A")")
-        
-        // IAP service tự động validate receipt với Apple và lưu vào Keychain
-        
-    } catch IAPServiceError.purchaseCancelled {
-        print("User cancelled purchase")
-    } catch {
-        print("Purchase failed: \(error)")
-    }
-}
-```
+Hook cố ý **không** được gọi cho:
 
-### 4. Restore Purchases
+| Không gọi cho | Vì sao |
+|---|---|
+| Subscription và non-consumable | Entitlement suy lại được từ `currentEntitlements`, finish chúng không mất gì. Nếu hook thấy cả renewal, một app return `false` cho product nó không nhận ra sẽ kẹt renewal đó trong vòng giao lại vĩnh viễn |
+| Transaction đã revoke / refund | Giao hàng cho một đơn đã hoàn tiền là cho không. `refresh()` vẫn chạy nên entitlement vẫn rớt đúng |
+| Transaction verify thất bại | Chấp nhận chúng là giao hàng dựa trên bằng chứng không kiểm chứng được |
 
-Khôi phục các giao dịch trước đó:
+**Lỗ hổng đã biết:** vì dòng cuối bảng trên, một consumable đã bị tính tiền nhưng không verify được thì vẫn mất. Bịt đúng chỗ này cần server-side receipt validation, thứ library không làm.
 
-```swift
-@available(iOS 15.0, *)
-func restorePurchases() async {
-    do {
-        let restored = try await IAPService.shared.restorePurchases()
-        print("Restored \(restored.count) purchases")
-    } catch {
-        print("Restore failed: \(error)")
-    }
-}
-```
+Hai hành vi nên biết:
 
-### 5. Check Subscription Status
+- **Transaction đến trước `configure()` được để nguyên chưa finish**, không bị vứt, và sẽ được thử lại sau khi app configure. Finish chúng là không thể cứu vãn.
+- **`bootstrap()` mời lại mọi thứ còn chưa finish** từ các phiên trước, nên return `false` là thử lại chứ không phải đi một chiều.
 
-#### Cách 1: Check bất kỳ subscription nào đang active (Recommended)
+### Checklist sandbox cho người tích hợp đầu tiên
 
-```swift
-@available(iOS 15.0, *)
-func checkPremiumStatus() {
-    // Check xem có bất kỳ subscription nào đang active không (từ Keychain)
-    let hasSubscription = IAPService.shared.hasActiveSubscription()
-    
-    if hasSubscription {
-        print("User has active subscription")
-        // Show premium features
-    } else {
-        print("User doesn't have active subscription")
-        // Show paywall
-    }
-}
-```
+| # | Trường hợp | Kỳ vọng |
+|---|---|---|
+| 1 | Mua | Có quyền ngay, UI update không cần restart |
+| 2 | Kill rồi mở lại | Vẫn có quyền |
+| 3 | Xoá app, cài lại, không bấm gì | Có quyền trong ~1s |
+| 4 | Refund qua StoreKit Transaction Manager | Mất quyền sau khi refresh |
+| 5 | Ask to Buy | Outcome `.pending`, không phải lỗi |
+| 6 | Đăng nhập Apple ID khác | Mất quyền |
+| 7 | Restore ở trường hợp 6 | Hiện prompt đăng nhập |
+| 8 | Airplane mode, máy **đã** verify trước đó | Vẫn có quyền — `currentEntitlements` đọc từ transaction cache trên máy của StoreKit |
+| 9 | Airplane mode + **cài mới** | `verification` thành `.timedOut` sau 5s; theo policy mặc định thì app hiện quảng cáo |
+| 10 | Non-consumable / lifetime | Có quyền vĩnh viễn, `expiryDate` là `nil` |
+| 11 | **Consumable** (nếu app có bán) | **Không** cấp entitlement, nhưng `purchase()` vẫn trả `.purchased(receipt)` |
+| 12 | **Intro offer** — 2+ product, chỉ một cái có trial | `isIntroOfferEligible` trả lời đúng product, nhất quán qua các lần chạy |
+| 13 | **Mua trong lúc một verify đang bay** | Không bị mất quyền sau khi mua xong |
+| 14 | **Lần launch thứ hai với tư cách người đã mua** | UI free vài chục ms rồi mới premium. Báo lại nếu cái nháy đó khó chịu |
+| 15 | **Subscription group mà không product nào có intro offer** | `isIntroOfferEligible` giữ nguyên `false` — không bao giờ gắn badge trial lên gói tính tiền ngay |
+| 16 | **Launch offline, nối mạng lại, mở paywall ngay** (trong debounce 30s) | **Tất cả** giá đều hiện và `purchase()` chạy được. Mua một gói không được làm các gói còn lại mất giá suốt phiên |
+| 17 | **Consumable mua ở foreground** (chỉ app bán consumable) | `onUnfinished` chạy một lần; xu được credit một lần; `purchase()` trả `.purchased(receipt)` |
+| 18 | **Consumable, app bị kill giữa lúc mua** | Xu được credit ở lần launch kế qua `onUnfinished`, đúng một lần |
+| 19 | **Consumable qua Ask to Buy, duyệt sau khi mở lại app** | Xu được credit khi duyệt về, đúng một lần |
+| 20 | **`onUnfinished` return `false`** | Transaction KHÔNG finish; được mời lại ở `bootstrap()` kế |
+| 21 | **Refund một consumable qua StoreKit Transaction Manager** | `onUnfinished` **không** chạy lại; không credit thêm xu |
+| 22 | **Subscription renew trong khi có `onUnfinished`** | Hook **không** chạy; renewal finish; `expiryDate` update |
+| 23 | **Transaction đến trước `configure()`** | Để nguyên chưa finish, rồi được credit sau `configure()` + `bootstrap()` |
 
-**Ưu điểm**: Không cần list tất cả ProductIDs, tự động check tất cả subscriptions đã lưu trong Keychain.
+Trường hợp 3 chính là lý do layer này tồn tại. Trường hợp 11–13 là lỗi do lượt red-team tìm ra, 15–16 từ lượt code review đầu, và 17–23 từ lượt review của delivery hook 2.0 — mỗi cái là một cách cụ thể làm mất tiền trên giấy; bỏ bớt cái nào là vứt đi giá trị của các lượt review đó. Trường hợp 14 đo cái giá của việc không có cache.
 
-#### Cách 2: Check subscription cụ thể
+Hai trường hợp nữa cần app hỗ trợ huỷ tác vụ: gọi `refresh()` từ một `Task` bị cancel giữa chừng không được làm người đã mua rớt về free, và gọi `bootstrap()` trước `configure()` phải để `bootstrap()` vẫn dùng được sau đó chứ không kẹt `verification` ở `.pending`.
 
-```swift
-@available(iOS 15.0, *)
-func checkSpecificProduct() {
-    // Check subscription cụ thể từ Keychain
-    let isActive = IAPService.shared.isSubscriptionActive(for: AppProductID.premiumMonthly)
-    
-    if isActive {
-        print("User has active premium monthly subscription")
-    }
-}
-```
+### Nâng cấp từ 1.x lên 2.0
 
-**⚠️ Lưu ý:** 
-- Cả 2 cách đều check từ **Keychain** (không fetch từ Apple server)
-- Trên máy mới (không restore backup) → Keychain trống → return `false`
-- User phải tap **"Restore"** để khôi phục subscription từ Apple server vào Keychain
+**2.0.0 đã gỡ layer IAP cũ.** `IAPService`, `IAPProductIdentifiable`, `IAPError`, `ProductType`, cùng phần lưu trữ Keychain/UserDefaults phía sau chúng không còn tồn tại. App đang ở 1.x sẽ không compile với 2.0 cho tới khi migrate. Ở lại 1.x là lựa chọn hợp lệ — pin `:tag => '1.3.0'`.
 
-### 6. Get Subscription Info
+Vì sao nó bị gỡ: entitlement được đọc từ local storage, nên **premium mất khi cài lại hoặc đổi máy** cho tới khi user tự tìm ra "Restore Purchases", và Ask to Buy bị báo cho user như một lỗi.
 
-Lấy chi tiết subscription từ Keychain:
+Ánh xạ API:
 
-```swift
-@available(iOS 15.0, *)
-func getSubscriptionDetails() {
-    if let info = IAPService.shared.getSubscriptionInfo(for: AppProductID.premiumMonthly.productIDString) {
-        print("Status: \(info.status)")
-        print("Purchase Date: \(info.purchaseDate)")
-        print("Expiration Date: \(info.expirationDate ?? Date())")
-        print("Product Type: \(info.productType)")
-    }
-}
-```
+| 1.x | 2.0 |
+|---|---|
+| `IAPService.shared.hasActiveSubscription()` | `EntitlementService.shared.isEntitled` |
+| `IAPService.shared.isSubscriptionActive(for:)` | `EntitlementService.shared.activeProductID == id` |
+| `IAPService.shared.getSubscriptionInfo(for:)` | `expiryDate` + `products[id]` |
+| `IAPService.shared.fetchProducts(_:)` | `configure()` + `bootstrap()`, rồi đọc `products` |
+| `IAPService.shared.purchase(_:)` | `EntitlementService.shared.purchase(id)` → outcome |
+| `IAPService.shared.restorePurchases()` | `EntitlementService.shared.restore()` |
+| `IAPService.shared.sharedSecret = …` | Đã gỡ. Xoay shared secret là việc riêng — xoá dòng này không làm secret hết hiệu lực |
+| `IAPService.shared.validateReceiptWithApple()` | Đã gỡ. Cần validate phía server thì làm ở backend |
+| `catch IAPServiceError.purchaseCancelled` | `case .cancelled` |
+| `catch IAPServiceError.purchasePending` | `case .pending` |
+| `catch let e as IAPServiceError` | `case .failed(let failure)` |
+| `IAPProductIdentifiable` / `ProductType` | Tự khai báo phía app; pod không còn vend nữa |
 
-### 7. Receipt Validation (Optional)
+**Cái bẫy sẽ ngốn của bạn một ngày: `isEntitled` không đồng bộ.**
+`hasActiveSubscription()` đọc `UserDefaults` nên luôn có câu trả lời ngay lập tức. `isEntitled` là `false` cho tới khi verify xong. **Mọi ad gate và paywall check chạy lúc launch sẽ thấy `false` và hiện quảng cáo cho người đã trả tiền.**
 
-Framework tự động validate receipt sau khi purchase/restore, nhưng bạn có thể validate thủ công:
+Một shim `-> Bool` không cứu được chuyện này. Gate phải phân biệt được "không premium" và "chưa biết", và phải có thứ gì đó báo cho UI khi câu trả lời về — xem `PremiumGate` ở mục [Đọc state](#4-đọc-state).
 
-```swift
-@available(iOS 15.0, *)
-func validateReceipt() async {
-    // Set shared secret nếu dùng verifyReceipt endpoint
-    IAPService.shared.sharedSecret = "YOUR_SHARED_SECRET"
-    
-    do {
-        let response = try await IAPService.shared.validateReceiptWithApple()
-        if response.status == 0 {
-            print("Receipt valid")
-        } else {
-            print("Receipt validation failed: \(response.status)")
-        }
-    } catch {
-        print("Validation error: \(error)")
-    }
-}
-```
+Bridge sang RxSwift: sink `$isEntitled`. **Đừng** dùng `objectWillChange` — nó bắn ở `willSet` và không mang giá trị, nên relay luôn chậm một nhịp. Nó compile sạch nên không build check nào bắt được.
 
-### Transaction Listener
-
-`IAPService` tự động lắng nghe `Transaction.updates` để:
-- Xử lý pending transactions
-- Update subscription status khi có thay đổi
-- Lưu thông tin vào Keychain
-
-**Cơ chế hoạt động:**
-
-- **Khi có transaction mới** (purchase/restore): Auto listener sẽ update Keychain tự động
-- **Background updates**: Nếu subscription renew hoặc expire, listener sẽ update status trong Keychain
-
-Bạn không cần code thêm gì, transaction updates được xử lý tự động!
-
-### Best Practices
-
-1. **Fetch products sớm**: Gọi `fetchProducts` trong `AppDelegate` hoặc khi app launch để cache product info.
-2. **Check status thường xuyên**: Kiểm tra subscription status khi user vào premium features.
-3. **Handle errors**: Luôn wrap IAP calls trong `do-catch` và handle các error cases.
-4. **Test với Sandbox**: Sử dụng sandbox environment để test trước khi production.
-5. **Receipt Validation**: Framework tự động validate, nhưng nên có backend validation cho security.
-6. **Provide Restore button**: Luôn có nút "Restore" để user khôi phục purchases trên máy mới.
-
-### Lưu ý về đổi máy
-
-Khi user đổi sang máy mới (không restore backup):
-
-**Trạng thái:**
-- Keychain trống (không có subscription info)
-- `hasActiveSubscription()` và `isSubscriptionActive(for:)` đều return `false`
-
-**Giải pháp:**
-- User phải tap nút **"Restore Purchases"**
-- `IAPService.shared.restorePurchases()` sẽ fetch subscriptions từ Apple server
-- Subscription info được lưu vào Keychain
-- Sau đó các check methods sẽ return `true`
-
-**⚠️ Quan trọng:**
-- Luôn cung cấp nút "Restore Purchases" trong UI
-- Không có cách nào tự động detect subscription trên máy mới mà không cần user action
-- Đây là hành vi chuẩn của StoreKit để bảo vệ privacy
-
-### Error Handling
-
-```swift
-@available(iOS 15.0, *)
-func handlePurchase() async {
-    do {
-        let result = try await IAPService.shared.purchase(AppProductID.premiumMonthly)
-        // Success
-    } catch IAPServiceError.productNotFound {
-        print("Product not found in cache, fetch products first")
-    } catch IAPServiceError.purchaseCancelled {
-        print("User cancelled")
-    } catch IAPServiceError.purchasePending {
-        print("Purchase is pending approval")
-    } catch IAPServiceError.purchaseFailed(let error) {
-        print("Purchase failed: \(error)")
-    } catch {
-        print("Unknown error: \(error)")
-    }
-}
-```
+Bán consumable? Đọc [Consumables](#consumables--bắt-buộc-phải-cấp-onunfinished) trước khi bắt đầu; ở đó `onUnfinished` là bắt buộc.
 
 ---
 

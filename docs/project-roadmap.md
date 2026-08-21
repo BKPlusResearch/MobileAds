@@ -1,6 +1,6 @@
 # Project Roadmap
 
-**Last updated:** 2026-07-26 · **Version:** 1.3.0 · **Branch:** new-MobileAds
+**Last updated:** 2026-08-21 · **Version:** 2.0.0 · **Branch:** new-MobileAds
 
 ## Recently Shipped (from git history)
 
@@ -8,7 +8,8 @@
 - **Facebook AD_IMPRESSION tracking** — auto ad-revenue events to Meta via `ADJustManager.logRevenue()`.
 - **Native ad cache** — single-use preload cache with metrics tracking; fixed dummy VC retention.
 - **Banner revenue** — `paidEventHandler` on banners; `BannerAdView` collapsible support.
-- **IAP storage migration** — Keychain → UserDefaults path (`IAPMigration`).
+- **Entitlements-first IAP (2.0.0, breaking)** — `EntitlementService` derives entitlement from `Transaction.currentEntitlements` on every check and persists nothing; `onUnfinished` hook credits consumables before a transaction is finished. The legacy `IAPService` layer was removed.
+- ~~**IAP storage migration** — Keychain → UserDefaults path (`IAPMigration`).~~ Superseded by 2.0.0: the storage layer it migrated between no longer exists.
 - **TikTok** — TikTok Business SDK integration.
 - **Ad metrics overlay** — in-app `AdMetricsWindow` debug monitor.
 
@@ -16,6 +17,7 @@
 
 - Stabilizing the GMA 13.x + mediation adapter set.
 - Documentation baseline (this `docs/` set).
+- **Verifying `EntitlementService` on a device.** It has never been run; the sandbox checklist in the README is the only control that exists. No StoreKit test configuration in this repo.
 
 ## Near-Term / Open Items
 

@@ -18,7 +18,7 @@ Source root: `MobileAds/`
 |-----------|----------------|------------------|
 | `AdMobHelper/` | Central ad orchestration (all formats). Split into `AdMobHelper+*` extensions per format. | `AdMobHelper` (singleton), `NativeAdService`, `BannerAdView`, `NativeAdConfiguration`, `NativeAdViewSmall/Medium`, `GoogleMobileAdsConsentManager`, `AdUnitIdentifiable`, status enums |
 | `AdMob/` | Ad revenue metrics tracking + in-app debug overlay. | `AdMetrics`, `AdMetricsTracker`, `AdMetricsWindow`, `AdMetricsMonitorView` |
-| `IAP/` | StoreKit 2 in-app purchase + subscriptions. Split into `IAPService+*` extensions + pluggable storage. | `IAPService` (singleton), `IAPProductIdentifiable`, `SubscriptionInfo`, `ReceiptInfo`, Keychain/UserDefaults storage |
+| `IAP/` | StoreKit 2 entitlements-first IAP. Entitlement is derived from `Transaction.currentEntitlements` on every check and never persisted. | `EntitlementService` (singleton, `@MainActor`, `ObservableObject`), `EntitlementConfig`, `EntitlementPurchaseOutcome` / `EntitlementRestoreOutcome` / `EntitlementPurchaseReceipt` |
 | `ADJustManager/` | Adjust SDK attribution + ad-revenue logging (fans out to Facebook). | `ADJustManager` (singleton), `AppADJustConfig`, `ADJAdType` |
 | `FacebookManager/` | Facebook SDK `AD_IMPRESSION` revenue events. | `FacebookManager` (singleton) |
 | `TikTokManager/` | TikTok Business SDK events + ad-revenue reporting. | `TikTokManager` (singleton), `TikTokAppConfig`, `TikTokEventType` |

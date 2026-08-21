@@ -11,8 +11,8 @@ MobileAds is a **library/framework**, not an app. It exposes a thin, singleton-d
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │ Consumer App (AppDelegate/SceneDelegate/ViewControllers)      │
-│  - defines AdUnitIdentifiable / IAPProductIdentifiable enums  │
-│  - calls AdMobHelper.shared / IAPService.shared / ...         │
+│  - defines AdUnitIdentifiable enums + EntitlementConfig       │
+│  - calls AdMobHelper.shared / EntitlementService.shared / ...  │
 └───────────────┬──────────────────────────────────────────────┘
                 │ public API (singletons + protocols)
 ┌───────────────▼──────────────────────────────────────────────┐
@@ -20,12 +20,12 @@ MobileAds is a **library/framework**, not an app. It exposes a thin, singleton-d
 │                                                                │
 │  Ads facade            Purchases        Growth / Telemetry     │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐ │
-│  │ AdMobHelper  │  │ IAPService   │  │ ADJustManager        │ │
-│  │  +Banner     │  │  +Receipt    │  │ FacebookManager      │ │
-│  │  +Interstit. │  │  +Subscrip.  │  │ TikTokManager        │ │
-│  │  +Rewarded   │  │  storage:    │  │ FirebaseLogger       │ │
-│  │  +AppOpen    │  │   Keychain / │  │ RemoteConfigService  │ │
-│  │  +Native(+Cache)│ UserDefaults │  │ AdMetricsTracker     │ │
+│  │ AdMobHelper  │  │ Entitlement- │  │ ADJustManager        │ │
+│  │  +Banner     │  │  Service     │  │ FacebookManager      │ │
+│  │  +Interstit. │  │  (no cache;  │  │ TikTokManager        │ │
+│  │  +Rewarded   │  │   derives    │  │ FirebaseLogger       │ │
+│  │  +AppOpen    │  │   from Store-│  │ RemoteConfigService  │ │
+│  │  +Native(+Cache)│ Kit each check)│ AdMetricsTracker     │ │
 │  │  BannerAdView│  └──────────────┘  └──────────────────────┘ │
 │  │  NativeAdService / NativeAdConfiguration                   │ │
 │  │  GoogleMobileAdsConsentManager (UMP)                       │ │
@@ -42,10 +42,10 @@ MobileAds is a **library/framework**, not an app. It exposes a thin, singleton-d
 
 ## Key Design Decisions
 
-1. **Singleton facades.** Each concern is a `.shared` singleton (`AdMobHelper`, `IAPService`, `ADJustManager`, `FacebookManager`, `TikTokManager`, `FirebaseLogger`, `RemoteConfigService`, `NativeAdConfiguration`, `GoogleMobileAdsConsentManager`, `AdMetricsTracker`, `AdMetricsWindow`). `AdMobHelper` is `@MainActor`.
+1. **Singleton facades.** Each concern is a `.shared` singleton (`AdMobHelper`, `EntitlementService`, `ADJustManager`, `FacebookManager`, `TikTokManager`, `FirebaseLogger`, `RemoteConfigService`, `NativeAdConfiguration`, `GoogleMobileAdsConsentManager`, `AdMetricsTracker`, `AdMetricsWindow`). `AdMobHelper` is `@MainActor`.
 2. **Extension-per-format.** `AdMobHelper` is split across `AdMobHelper+Banner/Interstitial/Rewarded/RewardedInterstitial/AppOpen/Native/NativeCache/BannerCache/LoadingViews/FullScreenDelegate/NativeDelegate.swift` to keep files small and single-responsibility (per the 200-LOC modularization rule).
-3. **Protocol-driven identifiers.** Consumers supply `AdUnitIdentifiable` (ad unit IDs), `IAPProductIdentifiable` (product IDs), and `RemoteKeyIdentifiable` (remote config keys) — the framework ships no app-specific IDs.
-4. **Pluggable IAP storage.** `IAPService` persists subscription state through a storage abstraction (`IAPKeychainStorage` / `IAPUserDefaultsStorage`) with a migration path (`IAPMigration`).
+3. **Consumer-supplied identifiers.** Consumers supply `AdUnitIdentifiable` (ad unit IDs), `RemoteKeyIdentifiable` (remote config keys), and `EntitlementConfig.productIDs` (IAP product IDs) — the framework ships no app-specific IDs.
+4. **No IAP persistence.** `EntitlementService` stores no entitlement at all; it re-derives from `Transaction.currentEntitlements` on every check, so reinstalls, device changes, refunds and Family Sharing are handled by StoreKit. Its only `UserDefaults` key records whether a restore has been proactively suggested.
 5. **Escape-hatch, not singleton, for multi-instance banners.** `BannerAdView` is a self-contained `UIView` subclass that does *not* touch `AdMobHelper.shared`, avoiding singleton conflicts when many banners coexist (e.g., in collection views).
 
 ## Core Data Flows
@@ -78,17 +78,22 @@ Screen: loadNativeAdWithCache(..., cacheKey:)
 ```
 Full detail: `NATIVE_AD_CACHE.md`.
 
-### IAP purchase → validated subscription state
+### IAP purchase → entitlement state
 ```
-IAPService.fetchProducts([IAPProductIdentifiable])  (StoreKit 2)
-  → purchase(product) → auto validate receipt with Apple → persist to storage (Keychain/UserDefaults)
-  → Transaction.updates listener keeps subscription status current (renew/expire) in background
-  → hasActiveSubscription() / isSubscriptionActive(for:) read from local storage
+configure(EntitlementConfig(productIDs:))  → bootstrap()  (StoreKit 2)
+  → verify() reads Transaction.currentEntitlements, filters consumables by productType
+  → publishes isEntitled / verification / activeProductID / expiryDate — NOTHING is persisted
+  → purchase(id) judges the returned transaction, offers consumables to onUnfinished, then finishes
+  → Transaction.updates listener re-verifies on renew/expire/refund and re-offers unfinished work
+  → refresh() on foreground (30s debounce); every check re-derives from StoreKit
 ```
+No entitlement value is stored anywhere, so there is no cached state to tamper with and none to
+go stale. The cost is that `isEntitled` is `false` until `verification == .verified`, including for
+an existing subscriber at launch — gates must distinguish "not entitled" from "not known yet".
 
 ## Threading
 
-`AdMobHelper` and UI-facing ad views are `@MainActor`. IAP uses async/await (StoreKit 2) and a long-lived `Transaction.updates` listener task.
+`AdMobHelper` and UI-facing ad views are `@MainActor`. `EntitlementService` is `@MainActor` and an `ObservableObject`; it uses async/await (StoreKit 2) and owns the app's single long-lived `Transaction.updates` listener task. A generation counter guards against a stale `verify()` overwriting a newer result.
 
 ## Diagram Maintenance
 

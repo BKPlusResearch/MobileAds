@@ -16,8 +16,8 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "MobileAds"
-  spec.version      = "1.3.0"
-  spec.summary      = "Google Mobile Ads + IAP for iOS; native small/medium templates with shared NativeAdConfiguration theming"
+  spec.version      = "2.0.0"
+  spec.summary      = "Google Mobile Ads + entitlements-first StoreKit 2 IAP for iOS; native small/medium templates with shared NativeAdConfiguration theming"
 
   # This description is used to generate tags and improve search results.
   #   * Think: What does it do? Why did you write it? What is the focus?
@@ -25,14 +25,18 @@ Pod::Spec.new do |spec|
   #   * Write the description between the DESC delimiters below.
   #   * Finally, don't worry about the indent, CocoaPods strips it!
   spec.description  = <<-DESC
-  MobileAds is a Swift framework that supports all base display ad types from Google Mobile Ads SDK and In-App Purchase management, making it convenient to configure and use. Features include:
+  MobileAds is a Swift framework that supports all base display ad types from Google Mobile Ads SDK and In-App Purchase management, making it convenient to configure and use.
+
+  **2.0.0 is a breaking release.** The legacy `IAPService` layer has been removed. `EntitlementService` is now the only IAP layer. Apps on 1.x must migrate; see "Upgrading from 1.x to 2.0" in the README.
+
+  Features include:
   - Native **small** compact row (icon/media, headline, body, CTA) with `mainStackView`; styling via same `NativeAdConfiguration` as medium
   - Singleton-based configuration for global native ad styling
   - Gradient support for call-to-action buttons
   - Automatic consent management integration
   - Simplified API for banner, interstitial, rewarded, and native ads
-  - In-App Purchase (IAP) service with StoreKit 2 integration
-  - Receipt validation and subscription management
+  - Entitlements-first IAP: entitlement is derived from `Transaction.currentEntitlements` on every check, never cached, so reinstalls, device changes, refunds and Family Sharing are handled by StoreKit
+  - `onUnfinished` delivery hook so consumable purchases are credited before a transaction is finished
   - Support for async/await patterns
                    DESC
 

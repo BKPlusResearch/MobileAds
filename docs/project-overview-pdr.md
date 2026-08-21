@@ -28,10 +28,10 @@ Internal iOS app teams shipping ad-supported apps that need consistent monetizat
 | R4 | Native ad preload cache for instant display | ✅ single-use cache, 1h expiry (`NATIVE_AD_CACHE.md`) |
 | R5 | Self-managed banner for multi-instance/list contexts | ✅ `BannerAdView` (+ collapsible) |
 | R6 | Mediation across major networks | ✅ 7 adapters + PremiumAdsGoogleAdapter |
-| R7 | IAP + subscriptions (StoreKit 2) with receipt validation | ✅ `IAPService` (+Receipt, +Subscription) |
+| R7 | IAP + subscriptions (StoreKit 2), entitlement re-derived from StoreKit on every check | ✅ `EntitlementService` |
 | R8 | Ad revenue → Adjust + Facebook AD_IMPRESSION + TikTok | ✅ `ADJustManager`, `FacebookManager`, `TikTokManager` |
 | R9 | Typed analytics + remote config | ✅ `FirebaseLogger`, `RemoteConfigService` |
-| R10 | App-defined ad unit / product IDs (no hardcoded prod IDs) | ✅ `AdUnitIdentifiable`, `IAPProductIdentifiable` |
+| R10 | App-defined ad unit / product IDs (no hardcoded prod IDs) | ✅ `AdUnitIdentifiable`, `EntitlementConfig.productIDs` |
 
 ## Non-Goals
 
