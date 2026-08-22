@@ -10,11 +10,13 @@
 		042F528227D8E09E008D5330 /* MobileAds.docc in Sources */ = {isa = PBXBuildFile; fileRef = 042F528127D8E09E008D5330 /* MobileAds.docc */; };
 		042F528327D8E09E008D5330 /* MobileAds.h in Headers */ = {isa = PBXBuildFile; fileRef = 042F528027D8E09E008D5330 /* MobileAds.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		0C394CF39AA865F4527BF54D /* AdMetricsWindow.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4D91E64429E11BA3D41DE93 /* AdMetricsWindow.swift */; };
+		0D781D1584BF09E57D0C52DC /* NativeAdSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065010A1A0FE9259EAF53DEC /* NativeAdSwiftUI.swift */; };
 		0E7215CB2A36224700759DCA /* close.png in Resources */ = {isa = PBXBuildFile; fileRef = 0E7215CA2A36224700759DCA /* close.png */; };
 		1563F94AFAD42FF771502DA2 /* EntitlementOutcome.swift in Sources */ = {isa = PBXBuildFile; fileRef = 093FD69BCD67B53CB301402F /* EntitlementOutcome.swift */; };
 		1CE6E1D4249761C4A7BEE781 /* TikTokConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6374FCB0183272131E3A60C1 /* TikTokConfig.swift */; };
 		2DE9A75D01576F7E7046C9AE /* TikTokManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3AF091AE0EFF03CD62861AAC /* TikTokManager.swift */; };
 		43D524075E619A4B7D677E4E /* TikTokEventType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BDFFC3EA5DE4641F337DF8 /* TikTokEventType.swift */; };
+		49FB3F663B30312E0281BFCC /* RewardedInterstitialModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B576D5D65245D84ED2E529B /* RewardedInterstitialModifier.swift */; };
 		4C063B0657C5FC7D1C9274E2 /* FacebookManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 508E5944FF6CBF5A7ABD178D /* FacebookManager.swift */; };
 		502BC1B42F4D8BB60090CE3E /* BannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502BC1B32F4D8BB60090CE3E /* BannerAdView.swift */; };
 		5050C43A2F3D6BEE0057F86C /* AdMobHelper+BannerCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5050C4392F3D6BEE0057F86C /* AdMobHelper+BannerCache.swift */; };
@@ -56,17 +58,23 @@
 		50FF30442EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50FF30432EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift */; };
 		715F7BF5E4AC429ADEFBFE85 /* AdMetricsTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB7BEB15EFD8699A10A9E7E4 /* AdMetricsTracker.swift */; };
 		768BF63F283F244D00737CEF /* RemoteConfigService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 768BF63E283F244D00737CEF /* RemoteConfigService.swift */; };
+		880421A2CB7D2B059C25B846 /* RewardedModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7F7BADBC2625FE3627FF3770 /* RewardedModifier.swift */; };
 		8B411726E979E2DC7D1D11CE /* AdMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = 086243DA6593B6E6259A9EF2 /* AdMetrics.swift */; };
 		8E577E230960F6465DB1AADE /* EntitlementConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59331D136AA011CF73F48AD8 /* EntitlementConfig.swift */; };
 		9518C34C82D27DEB7F343B3D /* Pods_MobileAds.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DFA7FFED897F79E7EE95595D /* Pods_MobileAds.framework */; };
 		A2090944D2FE66C50F6AD58F /* EntitlementService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31E7242F9BBC04F54E1A836E /* EntitlementService.swift */; };
+		A8E172F5ACCEAF5E93C1E9DB /* InterstitialModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = FFE743E376CB14D2A0860362 /* InterstitialModifier.swift */; };
+		B27D15ECEBFEA1080CBE2A86 /* BannerAdSwiftUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = F0B4B9011829054C5E4B1A68 /* BannerAdSwiftUI.swift */; };
+		B54DB5CEF90DDC36EA1D9748 /* ViewControllerResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616D8E23CB74BDB8673FF4F3 /* ViewControllerResolver.swift */; };
 		B82A037AB16483E6202C759B /* AdMetricsMonitorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BECBF1604C6E579D9E7E399 /* AdMetricsMonitorView.swift */; };
+		E4EF760F4EC281112078EBEA /* AppOpenModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655B0611C2E4F7E0D8C8A72D /* AppOpenModifier.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
 		042F527D27D8E09E008D5330 /* MobileAds.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = MobileAds.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		042F528027D8E09E008D5330 /* MobileAds.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MobileAds.h; sourceTree = "<group>"; };
 		042F528127D8E09E008D5330 /* MobileAds.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = MobileAds.docc; sourceTree = "<group>"; };
+		065010A1A0FE9259EAF53DEC /* NativeAdSwiftUI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NativeAdSwiftUI.swift; sourceTree = "<group>"; };
 		086243DA6593B6E6259A9EF2 /* AdMetrics.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdMetrics.swift; path = /Users/shjn/work_space/BKPlus/MobileAds/MobileAds/AdMob/Model/AdMetrics.swift; sourceTree = "<absolute>"; };
 		093FD69BCD67B53CB301402F /* EntitlementOutcome.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EntitlementOutcome.swift; sourceTree = "<group>"; };
 		0E7215CA2A36224700759DCA /* close.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = close.png; sourceTree = "<group>"; };
@@ -115,15 +123,21 @@
 		50FF30432EEC1AE400EAF530 /* AdMobHelper+NativeDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+NativeDelegate.swift"; sourceTree = "<group>"; };
 		53BDFFC3EA5DE4641F337DF8 /* TikTokEventType.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TikTokEventType.swift; sourceTree = "<group>"; };
 		59331D136AA011CF73F48AD8 /* EntitlementConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = EntitlementConfig.swift; sourceTree = "<group>"; };
+		616D8E23CB74BDB8673FF4F3 /* ViewControllerResolver.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ViewControllerResolver.swift; sourceTree = "<group>"; };
 		6374FCB0183272131E3A60C1 /* TikTokConfig.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TikTokConfig.swift; sourceTree = "<group>"; };
+		655B0611C2E4F7E0D8C8A72D /* AppOpenModifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AppOpenModifier.swift; sourceTree = "<group>"; };
+		6B576D5D65245D84ED2E529B /* RewardedInterstitialModifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RewardedInterstitialModifier.swift; sourceTree = "<group>"; };
 		760580A727E3221800975794 /* TestAdsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestAdsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		760580B127E3221800975794 /* TestAdsUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TestAdsUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		768BF63E283F244D00737CEF /* RemoteConfigService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RemoteConfigService.swift; sourceTree = "<group>"; };
+		7F7BADBC2625FE3627FF3770 /* RewardedModifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RewardedModifier.swift; sourceTree = "<group>"; };
 		81C375E0FFD76EAD714F0329 /* Pods-MobileAds.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MobileAds.debug.xcconfig"; path = "Target Support Files/Pods-MobileAds/Pods-MobileAds.debug.xcconfig"; sourceTree = "<group>"; };
 		9BECBF1604C6E579D9E7E399 /* AdMetricsMonitorView.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdMetricsMonitorView.swift; path = /Users/shjn/work_space/BKPlus/MobileAds/MobileAds/AdMob/Service/AdMetricsMonitorView.swift; sourceTree = "<absolute>"; };
 		CB7BEB15EFD8699A10A9E7E4 /* AdMetricsTracker.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdMetricsTracker.swift; path = /Users/shjn/work_space/BKPlus/MobileAds/MobileAds/AdMob/Service/AdMetricsTracker.swift; sourceTree = "<absolute>"; };
 		DFA7FFED897F79E7EE95595D /* Pods_MobileAds.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MobileAds.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E4D91E64429E11BA3D41DE93 /* AdMetricsWindow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdMetricsWindow.swift; path = /Users/shjn/work_space/BKPlus/MobileAds/MobileAds/AdMob/Service/AdMetricsWindow.swift; sourceTree = "<absolute>"; };
+		F0B4B9011829054C5E4B1A68 /* BannerAdSwiftUI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BannerAdSwiftUI.swift; sourceTree = "<group>"; };
+		FFE743E376CB14D2A0860362 /* InterstitialModifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InterstitialModifier.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -187,6 +201,7 @@
 				6B6203C3A9B92E9524986C62 /* TikTokManager */,
 				B0620133133EBFF4B44AA811 /* FacebookManager */,
 				7891DA1F31F0A727D1853178 /* AdMetrics */,
+				207C104F4A47F476103256F4 /* SwiftUI */,
 			);
 			path = MobileAds;
 			sourceTree = "<group>";
@@ -206,6 +221,21 @@
 				DFA7FFED897F79E7EE95595D /* Pods_MobileAds.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		207C104F4A47F476103256F4 /* SwiftUI */ = {
+			isa = PBXGroup;
+			children = (
+				616D8E23CB74BDB8673FF4F3 /* ViewControllerResolver.swift */,
+				F0B4B9011829054C5E4B1A68 /* BannerAdSwiftUI.swift */,
+				065010A1A0FE9259EAF53DEC /* NativeAdSwiftUI.swift */,
+				FFE743E376CB14D2A0860362 /* InterstitialModifier.swift */,
+				7F7BADBC2625FE3627FF3770 /* RewardedModifier.swift */,
+				6B576D5D65245D84ED2E529B /* RewardedInterstitialModifier.swift */,
+				655B0611C2E4F7E0D8C8A72D /* AppOpenModifier.swift */,
+			);
+			name = SwiftUI;
+			path = SwiftUI;
 			sourceTree = "<group>";
 		};
 		50535B6E2EF8F2BB00D6549D /* ADJustManager */ = {
@@ -566,6 +596,13 @@
 				8E577E230960F6465DB1AADE /* EntitlementConfig.swift in Sources */,
 				1563F94AFAD42FF771502DA2 /* EntitlementOutcome.swift in Sources */,
 				A2090944D2FE66C50F6AD58F /* EntitlementService.swift in Sources */,
+				B54DB5CEF90DDC36EA1D9748 /* ViewControllerResolver.swift in Sources */,
+				B27D15ECEBFEA1080CBE2A86 /* BannerAdSwiftUI.swift in Sources */,
+				0D781D1584BF09E57D0C52DC /* NativeAdSwiftUI.swift in Sources */,
+				A8E172F5ACCEAF5E93C1E9DB /* InterstitialModifier.swift in Sources */,
+				880421A2CB7D2B059C25B846 /* RewardedModifier.swift in Sources */,
+				49FB3F663B30312E0281BFCC /* RewardedInterstitialModifier.swift in Sources */,
+				E4EF760F4EC281112078EBEA /* AppOpenModifier.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
