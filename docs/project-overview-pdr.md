@@ -1,6 +1,6 @@
 # Project Overview & PDR
 
-**Last updated:** 2026-08-21 · **Version:** 2.0.0
+**Last updated:** 2026-08-22 · **Version:** 2.0.0
 
 ## Product
 
@@ -52,5 +52,5 @@ Internal iOS app teams shipping ad-supported apps that need consistent monetizat
 
 ## Open Questions
 
-- Podspec `spec.version` is `2.0.0` but `1.4.0` is the only tag on `origin`, so 2.0.0 can only be installed unpinned — cut the tag before telling consumers to pin it.
-- Podspec `spec.homepage`/`spec.source` point to `github.com/AperoVN` while README install uses `github.com/BKPlusResearch/MobileAds` — confirm canonical repo/org.
+- The SwiftUI app-open modifier does not honor `shouldSkipNextAppResume` when showing, and never resets it — so a full-screen ad can be stacked on resume, and background preloading stops permanently after the first interstitial. Decide whether the modifier should own that flag or the app should.
+- `setEnableShowAds` is read only by the SwiftUI app-open modifier; every UIKit path ignores it. Either make the flag authoritative pod-wide or rename it to reflect that it is app-owned.

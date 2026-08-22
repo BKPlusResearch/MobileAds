@@ -68,8 +68,7 @@ public extension View {
     /// Attach app open ad behavior — auto-shows on foreground transitions.
     /// - Parameters:
     ///   - adUnitID: Ad unit ID for app open ads
-    ///   - isEnabled: Control flag (e.g. `!entitlements.isEntitled`, or `!iapVM.isPurchased`
-    ///     on the legacy layer — one or the other, never both)
+    ///   - isEnabled: Control flag, e.g. `!EntitlementService.shared.isEntitled`
     ///   - onStatusChange: Optional status callback
     func appOpenAd(
         adUnitID: AdUnitIdentifiable,

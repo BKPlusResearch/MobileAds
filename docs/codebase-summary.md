@@ -1,13 +1,13 @@
 # Codebase Summary
 
-**Last updated:** 2026-08-21 · **Version:** 2.0.0 (podspec) · **Branch:** new-MobileAds
+**Last updated:** 2026-08-22 · **Version:** 2.0.0 (podspec, tagged) · **Branch:** new-MobileAds
 
 ## What This Is
 
 `MobileAds` — a static, distributable **CocoaPods Swift framework** (`use_frameworks!`, `static_framework = true`) that wraps the Google Mobile Ads SDK and bundles the supporting services a production ad-supported iOS app needs: consent, mediation, IAP, attribution, and analytics. Consumer apps depend on it via `pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git"`.
 
 - Platform: iOS 15.0+ · Swift 5.5 · Xcode 26.0+
-- ~7,100 LOC Swift across 47 files
+- ~7,300 LOC Swift across 49 files
 - License: MIT
 
 ## Module Map
@@ -24,6 +24,7 @@ Source root: `MobileAds/`
 | `TikTokManager/` | TikTok Business SDK events + ad-revenue reporting. | `TikTokManager` (singleton), `TikTokAppConfig`, `TikTokEventType` |
 | `FirebaseLogger/` | Typed Firebase Analytics event logging. | `FirebaseLogger` (singleton), `AnalyticsEvent`, `LogParameter` |
 | `RemoteConfig/` | Firebase Remote Config wrapper. | `RemoteConfigService` (singleton), `RemoteKeyIdentifiable` |
+| `SwiftUI/` | Optional SwiftUI entry point over the same `AdMobHelper`. Nothing here holds ad state; every call delegates to the facade. | `BannerAdSwiftUI`, `NativeAdSwiftUI` (both `UIViewRepresentable`), `.interstitialAd` / `.rewardedAd` / `.rewardedInterstitialAd` / `.appOpenAd` view modifiers, `ViewControllerResolver` |
 | `Extension/` | Shared UIKit helpers + callback typealiases. | `UIView+Extension`, `CallBackDefine` |
 | `Assets/`, `*.docc` | Bundled resources + DocC catalog. | — |
 

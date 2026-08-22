@@ -8,6 +8,9 @@ MobileAds is a Swift framework that wraps the Google Mobile Ads SDK and provides
 - Strongly-typed status callbacks for Interstitial, Rewarded, App Open, and Banner.
 - A `NativeAdService` with configurable XIB-based native ad views.
 - A flexible `AdUnitIdentifiable` protocol so each app can define its own ad unit enum.
+- **UIKit and SwiftUI from one pod** — SwiftUI gets `UIViewRepresentable` banner/native
+  views plus `.interstitialAd` / `.rewardedAd` / `.rewardedInterstitialAd` / `.appOpenAd`
+  modifiers over the same `AdMobHelper`. Xem [SwiftUI](#swiftui).
 
 ### Tính năng chính
 
@@ -77,17 +80,21 @@ MobileAds is a Swift framework that wraps the Google Mobile Ads SDK and provides
 
 To integrate MobileAds into your Xcode project using CocoaPods, specify it in your `Podfile`:
 
-Bản phát hành mới nhất (`1.4.0` — cũng là bản cuối còn layer `IAPService` cũ):
+Bản phát hành mới nhất — `2.0.0`, phục vụ cả UIKit lẫn SwiftUI trong cùng một pod:
+
+```
+pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '2.0.0'
+```
+
+Bản cuối còn layer `IAPService` cũ (trước khi 2.0.0 gỡ nó):
 
 ```
 pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '1.4.0'
 ```
 
-Bản 2.0.0 nằm trên nhánh mặc định và **chưa có tag**, nên chỉ lấy được ở dạng không pin:
-
-```
-pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git"
-```
+> App nào đang trỏ vào nhánh `ver/swiftUI` không pin tag thì chuyển sang pin
+> `:tag => '2.0.0'`. Nhánh đó vẫn còn và đã được đưa về đúng nội dung này, nhưng
+> pin tag mới là thứ giữ cho build lặp lại được.
 
 Then, run the following command:
 
@@ -403,7 +410,7 @@ NativeAdConfiguration.shared.callToActionGradientEndColor = .systemPink
 
 ### 7. Rewarded Interstitial
 
-Cùng hợp đồng với Rewarded, nhưng không có `statusCallback` — chỉ có `completion`
+Cùng hợp đồng với Rewarded: `statusCallback` tuỳ chọn cho vòng đời ad, `completion`
 trả reward. Hàm này tự load nếu chưa có ad sẵn:
 
 ```swift
@@ -412,6 +419,9 @@ func showRewardedInterstitial(from vc: UIViewController) async {
         try await AdMobHelper.shared.showRewardedInterstitialAd(
             from: vc,
             adUnitID: AppAdUnitID.rewardedInterstitial,
+            statusCallback: { status in
+                print("Status: \(status)")
+            },
             completion: { reward in
                 print("User earned reward: \(reward.amount)")
             }
@@ -486,6 +496,112 @@ AdMobHelper.shared.clearAllAds()                // xoá ad đã load + reset m�
 rewarded, rewarded interstitial, app open, banner), reset các cờ `is*Loading` /
 `is*Showing`, xoá cờ resume và gỡ loading view. Dùng khi user lên premium hoặc khi
 cần đưa helper về trạng thái sạch — không phải sau mỗi lần show.
+
+---
+
+## SwiftUI
+
+Cùng một pod, cùng `AdMobHelper` bên dưới. Không cần podspec riêng, không cần
+subspec: sàn deployment là iOS 15 và mọi type SwiftUI đều `@available(iOS 15.0, *)`,
+nên app UIKit chỉ đơn giản là không `import` tới chúng.
+
+Bước cấu hình (`AdUnitIdentifiable`, `configAds`, consent) dùng chung, không đổi.
+
+### Banner
+
+```swift
+BannerAdSwiftUI(
+    adUnitID: AppAdUnitID.banner,
+    isCollapsible: false,                 // true -> banner thu gọn
+    collapsiblePlacement: .bottom
+)
+.frame(height: 50)
+```
+
+### Native
+
+```swift
+NativeAdSwiftUI(
+    adUnitID: AppAdUnitID.nativeFeed,
+    viewType: .medium,                    // .small | .medium
+    configuration: nil,                   // nil -> NativeAdConfiguration.shared
+    enableCache: true
+)
+.frame(height: 300)
+```
+
+Cache dùng chung cơ chế với đường UIKit: single-use, xoá khi ad ghi nhận
+impression, hết hạn sau 1 giờ. Xem [NATIVE_AD_CACHE.md](NATIVE_AD_CACHE.md).
+
+### Full-screen — điều khiển bằng `Binding<Bool>`
+
+Cả ba modifier tự set `isPresented = false` khi ad đóng, fail, hoặc user nhận
+reward xong rồi đóng — không cần app tự reset cờ.
+
+```swift
+struct ContentView: View {
+    @State private var showInterstitial = false
+    @State private var showRewarded = false
+    @State private var showRewardedInterstitial = false
+    @State private var coins = 0
+
+    var body: some View {
+        VStack { /* ... */ }
+            .interstitialAd(
+                isPresented: $showInterstitial,
+                adUnitID: AppAdUnitID.interstitial
+            )
+            .rewardedAd(
+                isPresented: $showRewarded,
+                adUnitID: AppAdUnitID.rewarded,
+                onReward: { reward in coins += reward.amount.intValue }
+            )
+            .rewardedInterstitialAd(
+                isPresented: $showRewardedInterstitial,
+                adUnitID: AppAdUnitID.rewardedInterstitial,
+                onReward: { reward in coins += reward.amount.intValue }
+            )
+    }
+}
+```
+
+Cả ba đều nhận thêm `onStatusChange:` tuỳ chọn nếu cần theo dõi vòng đời ad.
+
+### App Open — khác đường UIKit
+
+```swift
+ContentView()
+    .appOpenAd(
+        adUnitID: AppAdUnitID.appOpen,
+        isEnabled: !entitlementIsActive     // tắt cho user premium
+    )
+```
+
+> ⚠️ Ở đường UIKit, pod **không** tự hiện App Open — app phải tự nối
+> `willEnterForeground` (xem [App Open & App Resume](#8-app-open--app-resume)).
+> Modifier SwiftUI thì **tự làm việc đó**: theo dõi `scenePhase`, preload ở lần
+> `.active` đầu, rồi show ở mỗi lần `.active` sau đó. Đừng nối thêm observer thủ
+> công bên cạnh modifier — sẽ thành hai lần show.
+
+Khác biệt về cờ, cần biết trước khi dùng:
+
+- **`setEnableShowAds` có tác dụng ở đây** — và chỉ ở đây. Modifier này là chỗ
+  duy nhất trong pod thật sự đọc `checkEnableShowAds()`; mọi đường UIKit đều bỏ
+  qua nó (xem cảnh báo ở mục 9). Nên trên SwiftUI, `setEnableShowAds(false)` chặn
+  được App Open, nhưng vẫn không chặn interstitial/rewarded.
+- **`shouldSkipNextAppResume` chưa được tôn trọng đúng.** Modifier chỉ đọc cờ này
+  ở nhánh `.background` để quyết định có preload hay không; nhánh `.active`
+  **show mà không kiểm tra cờ**. Hệ quả: vừa xem interstitial xong quay lại app,
+  nếu còn ad App Open trong bộ nhớ thì vẫn bị chồng thêm một ad — đúng tình huống
+  mà cờ này sinh ra để chặn.
+- **Modifier không bao giờ gọi `resetAppResumeSkipFlag()`.** Cờ được bật bởi mỗi
+  lần show interstitial / rewarded / rewarded interstitial, nên sau ad full-screen
+  đầu tiên nó nằm lại `true` vĩnh viễn và nhánh `.background` thôi preload. App
+  phải tự gọi `AdMobHelper.shared.resetAppResumeSkipFlag()` nếu muốn App Open
+  tiếp tục được nạp.
+
+Hai gạch đầu dòng cuối là hạn chế đã biết của layer SwiftUI, không phải thiết kế
+có chủ đích.
 
 ---
 

@@ -1,21 +1,23 @@
 # Deployment Guide
 
-**Last updated:** 2026-07-26 · Applies to: MobileAds framework release via CocoaPods (git-based).
+**Last updated:** 2026-08-22 · Applies to: MobileAds framework release via CocoaPods (git-based).
 
 MobileAds is distributed as a **git-tagged CocoaPods pod**, not to the public trunk. Consumers pin by tag or track the default branch.
 
 ## Consumer Integration
 
 ```ruby
-# Pin to a released tag (recommended). 1.4.0 is the only tag on origin:
-pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '1.4.0'
+# Pin to a released tag (recommended). 2.0.0 serves both UIKit and SwiftUI apps:
+pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '2.0.0'
 
 # Or track latest on the default branch:
 pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git"
 ```
 Then `pod install`.
 
-> ⚠️ Verify the canonical repo/org before publishing — `MobileAds.podspec` `spec.source` currently points at `github.com/AperoVN` while README uses `BKPlusResearch/MobileAds`. See open questions in `project-overview-pdr.md`.
+> `spec.source` and `spec.homepage` point at `BKPlusResearch/MobileAds`, matching the `origin` remote and the README install snippets. A commented-out alternate source for `AperoVN-iOS` remains in the podspec; it is inert.
+
+> Apps that tracked the `ver/swiftUI` branch unpinned should move to `:tag => '2.0.0'`. That branch still exists and now carries the merged content, but only a pinned tag gives a reproducible build.
 
 ## Release Checklist (maintainers)
 

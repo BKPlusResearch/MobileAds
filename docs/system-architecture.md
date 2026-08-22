@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last updated:** 2026-08-21 · **Version:** 2.0.0
+**Last updated:** 2026-08-22 · **Version:** 2.0.0
 
 ## Overview
 
@@ -10,7 +10,7 @@ MobileAds is a **library/framework**, not an app. It exposes a thin, singleton-d
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│ Consumer App (AppDelegate/SceneDelegate/ViewControllers)      │
+│ Consumer App — UIKit or SwiftUI                                │
 │  - defines AdUnitIdentifiable enums + EntitlementConfig       │
 │  - calls AdMobHelper.shared / EntitlementService.shared / ...  │
 └───────────────┬──────────────────────────────────────────────┘
@@ -18,6 +18,13 @@ MobileAds is a **library/framework**, not an app. It exposes a thin, singleton-d
 ┌───────────────▼──────────────────────────────────────────────┐
 │ MobileAds Framework                                            │
 │                                                                │
+│  SwiftUI adapter (optional entry point, iOS 15+)               │
+│  ┌────────────────────────────────────────────────────────┐   │
+│  │ BannerAdSwiftUI / NativeAdSwiftUI (UIViewRepresentable) │   │
+│  │ .interstitialAd / .rewardedAd / .rewardedInterstitialAd │   │
+│  │ .appOpenAd (ViewModifiers) · ViewControllerResolver     │   │
+│  └───────────────────────┬────────────────────────────────┘   │
+│                          │ delegates to the same facade        │
 │  Ads facade            Purchases        Growth / Telemetry     │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐ │
 │  │ AdMobHelper  │  │ Entitlement- │  │ ADJustManager        │ │
