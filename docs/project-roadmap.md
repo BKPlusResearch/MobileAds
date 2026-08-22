@@ -10,7 +10,7 @@
 - **Banner revenue** — `paidEventHandler` on banners; `BannerAdView` collapsible support.
 - **Entitlements-first IAP (2.0.0, breaking)** — `EntitlementService` derives entitlement from `Transaction.currentEntitlements` on every check and persists nothing; `onUnfinished` hook credits consumables before a transaction is finished. The legacy `IAPService` layer was removed.
 - ~~**IAP storage migration** — Keychain → UserDefaults path (`IAPMigration`).~~ Superseded by 2.0.0: the storage layer it migrated between no longer exists.
-- **SwiftUI layer merged into the UIKit line (2.0.0)** — `ver/swiftUI` and `new-MobileAds` converged into one branch, so a single pod and a single tag serve both surfaces. No subspec: deployment target is iOS 15 and every SwiftUI type is `@available(iOS 15.0, *)`. The merge kept this line's newer SDK pins and the `defer { is*Loading = false }` fix that the SwiftUI line lacked, and added the seven SwiftUI sources to the framework target — they had never been compiled by this repo, only shipped through the podspec glob.
+- **SwiftUI layer merged into the UIKit line (2.0.0)** — `ver/swiftUI` and `new-MobileAds` converged into one branch, so a single pod and a single tag serve both surfaces. No subspec: deployment target is iOS 15 and every SwiftUI type is `@available(iOS 15.0, *)`. The merge kept this line's newer SDK pins and the `defer { is*Loading = false }` fix that the SwiftUI line lacked, and added the seven SwiftUI sources to the framework target — they had never been compiled by this repo, only shipped through the podspec glob. The app-open modifier's resume rules were corrected in the same line: it now requires a real background trip before showing, honours `shouldSkipNextAppResume`, and resets the flag so background preloading does not latch off.
 - **TikTok** — TikTok Business SDK integration.
 - **Ad metrics overlay** — in-app `AdMetricsWindow` debug monitor.
 
@@ -22,7 +22,7 @@
 
 ## Near-Term / Open Items
 
-1. **SwiftUI app-resume flag handling (P1)** — the `.appOpenAd` modifier checks `shouldSkipNextAppResume` only when deciding to preload, never before showing, and never resets it. Result: an app-open ad can stack right after an interstitial, and background preloading stops for good once the flag latches true. See `project-overview-pdr.md` open questions.
+1. **`setEnableShowAds` is not authoritative (P1)** — only the SwiftUI app-open modifier reads it; every UIKit load/show path ignores the flag, so setting it and assuming ads are off still shows ads to a paying user. Decide whether the pod enforces it or the name changes. See `project-overview-pdr.md` open questions.
 2. **Privacy manifests (P1)** — verify `PrivacyInfo.xcprivacy` coverage for the framework and each mediation network (App Store requirement).
 3. **Modularization debt (P2)** — `NativeAdService.swift` (557 LOC) and `AdMobHelper+NativeCache.swift` (470 LOC) exceed the 200-LOC guideline; split when next touched.
 4. **SwiftUI layer has no test or demo coverage (P2)** — the seven sources now compile in CI-reachable form, but nothing exercises them at runtime. A demo SwiftUI target would be the cheapest way to catch modifier regressions.

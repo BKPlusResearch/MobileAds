@@ -52,5 +52,5 @@ Internal iOS app teams shipping ad-supported apps that need consistent monetizat
 
 ## Open Questions
 
-- The SwiftUI app-open modifier does not honor `shouldSkipNextAppResume` when showing, and never resets it — so a full-screen ad can be stacked on resume, and background preloading stops permanently after the first interstitial. Decide whether the modifier should own that flag or the app should.
 - `setEnableShowAds` is read only by the SwiftUI app-open modifier; every UIKit path ignores it. Either make the flag authoritative pod-wide or rename it to reflect that it is app-owned.
+- The SwiftUI layer has no runtime coverage. The app-open resume rules now live in `AppOpenModifier` as scenePhase logic that only a running app exercises.

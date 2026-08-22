@@ -583,25 +583,21 @@ ContentView()
 > `.active` đầu, rồi show ở mỗi lần `.active` sau đó. Đừng nối thêm observer thủ
 > công bên cạnh modifier — sẽ thành hai lần show.
 
-Khác biệt về cờ, cần biết trước khi dùng:
+Modifier tự lo trọn vòng đời, app không cần gọi gì thêm:
 
+- **Chỉ show sau một chuyến background thật.** `.active` còn được chạm tới từ
+  `.inactive` — kéo control center, mở app switcher, có cuộc gọi đến — và những
+  lần đó không phải resume. Đường UIKit không dính vì `willEnterForeground`
+  không fire; modifier chặn bằng cách yêu cầu đã đi qua `.background` trước.
+- **Tôn trọng `shouldSkipNextAppResume` rồi tự reset.** Vừa xem
+  interstitial/rewarded xong, hoặc user bấm ad rồi rời app, thì lượt resume kế
+  tiếp bị bỏ qua — không chồng hai ad full-screen. Modifier tự gọi
+  `resetAppResumeSkipFlag()` sau khi tiêu thụ cờ, nên lần background sau lại
+  preload bình thường. App **không** cần tự reset.
 - **`setEnableShowAds` có tác dụng ở đây** — và chỉ ở đây. Modifier này là chỗ
   duy nhất trong pod thật sự đọc `checkEnableShowAds()`; mọi đường UIKit đều bỏ
   qua nó (xem cảnh báo ở mục 9). Nên trên SwiftUI, `setEnableShowAds(false)` chặn
   được App Open, nhưng vẫn không chặn interstitial/rewarded.
-- **`shouldSkipNextAppResume` chưa được tôn trọng đúng.** Modifier chỉ đọc cờ này
-  ở nhánh `.background` để quyết định có preload hay không; nhánh `.active`
-  **show mà không kiểm tra cờ**. Hệ quả: vừa xem interstitial xong quay lại app,
-  nếu còn ad App Open trong bộ nhớ thì vẫn bị chồng thêm một ad — đúng tình huống
-  mà cờ này sinh ra để chặn.
-- **Modifier không bao giờ gọi `resetAppResumeSkipFlag()`.** Cờ được bật bởi mỗi
-  lần show interstitial / rewarded / rewarded interstitial, nên sau ad full-screen
-  đầu tiên nó nằm lại `true` vĩnh viễn và nhánh `.background` thôi preload. App
-  phải tự gọi `AdMobHelper.shared.resetAppResumeSkipFlag()` nếu muốn App Open
-  tiếp tục được nạp.
-
-Hai gạch đầu dòng cuối là hạn chế đã biết của layer SwiftUI, không phải thiết kế
-có chủ đích.
 
 ---
 
