@@ -7,8 +7,8 @@ MobileAds is distributed as a **git-tagged CocoaPods pod**, not to the public tr
 ## Consumer Integration
 
 ```ruby
-# Pin to a released tag (recommended):
-pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '1.3.0'
+# Pin to a released tag (recommended). 1.4.0 is the only tag on origin:
+pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '1.4.0'
 
 # Or track latest on the default branch:
 pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git"
@@ -20,7 +20,7 @@ Then `pod install`.
 ## Release Checklist (maintainers)
 
 1. **Sync dependency versions.** Ensure every `spec.dependency` in `MobileAds.podspec` matches the resolved versions in `Podfile.lock`. Add any new SDK to both `Podfile` and the podspec.
-2. **Bump `spec.version`** in `MobileAds.podspec` (currently `1.3.0`). This value drives the git tag via `spec.source`.
+2. **Bump `spec.version`** in `MobileAds.podspec`. This value drives the git tag via `spec.source`, so a version with no matching tag on `origin` cannot be installed pinned.
 3. **Lint the spec:**
    ```bash
    pod spec lint MobileAds.podspec --allow-warnings
@@ -31,7 +31,7 @@ Then `pod install`.
 5. **Commit** with a conventional message (`chore(podspec): bump to x.y.z` / `feat(...)`).
 6. **Tag & push** to match the podspec version:
    ```bash
-   git tag 1.3.0
+   git tag "$(grep -m1 spec.version MobileAds.podspec | cut -d'"' -f2)"
    git push origin new-MobileAds --tags
    ```
 7. Consumer apps update their `Podfile` tag and run `pod update MobileAds`.

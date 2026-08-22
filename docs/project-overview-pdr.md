@@ -1,6 +1,6 @@
 # Project Overview & PDR
 
-**Last updated:** 2026-07-26 · **Version:** 1.3.0
+**Last updated:** 2026-08-21 · **Version:** 2.0.0
 
 ## Product
 
@@ -52,5 +52,5 @@ Internal iOS app teams shipping ad-supported apps that need consistent monetizat
 
 ## Open Questions
 
-- Podspec `spec.version` is `1.3.0` while README install examples reference tag `1.0.19` — confirm the current published tag and align README before next release.
+- Podspec `spec.version` is `2.0.0` but `1.4.0` is the only tag on `origin`, so 2.0.0 can only be installed unpinned — cut the tag before telling consumers to pin it.
 - Podspec `spec.homepage`/`spec.source` point to `github.com/AperoVN` while README install uses `github.com/BKPlusResearch/MobileAds` — confirm canonical repo/org.

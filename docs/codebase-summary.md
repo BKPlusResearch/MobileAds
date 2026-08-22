@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last updated:** 2026-07-26 · **Version:** 1.3.0 (podspec) · **Branch:** new-MobileAds
+**Last updated:** 2026-08-21 · **Version:** 2.0.0 (podspec) · **Branch:** new-MobileAds
 
 ## What This Is
 

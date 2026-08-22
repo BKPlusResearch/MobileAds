@@ -45,7 +45,6 @@
 ## Commit Conventions
 
 - Conventional Commits, no AI references: `feat(banner): ...`, `fix(ads): ...`, `chore(podspec): ...`.
-- Do **not** use `chore`/`docs` types for changes under `.claude/`.
 - Keep commits focused; never commit secrets, tokens, or credentials.
 
 ## Comments

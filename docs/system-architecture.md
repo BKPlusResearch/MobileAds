@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last updated:** 2026-07-26 · **Version:** 1.3.0
+**Last updated:** 2026-08-21 · **Version:** 2.0.0
 
 ## Overview
 
@@ -97,4 +97,6 @@ an existing subscriber at launch — gates must distinguish "not entitled" from 
 
 ## Diagram Maintenance
 
-When redrawing these diagrams as SVG, apply `/ck:tech-graph` layout rules (`.claude/skills/tech-graph/references/svg-layout-best-practices.md`) and self-review with `/ck:preview --diagram`.
+The diagrams above are hand-maintained ASCII. Redraw them whenever a box no longer
+matches the module list in `codebase-summary.md`, and keep them at the level of
+components and data flow — never individual types or method names.

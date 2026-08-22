@@ -4,7 +4,7 @@
 
 ## Recently Shipped (from git history)
 
-- **Mediation & SDK upgrade** — Google-Mobile-Ads-SDK → v13.2.0; added 7 mediation adapters (AppLovin, IronSource, Vungle, Facebook, Mintegral, Pangle, Unity); `PremiumAdsGoogleAdapter` shim; podspec versions pinned to `Podfile.lock`.
+- **Mediation & SDK upgrade** — added 7 mediation adapters (AppLovin, IronSource, Vungle, Facebook, Mintegral, Pangle, Unity) plus the vendored `PremiumAdsGoogleAdapter` pod, which replaced the earlier `PremiumAdmobAdapter` dependency and the local adapter shim. Exact SDK versions live in `MobileAds.podspec` and `Podfile.lock`; the podspec pins match the lockfile.
 - **Facebook AD_IMPRESSION tracking** — auto ad-revenue events to Meta via `ADJustManager.logRevenue()`.
 - **Native ad cache** — single-use preload cache with metrics tracking; fixed dummy VC retention.
 - **Banner revenue** — `paidEventHandler` on banners; `BannerAdView` collapsible support.
@@ -21,10 +21,10 @@
 
 ## Near-Term / Open Items
 
-1. **Version & source alignment (P1)** — reconcile podspec `1.3.0` vs README tag `1.0.19`; confirm canonical repo (`AperoVN` vs `BKPlusResearch/MobileAds`) in podspec `homepage`/`source`. See `project-overview-pdr.md` open questions.
+1. **Version & source alignment (P1)** — podspec declares `2.0.0` but `1.4.0` is the only tag on `origin`, so 2.0.0 is installable only unpinned; cut the tag or drop the claim. Also confirm the canonical repo (`AperoVN` in podspec `homepage`/`source` vs `BKPlusResearch/MobileAds` in the README install snippet and the `origin` remote). See `project-overview-pdr.md` open questions.
 2. **Privacy manifests (P1)** — verify `PrivacyInfo.xcprivacy` coverage for the framework and each mediation network (App Store requirement).
 3. **Modularization debt (P2)** — `NativeAdService.swift` (557 LOC) and `AdMobHelper+NativeCache.swift` (470 LOC) exceed the 200-LOC guideline; split when next touched.
-4. **README accuracy (P2)** — reflect current install tag and any API deltas from recent commits.
+4. **README accuracy (P2)** — re-check API deltas from recent commits; the install snippets now match the published tag set.
 
 ## Candidate / Longer-Term
 
@@ -34,4 +34,4 @@
 
 ## Notes
 
-Roadmap reflects git history + current podspec/README state as of 2026-07-26. Update after each release cut.
+Roadmap reflects git history + current podspec/README state as of the **Last updated** date above. Update after each release cut.
