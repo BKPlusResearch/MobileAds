@@ -8,13 +8,17 @@
 ## Trạng thái hiện tại (local)
 
 ```
-new-MobileAds: 0a92da3 -> 78ff400   (fast-forward)
-ver/swiftUI:   6de0d61 -> 78ff400   (fast-forward)
+new-MobileAds: 0a92da3 -> <tip>    (fast-forward)
+ver/swiftUI:   6de0d61 -> <tip>    (fast-forward)
 tag 2.0.0:     mới, trên 78ff400
 ```
 
 Cả hai đều ff — đã verify bằng `git merge-base --is-ancestor`. Không cần force-push,
 lịch sử không bị viết lại.
+
+Tag nằm trên `78ff400` — commit code + docs cuối cùng. Nhánh đi tiếp một commit nữa
+là chính plan này; plan không nằm trong pod (`spec.source_files` chỉ phủ `MobileAds/`)
+nên không ảnh hưởng nội dung phát hành.
 
 ## Blast radius
 
