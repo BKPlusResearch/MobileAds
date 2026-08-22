@@ -90,5 +90,7 @@ fastlane/test_output
 iOSInjectionProject/
 .DS_Store
 .agent
+# AI agent tooling — local-only, never part of the framework
 .claude/
 .agentkit/
+.repomixignore

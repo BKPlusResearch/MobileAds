@@ -40,7 +40,7 @@ Pod::Spec.new do |spec|
   - Support for async/await patterns
                    DESC
 
-  spec.homepage     = "https://github.com/AperoVN"
+  spec.homepage     = "https://github.com/BKPlusResearch/MobileAds"
   # spec.screenshots  = "www.example.com/screenshots_1.gif", "www.example.com/screenshots_2.gif"
 
 
@@ -92,8 +92,8 @@ Pod::Spec.new do |spec|
   #  Supports git, hg, bzr, svn and HTTP.
   #
 
-  spec.source       = { :git => "https://github.com/AperoVN/MobileAds.git", :tag => "#{spec.version}" }
-  spec.frameworks   = "Foundation", "UIKit", "Photos", "AVFoundation"
+  spec.source       = { :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => "#{spec.version}" }
+  spec.frameworks   = "Foundation", "UIKit", "SwiftUI", "Photos", "AVFoundation"
   spec.swift_version = '5.5'
 # spec.source       = { :git => "https://github.com/AperoVN-iOS/MobileAds.git", :tag => "#{spec.version}" }
 

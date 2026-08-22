@@ -55,6 +55,9 @@ public class AdMobHelper: NSObject {
     /// Callback for rewarded ad status events
     var rewardedAdStatusCallback: ((RewardedAdStatus) -> Void)?
     
+    /// Callback for rewarded interstitial ad status events
+    var rewardedInterstitialAdStatusCallback: ((RewardedAdStatus) -> Void)?
+    
     /// Tracks if user earned reward (to combine with dismiss event)
     var didEarnRewardForCurrentAd = false
 
@@ -335,6 +338,7 @@ public class AdMobHelper: NSObject {
 
         // Clear callbacks
         bannerAdStatusCallback = nil
+        rewardedInterstitialAdStatusCallback = nil
 
         // Hide loading views if showing
         hideAppOpenAdLoadingView()
