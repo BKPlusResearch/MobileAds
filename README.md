@@ -77,19 +77,16 @@ MobileAds is a Swift framework that wraps the Google Mobile Ads SDK and provides
 
 To integrate MobileAds into your Xcode project using CocoaPods, specify it in your `Podfile`:
 
+Bản phát hành mới nhất (`1.4.0` — cũng là bản cuối còn layer `IAPService` cũ):
+
 ```
-pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '1.0.19'
+pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '1.4.0'
 ```
-New version:
+
+Bản 2.0.0 nằm trên nhánh mặc định và **chưa có tag**, nên chỉ lấy được ở dạng không pin:
 
 ```
 pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git"
-```
-
-Bản cuối còn layer `IAPService` cũ (trước khi 2.0.0 gỡ nó):
-
-```
-pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '1.3.0'
 ```
 
 Then, run the following command:
@@ -293,6 +290,25 @@ class BannerCell: UICollectionViewCell {
 }
 ```
 
+### Quy tắc chung cho full-screen ads
+
+Áp dụng cho Interstitial, Rewarded, Rewarded Interstitial và App Open — không cần
+app tự làm lại:
+
+- **Không bao giờ present khi app đang ở background.** `applicationState == .background`
+  làm ad render nửa vời: `adWillPresentFullScreenContent` không fire, overlay
+  "Loading ads…" không được gỡ, cờ `is*Showing` kẹt `true` và user quay lại gặp
+  một ad không tắt được. Các hàm `show*` phát hiện trạng thái này thì gỡ overlay
+  và **giữ lại ad đã load** cho lần sau, thay vì present. `.inactive` (khoảnh khắc
+  chuyển sang foreground mà App Open resume dùng) vẫn được coi là an toàn.
+- **Mỗi lúc chỉ một full-screen ad.** Format nào đang show thì các format khác
+  bỏ qua; gọi lại chính format đang show sẽ `throw AdMobHelperError.adAlreadyShowing`.
+- **Show tự đặt cờ bỏ qua App Open kế tiếp.** Interstitial / Rewarded /
+  Rewarded Interstitial đều set `shouldSkipNextAppResume = true`, để lần quay lại
+  app ngay sau đó không bị chồng thêm một ad nữa. Xem [App Open & App Resume](#8-app-open--app-resume).
+- **Click vào ad được đánh dấu tự động** qua delegate (`markAdClick()`), phục vụ
+  cùng cơ chế resume ở trên.
+
 ### 4. Interstitial
 
 ```swift
@@ -329,7 +345,37 @@ func showReward(from vc: UIViewController) async {
 }
 ```
 
-### 6. Native Ads với `NativeAdService`
+### 6. Native Ads
+
+**Đường khuyến nghị — `AdMobHelper.shared.loadNativeAd`, có cache sẵn:**
+
+```swift
+AdMobHelper.shared.loadNativeAd(
+    containerView: nativeContainerView,
+    adUnitID: AppAdUnitID.nativeFeed,
+    rootViewController: self,
+    viewType: .small,
+    configuration: nil,     // nil -> dùng NativeAdConfiguration.shared
+    enableCache: true       // default; cache key = chuỗi ad unit ID
+) { success in
+    print(\"Native loaded: \\(success)\")
+}
+```
+
+Cần tự đặt cache key (nhiều chỗ đặt dùng chung một ad unit) thì dùng
+`loadNativeAdWithCache(..., cacheKey:)`. Preload trước bằng
+`preloadMultipleNativeAds(requests:completion:)`. Chi tiết: [NATIVE_AD_CACHE.md](NATIVE_AD_CACHE.md).
+
+Ba điều quyết định cách tích hợp:
+
+- **Cache là single-use, và bị xoá khi ad ghi nhận *impression*** — không phải lúc
+  gắn vào view. Ad hiện ra rồi thì key đó rỗng; muốn màn sau vẫn có ad tức thì thì
+  phải preload lại.
+- **Entry hết hạn sau 1 giờ.** Quá hạn coi như cache miss.
+- **Miss thì tự fallback về network**, không cần app xử lý.
+
+**Đường không cache — `NativeAdService`:** luôn load từ network, dùng khi cố ý
+không muốn dính cache (ví dụ ad unit chỉ hiện đúng một lần trong phiên):
 
 ```swift
 let nativeService = NativeAdService()
@@ -354,6 +400,92 @@ NativeAdConfiguration.shared.useGradientForCallToAction = true
 NativeAdConfiguration.shared.callToActionGradientStartColor = .systemPurple
 NativeAdConfiguration.shared.callToActionGradientEndColor = .systemPink
 ```
+
+### 7. Rewarded Interstitial
+
+Cùng hợp đồng với Rewarded, nhưng không có `statusCallback` — chỉ có `completion`
+trả reward. Hàm này tự load nếu chưa có ad sẵn:
+
+```swift
+func showRewardedInterstitial(from vc: UIViewController) async {
+    do {
+        try await AdMobHelper.shared.showRewardedInterstitialAd(
+            from: vc,
+            adUnitID: AppAdUnitID.rewardedInterstitial,
+            completion: { reward in
+                print("User earned reward: \(reward.amount)")
+            }
+        )
+    } catch {
+        print("Rewarded interstitial error: \(error)")
+    }
+}
+```
+
+Muốn load trước cho lượt sau: `try await AdMobHelper.shared.loadRewardedInterstitialAd(adUnitID:)`.
+
+### 8. App Open & App Resume
+
+**Pod không tự hiện App Open ad.** Nó cấp ad và các cờ; app quyết định thời điểm.
+Đây là phần app phải tự nối dây:
+
+```swift
+// 1. Warm up sau khi configAds xong (load là async throws, show thì không).
+Task {
+    try? await AdMobHelper.shared.loadAppOpenAd(adUnitID: AppAdUnitID.appOpen)
+}
+
+// 2. Khi app quay lại foreground.
+NotificationCenter.default.addObserver(
+    forName: UIApplication.willEnterForegroundNotification, object: nil, queue: .main
+) { _ in
+    let helper = AdMobHelper.shared
+
+    // Vừa xem full-screen ad hoặc vừa click ad rồi rời app → bỏ lượt này.
+    guard !helper.shouldSkipNextAppResume else {
+        helper.resetAppResumeSkipFlag()
+        return
+    }
+
+    helper.showAppOpenAd { status in
+        if case .didDismiss = status {
+            Task { try? await AdMobHelper.shared.loadAppOpenAd(adUnitID: AppAdUnitID.appOpen) }
+        }
+    }
+}
+```
+
+Điểm cần biết:
+
+- **Ad App Open hết hạn sau 4 giờ** (`appOpenTimeoutInterval`). Quá hạn thì
+  `loadAppOpenAd` sẽ load lại; ad cũ không được dùng.
+- `loadAppOpenAd` **no-op** khi đang có ad còn hạn hoặc đang load, và **throw**
+  `AdMobHelperError.consentNotGranted` nếu UMP chưa cho phép request.
+- `showAppOpenAd(from:)` nhận `viewController` optional — bỏ trống thì pod tự tìm
+  presenter.
+- Xử lý click ad rời app: delegate gọi `markAdClick()`. Handler
+  `didEnterBackground` của app xác nhận bằng `isRecentAdClick(withinSeconds:)` rồi
+  gọi `confirmSkipNextAppResume()`. Overlay in-app không rời app thì gọi
+  `clearPendingAdClick()` để không chặn nhầm lượt resume kế tiếp.
+
+### 9. Cờ bật/tắt ads & dọn state
+
+```swift
+AdMobHelper.shared.setEnableShowAds(false)      // ví dụ: user vừa mua premium
+AdMobHelper.shared.checkEnableShowAds()         // -> false
+
+AdMobHelper.shared.clearAllAds()                // xoá ad đã load + reset mọi cờ
+```
+
+> ⚠️ **`setEnableShowAds` không tự chặn ad.** Pod chỉ *lưu* cờ này; không đường
+> `load*` hay `show*` nào đọc nó. App phải tự gate các call site của mình:
+> `guard AdMobHelper.shared.checkEnableShowAds() else { return }` trước khi gọi
+> show. Đặt cờ rồi tưởng ads đã tắt là cách chắc chắn để user premium vẫn thấy quảng cáo.
+
+`clearAllAds()` mới là thứ có tác dụng ngay: bỏ toàn bộ ad đã cache (interstitial,
+rewarded, rewarded interstitial, app open, banner), reset các cờ `is*Loading` /
+`is*Showing`, xoá cờ resume và gỡ loading view. Dùng khi user lên premium hoặc khi
+cần đưa helper về trạng thái sạch — không phải sau mỗi lần show.
 
 ---
 
@@ -391,8 +523,13 @@ Hàm này trả về ngay để frame đầu tiên không bao giờ phải chờ
 ### 3. Refresh khi vào foreground
 
 ```swift
-await EntitlementService.shared.refresh()   // có sẵn debounce 30s
+await EntitlementService.shared.refresh()             // có sẵn debounce 30s
+await EntitlementService.shared.refresh(force: true)  // bỏ qua debounce
 ```
+
+Chỉ dùng `force: true` khi có sự kiện thật sự đổi entitlement mà không đi qua
+`purchase()` / `restore()` — ví dụ user vừa quay về từ màn quản lý subscription
+của App Store. Gọi `force` theo nhịp polling là tự bỏ đi lớp chống spam StoreKit.
 
 ### 4. Đọc state
 
@@ -415,7 +552,9 @@ final class PremiumGate {
         EntitlementService.shared.$isEntitled
             .removeDuplicates()
             .sink { isEntitled in
-                AdMobHelper.shared.setEnableShowAds(!isEntitled)   // ví dụ: tắt ads khi có quyền
+                // Cờ này pod không tự enforce — vẫn phải gate call site. Xem mục 9.
+                AdMobHelper.shared.setEnableShowAds(!isEntitled)
+                if isEntitled { AdMobHelper.shared.clearAllAds() }
                 NotificationCenter.default.post(name: .premiumStatusDidChange, object: nil)
             }
             .store(in: &bag)
@@ -564,7 +703,7 @@ Hai trường hợp nữa cần app hỗ trợ huỷ tác vụ: gọi `refresh()
 
 ### Nâng cấp từ 1.x lên 2.0
 
-**2.0.0 đã gỡ layer IAP cũ.** `IAPService`, `IAPProductIdentifiable`, `IAPError`, `ProductType`, cùng phần lưu trữ Keychain/UserDefaults phía sau chúng không còn tồn tại. App đang ở 1.x sẽ không compile với 2.0 cho tới khi migrate. Ở lại 1.x là lựa chọn hợp lệ — pin `:tag => '1.3.0'`.
+**2.0.0 đã gỡ layer IAP cũ.** `IAPService`, `IAPProductIdentifiable`, `IAPError`, `ProductType`, cùng phần lưu trữ Keychain/UserDefaults phía sau chúng không còn tồn tại. App đang ở 1.x sẽ không compile với 2.0 cho tới khi migrate. Ở lại 1.x là lựa chọn hợp lệ — pin `:tag => '1.4.0'`.
 
 Vì sao nó bị gỡ: entitlement được đọc từ local storage, nên **premium mất khi cài lại hoặc đổi máy** cho tới khi user tự tìm ra "Restore Purchases", và Ask to Buy bị báo cho user như một lỗi.
 

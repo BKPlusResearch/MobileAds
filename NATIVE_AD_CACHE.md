@@ -6,7 +6,8 @@ The MobileAds framework includes a powerful native ad caching system that allows
 
 - ✅ **Preload multiple ads** at once
 - ✅ **Type-safe cache keys** defined per app
-- ✅ **Single-use cache** - ads are cleared immediately after display
+- ✅ **Single-use cache** - an entry is cleared once its ad records an impression
+- ✅ **1-hour expiry** - entries older than that count as a cache miss
 - ✅ **Instant ad display** from cache
 - ✅ **Fallback to network** if cache unavailable
 - ✅ **Full styling support** via `NativeAdConfiguration`
@@ -88,12 +89,28 @@ func hasCachedNativeAd(for cacheKey: String) -> Bool
 
 // Check if ad is currently being preloaded
 func isPreloadingNativeAd(for cacheKey: String) -> Bool
+
+// Retrieve the cached ad itself; returns nil when missing or expired
+func getCachedNativeAd(for cacheKey: String) -> NativeAd?
 ```
 
 ### Loading with Cache
 
 ```swift
-// Load ad with automatic cache fallback
+// Recommended: cache key is derived from the ad unit ID
+func loadNativeAd(
+    containerView: UIView,
+    adUnitID: AdUnitIdentifiable,
+    rootViewController: UIViewController,
+    viewType: NativeAdService.NativeAdViewType,
+    configuration: NativeAdConfiguration? = nil,
+    enableCache: Bool = true,
+    statusCallback: ((Bool) -> Void)? = nil
+)
+```
+
+```swift
+// Manual cache key — use when several placements share one ad unit
 func loadNativeAdWithCache(
     containerView: UIView,
     adUnitID: AdUnitIdentifiable,
@@ -178,25 +195,35 @@ AdMobHelper.shared.loadNativeAdWithCache(
 
 ### 4. Single-Use Cache Behavior
 
-**Important**: Cached ads are automatically cleared after being displayed. Each cached ad is shown only once:
+**Important**: an entry is cleared when its ad records an **impression** — not when
+the ad view is attached. The distinction matters: an ad placed off-screen that never
+earns an impression keeps its cache entry, and the clear happens on the next main-actor
+turn after AdMob reports the impression, not synchronously inside the load call.
 
 ```swift
-// When you display a cached ad:
+// Display a cached ad:
 AdMobHelper.shared.loadNativeAdWithCache(
     containerView: adsView,
     adUnitID: AppAdUnitID.native_onboarding,
+    rootViewController: self,
+    viewType: .medium,
     cacheKey: NativeAdCacheKey.firstLanguage
 )
-// ↑ This displays the ad AND clears the cache immediately
+// ↑ Uses the cached ad. Once AdMob records the impression, the entry is dropped.
 
-// Next call with same cache key will load from network:
+// A later call with the same key, after that impression, loads from network:
 AdMobHelper.shared.loadNativeAdWithCache(
     containerView: adsView,
     adUnitID: AppAdUnitID.native_onboarding,
+    rootViewController: self,
+    viewType: .medium,
     cacheKey: NativeAdCacheKey.firstLanguage
 )
 // ↑ Cache is empty, loads from network
 ```
+
+So preload again for the next screen instead of assuming one preload covers several
+placements. Entries also expire on their own after 1 hour.
 
 You can also manually clear cache if needed:
 
@@ -212,7 +239,9 @@ AdMobHelper.shared.clearAllCachedNativeAds()
 
 ### Wait for Cache Without Loading Indicator
 
-The system automatically retries cache checks for up to 2.5 seconds if ads are being preloaded:
+The framework does **not** retry on your behalf. When a preload is still in flight,
+poll `isPreloadingNativeAd(for:)` from the app side and give up after a bound you choose
+(2.5s below) rather than showing a spinner:
 
 ```swift
 private func getAdsNative() {
