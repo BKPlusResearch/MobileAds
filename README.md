@@ -67,6 +67,19 @@ MobileAds is a Swift framework that wraps the Google Mobile Ads SDK and provides
   - Hỗ trợ tất cả ad formats: Banner, Interstitial, Rewarded, App Open, Native.
   - Giúp tối ưu hoá giá trị quảng cáo in-app trên Meta Ads. Xem [tài liệu Facebook](https://developers.facebook.com/docs/app-events/guides/maximize-in-app-ad-revenue/).
 
+## Mục lục
+
+- [Requirements](#requirements) · [Installation](#installation) · [Quick start](#quick-start)
+- **Ads (UIKit)** — [1. Khai báo AdUnitID](#1-khai-báo-adunitid-trong-app-adunitidentifiable) ·
+  [2. Khởi tạo SDK & consent](#2-khởi-tạo-sdk--consent) ·
+  [3. Banner](#3-banner) · [3b. BannerAdView](#3b-banneradview--banner-tự-quản-lý-khuyến-nghị-khi-tránh-singleton-conflict) ·
+  [Quy tắc full-screen](#quy-tắc-chung-cho-full-screen-ads) ·
+  [4. Interstitial](#4-interstitial) · [5. Rewarded](#5-rewarded) ·
+  [6. Native](#6-native-ads) · [7. Rewarded Interstitial](#7-rewarded-interstitial) ·
+  [8. App Open](#8-app-open--app-resume) · [9. Cờ bật/tắt ads](#9-cờ-bậttắt-ads--dọn-state)
+- **[Ads (SwiftUI)](#swiftui)**
+- **[In-App Purchases](#in-app-purchases)** — [Nâng cấp từ 1.x lên 2.0](#nâng-cấp-từ-1x-lên-20)
+
 ## Requirements
 
 - iOS 15.0+
@@ -101,6 +114,111 @@ Then, run the following command:
 ```bash
 $ pod install
 ```
+
+## Quick start
+
+Ba bước từ số không tới ad đầu tiên. Chi tiết từng phần ở [Usage](#usage) bên dưới.
+
+**1. Khai báo ad unit** — enum của app, pod không hardcode gì:
+
+```swift
+import MobileAds
+
+enum AppAdUnitID: String, AdUnitIdentifiable {
+    case banner       = "ca-app-pub-3940256099942544/2934735716"
+    case interstitial = "ca-app-pub-3940256099942544/4411468910"
+    case nativeFeed   = "ca-app-pub-3940256099942544/3986624511"
+
+    var adUnitIDString: String { rawValue }
+}
+```
+
+**2. Khởi tạo — từ một VC đang foreground, không phải `didFinishLaunching`:**
+
+```swift
+final class SplashViewController: UIViewController {
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        AdMobHelper.shared.configAds(from: self) {
+            // consent xong, ATT có kết quả, SDK đã init — giờ mới load ad
+        }
+    }
+}
+```
+
+`configAds` chạy tuần tự UMP → ATT → init SDK. Thứ tự này bắt buộc và có timeout 30s;
+lý do ở [mục 2](#2-khởi-tạo-sdk--consent).
+
+**3. Hiện ad đầu tiên:**
+
+```swift
+// UIKit — native, có cache sẵn
+AdMobHelper.shared.loadNativeAd(
+    containerView: adContainer,
+    adUnitID: AppAdUnitID.nativeFeed,
+    rootViewController: self,
+    viewType: .medium
+)
+```
+
+```swift
+// SwiftUI — cùng ad unit, cùng helper bên dưới
+NativeAdSwiftUI(adUnitID: AppAdUnitID.nativeFeed, viewType: .medium)
+    .frame(height: 300)
+```
+
+### App SwiftUI: cầu nối cho `configAds`
+
+`configAds(from:)` cần một `UIViewController`. Pod **không** export cầu nối này —
+`ViewControllerResolver` là `internal`, chỉ phục vụ các view/modifier bên trong pod.
+App SwiftUI tự dựng một cái, dùng đúng một lần lúc launch:
+
+```swift
+struct AdsBootstrap: UIViewControllerRepresentable {
+    let onReady: (UIViewController) -> Void
+
+    func makeUIViewController(context: Context) -> BootstrapViewController {
+        let vc = BootstrapViewController()
+        vc.onReady = onReady
+        return vc
+    }
+
+    func updateUIViewController(_ vc: BootstrapViewController, context: Context) {}
+
+    /// `didMove(toParent:)` là thời điểm chắc chắn VC đã vào hierarchy và có
+    /// presenter sống — UMP form lẫn ATT prompt đều cần điều đó.
+    final class BootstrapViewController: UIViewController {
+        var onReady: ((UIViewController) -> Void)?
+
+        override func didMove(toParent parent: UIViewController?) {
+            super.didMove(toParent: parent)
+            guard let parent else { return }
+            onReady?(parent)
+        }
+    }
+}
+```
+
+```swift
+struct RootView: View {
+    @State private var adsReady = false
+
+    var body: some View {
+        ContentView()
+            .background(
+                AdsBootstrap { presenter in
+                    guard !adsReady else { return }   // chỉ chạy một lần
+                    adsReady = true
+                    AdMobHelper.shared.configAds(from: presenter) { }
+                }
+                .frame(width: 0, height: 0)
+            )
+    }
+}
+```
+
+Cách khác, đơn giản hơn nếu app đã có `UIApplicationDelegateAdaptor`: giữ một splash
+UIKit rồi gọi `configAds` từ đó như snippet ở bước 2.
 
 ## Usage
 
@@ -505,7 +623,9 @@ Cùng một pod, cùng `AdMobHelper` bên dưới. Không cần podspec riêng, 
 subspec: sàn deployment là iOS 15 và mọi type SwiftUI đều `@available(iOS 15.0, *)`,
 nên app UIKit chỉ đơn giản là không `import` tới chúng.
 
-Bước cấu hình (`AdUnitIdentifiable`, `configAds`, consent) dùng chung, không đổi.
+`AdUnitIdentifiable` và consent dùng chung, không đổi. Riêng `configAds(from:)` cần
+một `UIViewController` mà SwiftUI không sẵn có — xem
+[cầu nối cho `configAds`](#app-swiftui-cầu-nối-cho-configads) ở Quick start.
 
 ### Banner
 
