@@ -94,3 +94,4 @@ iOSInjectionProject/
 .claude/
 .agentkit/
 .repomixignore
+release-manifest.json
