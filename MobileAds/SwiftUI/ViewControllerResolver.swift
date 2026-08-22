@@ -29,7 +29,7 @@ struct ViewControllerResolver: UIViewControllerRepresentable {
 
     func updateUIViewController(_ uiViewController: UIViewController, context: Context) {
         guard let resolver = uiViewController as? ResolverViewController else { return }
-        print("[vunt ads] ViewControllerResolver.updateUIViewController fired, hasParent=\(resolver.parent != nil)")
+        debugPrint("[vunt ads] ViewControllerResolver.updateUIViewController fired, hasParent=\(resolver.parent != nil)")
         resolver.onResolve = onResolve
         if let parent = resolver.parent {
             resolver.onResolve?(parent)
@@ -46,7 +46,7 @@ private class ResolverViewController: UIViewController {
 
     override func didMove(toParent parent: UIViewController?) {
         super.didMove(toParent: parent)
-        print("[vunt ads] ResolverVC.didMove parent=\(parent != nil)")
+        debugPrint("[vunt ads] ResolverVC.didMove parent=\(parent != nil)")
         // Initial setup only — updateUIViewController handles subsequent re-fires
         if let parent = parent {
             onResolve?(parent)

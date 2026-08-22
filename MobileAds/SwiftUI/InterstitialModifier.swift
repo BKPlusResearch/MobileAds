@@ -20,30 +20,30 @@ public struct InterstitialModifier: ViewModifier {
         content
             .background(
                 ViewControllerResolver { vc in
-                    print("[vunt ads] InterstitialModifier.onResolve fired, isPresented=\(isPresented)")
+                    debugPrint("[vunt ads] InterstitialModifier.onResolve fired, isPresented=\(isPresented)")
                     guard isPresented else { return }
                     Task { @MainActor in
-                        print("[vunt ads] InterstitialModifier Task started — loading ad")
+                        debugPrint("[vunt ads] InterstitialModifier Task started — loading ad")
                         do {
                             try await AdMobHelper.shared.loadInterstitialAd(
                                 adUnitID: adUnitID,
                                 shouldShowLoadingView: true
                             )
-                            print("[vunt ads] InterstitialModifier ad loaded — presenting")
+                            debugPrint("[vunt ads] InterstitialModifier ad loaded — presenting")
                             try AdMobHelper.shared.showInterstitialAd(
                                 from: vc,
                                 shouldShowLoadingView: true,
                                 statusCallback: { status in
-                                    print("[vunt ads] InterstitialModifier status=\(status)")
+                                    debugPrint("[vunt ads] InterstitialModifier status=\(status)")
                                     onStatusChange?(status)
                                     if status == .didDismiss || status == .didFailToPresent {
-                                        print("[vunt ads] InterstitialModifier resetting isPresented=false")
+                                        debugPrint("[vunt ads] InterstitialModifier resetting isPresented=false")
                                         isPresented = false
                                     }
                                 }
                             )
                         } catch {
-                            print("[vunt ads] InterstitialModifier error: \(error)")
+                            debugPrint("[vunt ads] InterstitialModifier error: \(error)")
                             isPresented = false
                         }
                     }
