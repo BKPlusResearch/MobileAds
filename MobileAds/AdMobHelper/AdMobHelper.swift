@@ -122,16 +122,6 @@ public class AdMobHelper: NSObject {
     /// FullScreenPresentingAd protocol doesn't expose adUnitID, so we store it at load time.
     var fullScreenAdUnitIDs: [ObjectIdentifier: String] = [:]
 
-    var isEnableShowAds: Bool = true
-    
-    public func setEnableShowAds(_ isEnableShowAds: Bool) {
-        self.isEnableShowAds = isEnableShowAds
-    }
-    
-    public func checkEnableShowAds() -> Bool {
-        return isEnableShowAds
-    }
-
     // MARK: - Presentation Safety
 
     /// Whether it is safe to present a full-screen ad right now.

@@ -32,7 +32,6 @@ public struct AppOpenModifier: ViewModifier {
         content
             .onChange(of: scenePhase) { newPhase in
                 guard isEnabled else { return }
-                guard AdMobHelper.shared.checkEnableShowAds() else { return }
 
                 switch newPhase {
                 case .active:
