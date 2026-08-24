@@ -41,7 +41,10 @@ Banner (incl. collapsible + self-managed `BannerAdView`), Interstitial, Rewarded
 
 ## Companion Docs
 
-- `README.md` — consumer-facing integration guide (Vietnamese + English, with code samples).
+- `README.md` — consumer-facing entry point: install + everything UIKit and SwiftUI share.
+- `docs/ads-uikit.md` — UIKit ad call sites.
+- `docs/ads-swiftui.md` — SwiftUI views and modifiers.
+- `docs/in-app-purchases.md` — `EntitlementService`, consumables, 1.x → 2.0 migration.
 - `NATIVE_AD_CACHE.md` — native ad preload/cache system deep dive.
 - `docs/system-architecture.md` — layer diagram + data flows.
 - `docs/code-standards.md` — conventions in force.

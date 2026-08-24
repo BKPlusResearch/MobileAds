@@ -79,7 +79,6 @@ và README.
 ## Non-goals
 
 - Nhánh `ver/spm`, `feature/spm-support` — bỏ qua, user xác nhận
-- Làm `setEnableShowAds` có hiệu lực pod-wide — xem Open items
 - Demo target hay test runtime cho layer SwiftUI
 
 ## Rủi ro
@@ -92,8 +91,8 @@ và README.
 
 ## Open items
 
-1. **`setEnableShowAds` không có hiệu lực ở mọi đường UIKit.** Pod chỉ lưu cờ; chỗ
-   duy nhất đọc là modifier app-open SwiftUI. App set cờ rồi tưởng đã tắt ads cho
-   user premium thì user vẫn thấy quảng cáo. Sửa là đổi hành vi diện rộng — gộp vào
-   `2.0.0` hay để `2.1.0`?
+1. ~~`setEnableShowAds` không có hiệu lực ở mọi đường UIKit.~~ **Đã giải:** gỡ hẳn
+   `setEnableShowAds(_:)` / `checkEnableShowAds()` khỏi pod ở `2.0.0`. Modifier
+   app-open đã có `isEnabled:` riêng nên không mất chức năng; app tự gate call site.
+   Đây là breaking change so với 1.4.0 — app nào đang gọi hai hàm này sẽ vỡ compile.
 2. Layer SwiftUI không có coverage runtime.

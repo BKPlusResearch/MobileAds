@@ -49,15 +49,17 @@ Sau đó báo các project: chuyển từ track nhánh sang `:tag => '2.0.0'`.
 - [ ] Một app consumer chạy `pod update MobileAds` với tag pin và build được
 - [ ] Các team đang track nhánh đã được báo
 
-## Quyết định còn treo trước khi push
+## Quyết định đã chốt trước khi push
 
-**`setEnableShowAds` không có hiệu lực ở mọi đường UIKit.** Pod chỉ lưu cờ; không
-đường `load*`/`show*` nào đọc. Chỗ duy nhất đọc là modifier app-open SwiftUI. App set
-cờ rồi tưởng đã tắt ads cho user premium thì user vẫn thấy quảng cáo.
+**Gỡ `setEnableShowAds`.** Cờ này chỉ được *lưu*, không đường `load*`/`show*` nào đọc;
+chỗ duy nhất đọc là modifier app-open SwiftUI, mà modifier đó đã có tham số `isEnabled:`
+riêng. Phương án đã chọn: gỡ hẳn `setEnableShowAds(_:)` và `checkEnableShowAds()` khỏi
+pod thay vì làm nó có hiệu lực pod-wide — không phải chạm mọi đường show, và xoá luôn
+cái bẫy "đặt cờ rồi tưởng đã tắt ads".
 
-Gộp fix vào `2.0.0` hay để `2.1.0`? Gộp thì tag này trọn vẹn hơn nhưng phạm vi rộng
-ra (chạm mọi đường show). Để sau thì `2.0.0` đúng phạm vi "gộp nhánh" nhưng phát hành
-kèm một cái bẫy đã biết.
+Hệ quả: breaking so với `1.4.0`. App đang gọi hai hàm này vỡ compile và phải tự gate
+call site bằng trạng thái premium của mình. Đã ghi trong README mục
+"Tắt ads cho user premium".
 
 ## Rollback
 

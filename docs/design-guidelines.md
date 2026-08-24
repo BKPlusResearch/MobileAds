@@ -44,7 +44,7 @@ Every format ships a loading state so ad slots never show empty:
 
 1. **No empty slots** — always show a loading placeholder while fetching.
 2. **Instant native display** — preload cache eliminates visible loading on key screens (onboarding, first language). See `NATIVE_AD_CACHE.md`.
-3. **Premium respect** — `BannerAdView.clearAd()` and `setEnableShowAds(false)` let apps cleanly suppress ads for paying users.
+3. **Premium respect** — `BannerAdView.clearAd()`, `AdMobHelper.clearAllAds()` and the SwiftUI `isEnabled:` parameters let apps cleanly suppress ads for paying users. The pod owns no global on/off flag; the app gates its own call sites.
 4. **Consistent theming** — one `NativeAdConfiguration` keeps every native ad on-brand app-wide.
 
 ## Notes

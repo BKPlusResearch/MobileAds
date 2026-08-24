@@ -18,14 +18,13 @@
 
 - Stabilizing the GMA 13.x + mediation adapter set.
 - Documentation baseline (this `docs/` set).
-- **Verifying `EntitlementService` on a device.** It has never been run; the sandbox checklist in the README is the only control that exists. No StoreKit test configuration in this repo.
+- **Verifying `EntitlementService` on a device.** It has never been run; the sandbox checklist in `docs/in-app-purchases.md` is the only control that exists. No StoreKit test configuration in this repo.
 
 ## Near-Term / Open Items
 
-1. **`setEnableShowAds` is not authoritative (P1)** — only the SwiftUI app-open modifier reads it; every UIKit load/show path ignores the flag, so setting it and assuming ads are off still shows ads to a paying user. Decide whether the pod enforces it or the name changes. See `project-overview-pdr.md` open questions.
-2. **Privacy manifests (P1)** — verify `PrivacyInfo.xcprivacy` coverage for the framework and each mediation network (App Store requirement).
-3. **Modularization debt (P2)** — `NativeAdService.swift` (557 LOC) and `AdMobHelper+NativeCache.swift` (470 LOC) exceed the 200-LOC guideline; split when next touched.
-4. **SwiftUI layer has no test or demo coverage (P2)** — the seven sources now compile in CI-reachable form, but nothing exercises them at runtime. A demo SwiftUI target would be the cheapest way to catch modifier regressions.
+1. **Privacy manifests (P1)** — verify `PrivacyInfo.xcprivacy` coverage for the framework and each mediation network (App Store requirement).
+2. **Modularization debt (P2)** — `NativeAdService.swift` (557 LOC) and `AdMobHelper+NativeCache.swift` (470 LOC) exceed the 200-LOC guideline; split when next touched.
+3. **SwiftUI layer has no test or demo coverage (P2)** — the seven sources now compile in CI-reachable form, but nothing exercises them at runtime. A demo SwiftUI target would be the cheapest way to catch modifier regressions.
 
 ## Candidate / Longer-Term
 

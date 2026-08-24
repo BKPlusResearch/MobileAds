@@ -29,7 +29,9 @@ Then `pod install`.
    # or, for git/private specs that need the local tree:
    pod lib lint MobileAds.podspec --allow-warnings
    ```
-4. **Update README** install snippets and `NATIVE_AD_CACHE.md` if the public API changed.
+4. **Update the consumer docs** if the public API changed: README install snippets and shared
+   sections, plus `docs/ads-uikit.md`, `docs/ads-swiftui.md`, `docs/in-app-purchases.md`,
+   `NATIVE_AD_CACHE.md`.
 5. **Commit** with a conventional message (`chore(podspec): bump to x.y.z` / `feat(...)`).
 6. **Tag & push** to match the podspec version:
    ```bash
