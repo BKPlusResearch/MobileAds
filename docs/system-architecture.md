@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last updated:** 2026-08-22 · **Version:** 2.0.0
+**Last updated:** 2026-08-25
 
 ## Overview
 
@@ -27,7 +27,7 @@ MobileAds is a **library/framework**, not an app. It exposes a thin, singleton-d
 │                          │ delegates to the same facade        │
 │  Ads facade            Purchases        Growth / Telemetry     │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐ │
-│  │ AdMobHelper  │  │ Entitlement- │  │ ADJustManager        │ │
+│  │ AdMobHelper  │  │ Entitlement- │  │ AdRevenueManager     │ │
 │  │  +Banner     │  │  Service     │  │ FacebookManager      │ │
 │  │  +Interstit. │  │  (no cache;  │  │ TikTokManager        │ │
 │  │  +Rewarded   │  │   derives    │  │ FirebaseLogger       │ │
@@ -40,17 +40,16 @@ MobileAds is a **library/framework**, not an app. It exposes a thin, singleton-d
 └───────────────┬──────────────────────────────────────────────┘
                 │ CocoaPods dependencies
 ┌───────────────▼──────────────────────────────────────────────┐
-│ Google-Mobile-Ads-SDK + 7 mediation adapters + PremiumAds     │
-│ StoreKit 2 · Firebase (Analytics/Crashlytics/RemoteConfig)    │
-│ Adjust · FBSDKCoreKit · TikTokBusinessSDK · GoogleUMP         │
-│ SnapKit · SkeletonView · Toast-Swift                          │
+│ Third-party SDKs (ads + mediation, Firebase, attribution, UI)  │
+│ + StoreKit 2 (system)                                          │
+│ Authoritative list: MobileAds.podspec · Podfile.lock           │
 └──────────────────────────────────────────────────────────────┘
 ```
 
 ## Key Design Decisions
 
-1. **Singleton facades.** Each concern is a `.shared` singleton (`AdMobHelper`, `EntitlementService`, `ADJustManager`, `FacebookManager`, `TikTokManager`, `FirebaseLogger`, `RemoteConfigService`, `NativeAdConfiguration`, `GoogleMobileAdsConsentManager`, `AdMetricsTracker`, `AdMetricsWindow`). `AdMobHelper` is `@MainActor`.
-2. **Extension-per-format.** `AdMobHelper` is split across `AdMobHelper+Banner/Interstitial/Rewarded/RewardedInterstitial/AppOpen/Native/NativeCache/BannerCache/LoadingViews/FullScreenDelegate/NativeDelegate.swift` to keep files small and single-responsibility (per the 200-LOC modularization rule).
+1. **Singleton facades.** Each concern is a `.shared` singleton (`AdMobHelper`, `EntitlementService`, `AdRevenueManager`, `FacebookManager`, `TikTokManager`, `FirebaseLogger`, `RemoteConfigService`, `NativeAdConfiguration`, `GoogleMobileAdsConsentManager`, `AdMetricsTracker`, `AdMetricsWindow`). `AdMobHelper` is `@MainActor`.
+2. **Extension-per-format.** `AdMobHelper` is split into one `MobileAds/AdMobHelper/AdMobHelper+*.swift` extension per format and per concern (cache, loading views, delegates) to keep files small and single-responsibility (per the 200-LOC modularization rule). Banners are the exception: they live in `BannerAdView` (decision 5) and the old `AdMobHelper+Banner` API is commented out.
 3. **Consumer-supplied identifiers.** Consumers supply `AdUnitIdentifiable` (ad unit IDs), `RemoteKeyIdentifiable` (remote config keys), and `EntitlementConfig.productIDs` (IAP product IDs) — the framework ships no app-specific IDs.
 4. **No IAP persistence.** `EntitlementService` stores no entitlement at all; it re-derives from `Transaction.currentEntitlements` on every check, so reinstalls, device changes, refunds and Family Sharing are handled by StoreKit. Its only `UserDefaults` key records whether a restore has been proactively suggested.
 5. **Escape-hatch, not singleton, for multi-instance banners.** `BannerAdView` is a self-contained `UIView` subclass that does *not* touch `AdMobHelper.shared`, avoiding singleton conflicts when many banners coexist (e.g., in collection views).
@@ -68,8 +67,8 @@ App: AdMobHelper.shared.configAds(from:)
 ### Ad revenue → attribution + analytics fan-out
 ```
 Ad paidEventHandler fires (any format)
-  → ADJustManager.logRevenue(...)
-     → Adjust ad-revenue event
+  → AdRevenueManager.logRevenue(...)
+     → FirebaseLogger logs ad_impression_ios
      → FacebookManager logs AD_IMPRESSION
      → TikTokManager reports ad revenue
   → AdMetricsTracker records (visible via AdMetricsWindow overlay in debug)

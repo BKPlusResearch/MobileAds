@@ -8,42 +8,12 @@ khai báo `AdUnitIdentifiable`, `configAds`, quy tắc full-screen, cache native
 
 ## Mục lục
 
-- [1. Banner](#1-banner) · [2. BannerAdView](#2-banneradview--banner-tự-quản-lý) ·
-  [3. Interstitial](#3-interstitial) · [4. Rewarded](#4-rewarded) ·
-  [5. Rewarded Interstitial](#5-rewarded-interstitial) · [6. Native](#6-native) ·
-  [7. App Open & App Resume](#7-app-open--app-resume)
+- [1. BannerAdView](#1-banneradview--banner-tự-quản-lý) ·
+  [2. Interstitial](#2-interstitial) · [3. Rewarded](#3-rewarded) ·
+  [4. Rewarded Interstitial](#4-rewarded-interstitial) · [5. Native](#5-native) ·
+  [6. App Open & App Resume](#6-app-open--app-resume)
 
-## 1. Banner
-
-```swift
-class HomeViewController: UIViewController {
-    @IBOutlet weak var bannerContainer: UIView!
-
-    override func viewDidLoad() {
-        super.viewDidLoad()
-
-        AdMobHelper.shared.loadBannerAd(
-            into: bannerContainer,
-            adUnitID: AppAdUnitID.bannerHome,
-            rootViewController: self,
-            statusCallback: { status in
-                switch status {
-                case .didLoad:
-                    print("Banner loaded")
-                case .didFailToLoad:
-                    print("Banner failed")
-                default:
-                    break
-                }
-            }
-        )
-    }
-}
-```
-
-**Note:** Method `loadBannerAd(into:...)` automatically adds the banner to the container and sets constraints. If you need more control, you can use the original `loadBannerAd(...)` method which returns a `BannerView` that you can manually add to your view hierarchy.
-
-## 2. BannerAdView — Banner tự quản lý
+## 1. BannerAdView — Banner tự quản lý
 
 Khuyến nghị khi cần tránh singleton conflict.
 
@@ -125,7 +95,7 @@ class BannerCell: UICollectionViewCell {
 }
 ```
 
-## 3. Interstitial
+## 2. Interstitial
 
 Đọc [quy tắc chung cho full-screen ads](../README.md#3-quy-tắc-chung-cho-full-screen-ads) trước.
 
@@ -142,7 +112,7 @@ func showExitInterstitial(from vc: UIViewController) async {
 }
 ```
 
-## 4. Rewarded
+## 3. Rewarded
 
 ```swift
 func showReward(from vc: UIViewController) async {
@@ -163,7 +133,7 @@ func showReward(from vc: UIViewController) async {
 }
 ```
 
-## 5. Rewarded Interstitial
+## 4. Rewarded Interstitial
 
 Cùng hợp đồng với Rewarded: `statusCallback` tuỳ chọn cho vòng đời ad, `completion`
 trả reward. Hàm này tự load nếu chưa có ad sẵn:
@@ -189,7 +159,7 @@ func showRewardedInterstitial(from vc: UIViewController) async {
 
 Muốn load trước cho lượt sau: `try await AdMobHelper.shared.loadRewardedInterstitialAd(adUnitID:)`.
 
-## 6. Native
+## 5. Native
 
 Ngữ nghĩa cache và tuỳ biến giao diện dùng chung với SwiftUI —
 xem [Native ads: cache & giao diện](../README.md#4-native-ads--cache--giao-diện).
@@ -230,7 +200,7 @@ nativeService.loadNativeAd(
 }
 ```
 
-## 7. App Open & App Resume
+## 6. App Open & App Resume
 
 **Pod không tự hiện App Open ad trên UIKit.** Nó cấp ad và các cờ; app quyết định thời
 điểm. Đây là phần app phải tự nối dây — khác hẳn SwiftUI, nơi

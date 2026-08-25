@@ -146,7 +146,7 @@ ContentView()
 ```
 
 > ⚠️ Ở đường UIKit, pod **không** tự hiện App Open — app phải tự nối
-> `willEnterForeground` (xem [App Open & App Resume](ads-uikit.md#7-app-open--app-resume)).
+> `willEnterForeground` (xem [App Open & App Resume](ads-uikit.md#6-app-open--app-resume)).
 > Modifier SwiftUI thì **tự làm việc đó**: theo dõi `scenePhase`, preload ở lần
 > `.active` đầu, rồi show ở mỗi lần `.active` sau đó. Đừng nối thêm observer thủ
 > công bên cạnh modifier — sẽ thành hai lần show.

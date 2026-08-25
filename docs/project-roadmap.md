@@ -1,11 +1,12 @@
 # Project Roadmap
 
-**Last updated:** 2026-08-22 · **Version:** 2.0.0 · **Branch:** new-MobileAds
+**Last updated:** 2026-08-25 · **Branch:** new-MobileAds
 
 ## Recently Shipped (from git history)
 
 - **Mediation & SDK upgrade** — added 7 mediation adapters (AppLovin, IronSource, Vungle, Facebook, Mintegral, Pangle, Unity) plus the vendored `PremiumAdsGoogleAdapter` pod, which replaced the earlier `PremiumAdmobAdapter` dependency and the local adapter shim. Exact SDK versions live in `MobileAds.podspec` and `Podfile.lock`; the podspec pins match the lockfile.
-- **Facebook AD_IMPRESSION tracking** — auto ad-revenue events to Meta via `ADJustManager.logRevenue()`.
+- **Adjust SDK removed (2.0.1 in podspec, not yet tagged — source-breaking)** — the pod no longer depends on Adjust. `ADJustManager` became `AdRevenueManager`, `ADJAdType` became `AdType`, and revenue now fans out to Firebase, TikTok and Facebook only. Apps still using Adjust must add the pod themselves; migration table in `MobileAds/AdRevenue/README.md`.
+- **Facebook AD_IMPRESSION tracking** — auto ad-revenue events to Meta via `AdRevenueManager.logRevenue()`.
 - **Native ad cache** — single-use preload cache with metrics tracking; fixed dummy VC retention.
 - **Banner revenue** — `paidEventHandler` on banners; `BannerAdView` collapsible support.
 - **Entitlements-first IAP (2.0.0, breaking)** — `EntitlementService` derives entitlement from `Transaction.currentEntitlements` on every check and persists nothing; `onUnfinished` hook credits consumables before a transaction is finished. The legacy `IAPService` layer was removed.

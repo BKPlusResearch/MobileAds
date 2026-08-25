@@ -1,23 +1,23 @@
 # Deployment Guide
 
-**Last updated:** 2026-08-22 · Applies to: MobileAds framework release via CocoaPods (git-based).
+**Last updated:** 2026-08-25 · Applies to: MobileAds framework release via CocoaPods (git-based).
 
 MobileAds is distributed as a **git-tagged CocoaPods pod**, not to the public trunk. Consumers pin by tag or track the default branch.
 
 ## Consumer Integration
 
 ```ruby
-# Pin to a released tag (recommended). 2.0.0 serves both UIKit and SwiftUI apps:
-pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '2.0.0'
+# Pin to a released tag (recommended) — one tag serves both UIKit and SwiftUI apps:
+pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => 'x.y.z'
 
 # Or track latest on the default branch:
 pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git"
 ```
-Then `pod install`.
+Then `pod install`. Released tags: `git ls-remote --tags https://github.com/BKPlusResearch/MobileAds.git`.
 
 > `spec.source` and `spec.homepage` point at `BKPlusResearch/MobileAds`, matching the `origin` remote and the README install snippets. A commented-out alternate source for `AperoVN-iOS` remains in the podspec; it is inert.
 
-> Apps that tracked the `ver/swiftUI` branch unpinned should move to `:tag => '2.0.0'`. That branch still exists and now carries the merged content, but only a pinned tag gives a reproducible build.
+> Apps that tracked the `ver/swiftUI` branch unpinned should move to a pinned tag. That branch still exists and now carries the merged content, but only a pinned tag gives a reproducible build.
 
 ## Release Checklist (maintainers)
 
@@ -46,7 +46,7 @@ Required setup in the host app before ads/telemetry work:
 
 - **Info.plist:** `GADApplicationIdentifier` (AdMob app ID), SKAdNetwork items, `NSUserTrackingUsageDescription` for ATT, Facebook (`FacebookAppID`, `FacebookClientToken`), and any mediation network keys.
 - **Firebase:** add `GoogleService-Info.plist`.
-- **Adjust / TikTok / Facebook:** initialize with app tokens via `AppADJustConfig` / `TikTokAppConfig` and the respective managers.
+- **TikTok / Facebook:** initialize with app tokens via `TikTokAppConfig` and the respective managers.
 - **Consent:** call `AdMobHelper.shared.configAds(from:)` early (AppDelegate/SceneDelegate `didFinishLaunching`).
 
 ## Build Notes

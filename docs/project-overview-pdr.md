@@ -1,6 +1,6 @@
 # Project Overview & PDR
 
-**Last updated:** 2026-08-22 · **Version:** 2.0.0
+**Last updated:** 2026-08-25
 
 ## Product
 
@@ -16,7 +16,7 @@ A single CocoaPods dependency exposing singleton facades and consumer-supplied p
 
 ## Target Users
 
-Internal iOS app teams shipping ad-supported apps that need consistent monetization and Meta/TikTok/Adjust revenue attribution.
+Internal iOS app teams shipping ad-supported apps that need consistent monetization and Meta/TikTok revenue attribution.
 
 ## Core Requirements
 
@@ -29,13 +29,12 @@ Internal iOS app teams shipping ad-supported apps that need consistent monetizat
 | R5 | Self-managed banner for multi-instance/list contexts | ✅ `BannerAdView` (+ collapsible) |
 | R6 | Mediation across major networks | ✅ 7 adapters + PremiumAdsGoogleAdapter |
 | R7 | IAP + subscriptions (StoreKit 2), entitlement re-derived from StoreKit on every check | ✅ `EntitlementService` |
-| R8 | Ad revenue → Adjust + Facebook AD_IMPRESSION + TikTok | ✅ `ADJustManager`, `FacebookManager`, `TikTokManager` |
+| R8 | Ad revenue → Firebase + Facebook AD_IMPRESSION + TikTok | ✅ `AdRevenueManager`, `FacebookManager`, `TikTokManager` |
 | R9 | Typed analytics + remote config | ✅ `FirebaseLogger`, `RemoteConfigService` |
 | R10 | App-defined ad unit / product IDs (no hardcoded prod IDs) | ✅ `AdUnitIdentifiable`, `EntitlementConfig.productIDs` |
 
 ## Non-Goals
 
-- No SwiftUI API surface (UIKit only).
 - No app-specific ad unit IDs or product IDs shipped in the framework.
 - No server-side receipt validation backend (client validates with Apple; backend validation recommended to consumers).
 
@@ -47,7 +46,7 @@ Internal iOS app teams shipping ad-supported apps that need consistent monetizat
 ## Success Criteria
 
 - Drop-in integration for a new app in <1 day.
-- Ad revenue correctly attributed across Adjust/Meta/TikTok.
+- Ad revenue correctly attributed across Firebase/Meta/TikTok.
 - Zero production ad-unit leakage from the framework.
 
 ## Open Questions

@@ -1,5 +1,3 @@
-<img src="" alt="" />
-
 ## MobileAds
 
 MobileAds is a Swift framework that wraps the Google Mobile Ads SDK and provides:
@@ -20,19 +18,20 @@ của từng surface nằm ở ba tài liệu bên dưới.
 
 | Tài liệu | Nội dung |
 |---|---|
-| [docs/ads-uikit.md](docs/ads-uikit.md) | Banner, `BannerAdView`, Interstitial, Rewarded, Rewarded Interstitial, native call site UIKit, App Open (app tự nối dây) |
+| [docs/ads-uikit.md](docs/ads-uikit.md) | `BannerAdView`, Interstitial, Rewarded, Rewarded Interstitial, native call site UIKit, App Open (app tự nối dây) |
 | [docs/ads-swiftui.md](docs/ads-swiftui.md) | Cầu nối `configAds`, `BannerAdSwiftUI`, `NativeAdSwiftUI`, 3 modifier full-screen, `.appOpenAd` |
 | [docs/in-app-purchases.md](docs/in-app-purchases.md) | `EntitlementService`, consumables, checklist sandbox, nâng cấp 1.x → 2.0 |
 | [NATIVE_AD_CACHE.md](NATIVE_AD_CACHE.md) | Chi tiết cơ chế cache native ad |
+| [MobileAds/AdRevenue/README.md](MobileAds/AdRevenue/README.md) | Ad revenue fan-out (Firebase / TikTok / Facebook), migration 2.0.0 → 2.0.1 |
 
 ## Tính năng chính
 
 - **Quản lý AdMob tập trung với `AdMobHelper`**
   - Khởi tạo SDK và xử lý consent qua `configAds(from:)`.
-  - Hỗ trợ: Banner, Interstitial, Rewarded, Rewarded Interstitial, App Open, Native.
+  - Hỗ trợ: Interstitial, Rewarded, Rewarded Interstitial, App Open, Native (banner đi qua `BannerAdView`).
 
 - **API rõ ràng cho từng loại quảng cáo**
-  - `loadBannerAd(...)` + callback trạng thái `BannerAdStatus`.
+  - `BannerAdView.loadAd(...)` + callback trạng thái `BannerAdStatus`.
   - `loadInterstitialAd(...)` / `showInterstitialAd(...)` với `InterstitialAdStatus`.
   - `loadRewardedAd(...)` / `showRewardedAd(...)` với `RewardedAdStatus`.
   - `loadRewardedInterstitialAd(...)` / `showRewardedInterstitialAd(...)`.
@@ -74,11 +73,11 @@ của từng surface nằm ở ba tài liệu bên dưới.
   - App tự cấp product ID qua `EntitlementConfig`; pod không hardcode product nào và không hiện UI.
   - ⚠️ Layer `IAPService` cũ đã bị gỡ ở 2.0.0 — xem [nâng cấp 1.x → 2.0](docs/in-app-purchases.md#nâng-cấp-từ-1x-lên-20).
 
-- **🆕 Facebook AD_IMPRESSION Tracking**
-  - Tự động log `AD_IMPRESSION` event lên Facebook SDK khi có ad revenue.
-  - Tích hợp sẵn trong `ADJustManager.logRevenue()` — không cần code thêm.
-  - Hỗ trợ tất cả ad formats: Banner, Interstitial, Rewarded, App Open, Native.
-  - Giúp tối ưu hoá giá trị quảng cáo in-app trên Meta Ads. Xem [tài liệu Facebook](https://developers.facebook.com/docs/app-events/guides/maximize-in-app-ad-revenue/).
+- **🆕 Ad revenue tracking tự động với `AdRevenueManager` (2.0.1)**
+  - Mọi `paidEventHandler` (Banner, Interstitial, Rewarded, Rewarded Interstitial, App Open, Native) tự bắn revenue — app không cần code thêm.
+  - Ba đích đến: Firebase Analytics (`ad_impression_ios`), TikTok Business SDK, Facebook `AD_IMPRESSION` (tối ưu giá trị ad in-app trên Meta Ads — xem [tài liệu Facebook](https://developers.facebook.com/docs/app-events/guides/maximize-in-app-ad-revenue/)).
+  - Không cần cấu hình gì ở manager này; mỗi SDK đích do manager của nó khởi tạo.
+  - ⚠️ 2.0.1 gỡ Adjust SDK khỏi pod: `ADJustManager` → `AdRevenueManager`, `ADJAdType` → `AdType`, `AppADJustConfig` biến mất. App còn dùng Adjust thì tự thêm `pod 'Adjust'` — xem [bảng migration](MobileAds/AdRevenue/README.md#migrating-from-200).
 
 ## Mục lục
 
@@ -95,7 +94,7 @@ của từng surface nằm ở ba tài liệu bên dưới.
 
 - iOS 15.0+
 - Xcode 26.0+
-- Swift 5.0+
+- Swift 5.5+
 
 ## Installation
 
@@ -104,21 +103,23 @@ của từng surface nằm ở ba tài liệu bên dưới.
 
 To integrate MobileAds into your Xcode project using CocoaPods, specify it in your `Podfile`:
 
-Bản phát hành mới nhất — `2.0.0`, phục vụ cả UIKit lẫn SwiftUI trong cùng một pod:
+Pin theo tag để build lặp lại được. Một tag phục vụ cả UIKit lẫn SwiftUI:
 
 ```
-pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '2.0.0'
+pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '2.0.1'
 ```
 
-Bản cuối còn layer `IAPService` cũ (trước khi 2.0.0 gỡ nó):
+| Tag | Nội dung |
+|---|---|
+| `2.0.1` | Bản hiện tại trong `MobileAds.podspec` — gỡ Adjust SDK, đổi tên `ADJustManager` → `AdRevenueManager`. **Tag chỉ có sau khi release được cắt.** |
+| `2.0.0` | Còn Adjust; `EntitlementService` là layer IAP duy nhất. |
+| `1.4.0` | Bản cuối còn layer `IAPService` cũ. |
 
-```
-pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '1.4.0'
-```
+Danh sách tag thực tế: `git ls-remote --tags https://github.com/BKPlusResearch/MobileAds.git`.
 
-> App nào đang trỏ vào nhánh `ver/swiftUI` không pin tag thì chuyển sang pin
-> `:tag => '2.0.0'`. Nhánh đó vẫn còn và đã được đưa về đúng nội dung này, nhưng
-> pin tag mới là thứ giữ cho build lặp lại được.
+> App nào đang trỏ vào nhánh `ver/swiftUI` không pin tag thì chuyển sang pin tag.
+> Nhánh đó vẫn còn và đã được đưa về đúng nội dung này, nhưng pin tag mới là thứ
+> giữ cho build lặp lại được.
 
 Then, run the following command:
 
@@ -291,7 +292,7 @@ surface — không cần app tự làm lại:
 - **Show tự đặt cờ bỏ qua App Open kế tiếp.** Interstitial / Rewarded /
   Rewarded Interstitial đều set `shouldSkipNextAppResume = true`, để lần quay lại
   app ngay sau đó không bị chồng thêm một ad nữa. Cách tiêu thụ cờ này là chỗ hai
-  surface khác nhau: [UIKit tự nối dây](docs/ads-uikit.md#7-app-open--app-resume),
+  surface khác nhau: [UIKit tự nối dây](docs/ads-uikit.md#6-app-open--app-resume),
   [SwiftUI để modifier lo](docs/ads-swiftui.md#5-app-open--khác-đường-uikit).
 - **Click vào ad được đánh dấu tự động** qua delegate (`markAdClick()`), phục vụ
   cùng cơ chế resume ở trên.
