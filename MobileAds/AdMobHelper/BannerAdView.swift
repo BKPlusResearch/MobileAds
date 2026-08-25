@@ -123,9 +123,9 @@ public class BannerAdView: UIView {
 
         bannerView = banner
 
-        // Track ad revenue (Facebook AD_IMPRESSION, Adjust, TikTok, Firebase)
+        // Track ad revenue (Facebook AD_IMPRESSION, TikTok, Firebase)
         banner.paidEventHandler = { adValue in
-            ADJustManager.shared.logRevenue(adType: .banner, adValue: adValue)
+            AdRevenueManager.shared.logRevenue(adType: .banner, adValue: adValue)
         }
 
         addSubview(banner)

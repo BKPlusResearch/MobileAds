@@ -65,7 +65,7 @@ extension AdMobHelper {
 
             // Track ad revenue
             appOpenAd?.paidEventHandler = { adValue in
-                ADJustManager.shared.logRevenue(adType: .appOpen, adValue: adValue)
+                AdRevenueManager.shared.logRevenue(adType: .appOpen, adValue: adValue)
             }
 
             debugPrint("App open ad loaded successfully")

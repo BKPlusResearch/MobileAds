@@ -38,7 +38,7 @@ extension AdMobHelper {
 
             // Track ad revenue
             rewardedAd?.paidEventHandler = { adValue in
-                ADJustManager.shared.logRevenue(adType: .reward, adValue: adValue)
+                AdRevenueManager.shared.logRevenue(adType: .reward, adValue: adValue)
             }
 
             debugPrint("Rewarded ad loaded successfully")

@@ -284,7 +284,7 @@ public final class TikTokManager {
     ///   - adType: Type of ad (e.g., "interstitial", "banner", "rewarded")
     ///   - revenueUSD: Revenue in USD
     ///   - adNetwork: Ad network name (default: "AdMob")
-    public func trackAdRevenue(adType: ADJAdType, revenueUSD: Double, adNetwork: String = "AdMob") {
+    public func trackAdRevenue(adType: AdType, revenueUSD: Double, adNetwork: String = "AdMob") {
         let adRevenue: [String: Any] = [
             "device_ad_mediation_platform": "admob_sdk",
             "value": revenueUSD,

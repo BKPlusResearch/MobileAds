@@ -44,7 +44,7 @@ extension AdMobHelper {
 
             // Track ad revenue
             interstitialAd?.paidEventHandler = { adValue in
-                ADJustManager.shared.logRevenue(adType: .interstitial, adValue: adValue)
+                AdRevenueManager.shared.logRevenue(adType: .interstitial, adValue: adValue)
             }
 
             debugPrint("Interstitial ad loaded successfully")

@@ -24,7 +24,7 @@ public final class FacebookManager {
     ///   - adType: Type of ad (interstitial, appOpen, native, banner, reward)
     ///   - revenueUSD: Revenue value from AdMob's AdValue
     ///   - currency: Currency code from AdMob's AdValue (e.g., "USD")
-    public func logAdImpression(adType: ADJAdType, revenueUSD: Double, currency: String) {
+    public func logAdImpression(adType: AdType, revenueUSD: Double, currency: String) {
         let params: [AppEvents.ParameterName: Any] = [
             .currency: currency,
         ]

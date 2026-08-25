@@ -34,7 +34,7 @@ public final class AdMetricsTracker {
     // MARK: - Track Events
 
     /// Track an ad request (load called)
-    public func trackRequest(adUnit: String, adType: ADJAdType) {
+    public func trackRequest(adUnit: String, adType: AdType) {
         ensureEntry(adUnit: adUnit, adType: adType)
         metrics[adUnit]?.incrementRequest()
         debugPrint("📊 [AdMetrics] REQUEST  \(adType.rawValue) — \(adUnit) (total: \(metrics[adUnit]?.requestCount ?? 0))")
@@ -91,7 +91,7 @@ public final class AdMetricsTracker {
 
     // MARK: - Private
 
-    private func ensureEntry(adUnit: String, adType: ADJAdType) {
+    private func ensureEntry(adUnit: String, adType: AdType) {
         if metrics[adUnit] == nil {
             metrics[adUnit] = AdMetrics(adUnit: adUnit, adType: adType)
             orderedKeys.append(adUnit)

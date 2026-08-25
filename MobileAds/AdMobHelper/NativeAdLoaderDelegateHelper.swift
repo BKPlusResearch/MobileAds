@@ -31,7 +31,7 @@ class NativeAdLoaderDelegateHelper: NSObject, NativeAdLoaderDelegate {
 
         // Track ad revenue
         nativeAd.paidEventHandler = { adValue in
-            ADJustManager.shared.logRevenue(adType: .native, adValue: adValue)
+            AdRevenueManager.shared.logRevenue(adType: .native, adValue: adValue)
         }
 
         onAdLoaded?(nativeAd)

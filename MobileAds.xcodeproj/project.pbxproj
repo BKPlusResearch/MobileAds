@@ -21,7 +21,7 @@
 		502BC1B42F4D8BB60090CE3E /* BannerAdView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 502BC1B32F4D8BB60090CE3E /* BannerAdView.swift */; };
 		5050C43A2F3D6BEE0057F86C /* AdMobHelper+BannerCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5050C4392F3D6BEE0057F86C /* AdMobHelper+BannerCache.swift */; };
 		5050C43C2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5050C43B2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift */; };
-		50535B702EF8F2BB00D6549D /* ADJustManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50535B6C2EF8F2BB00D6549D /* ADJustManager.swift */; };
+		50535B702EF8F2BB00D6549D /* AdRevenueManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 50535B6C2EF8F2BB00D6549D /* AdRevenueManager.swift */; };
 		508D29432C6F2E5B005801DA /* ic_info.png in Resources */ = {isa = PBXBuildFile; fileRef = 508D29422C6F2E5B005801DA /* ic_info.png */; };
 		508D29482C6F3202005801DA /* stars_3_5.png in Resources */ = {isa = PBXBuildFile; fileRef = 508D29442C6F3202005801DA /* stars_3_5.png */; };
 		508D29492C6F3202005801DA /* stars_4.png in Resources */ = {isa = PBXBuildFile; fileRef = 508D29452C6F3202005801DA /* stars_4.png */; };
@@ -84,7 +84,7 @@
 		502BC1B32F4D8BB60090CE3E /* BannerAdView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BannerAdView.swift; sourceTree = "<group>"; };
 		5050C4392F3D6BEE0057F86C /* AdMobHelper+BannerCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+BannerCache.swift"; sourceTree = "<group>"; };
 		5050C43B2F3D6BF90057F86C /* AdMobHelper+NativeCache.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AdMobHelper+NativeCache.swift"; sourceTree = "<group>"; };
-		50535B6C2EF8F2BB00D6549D /* ADJustManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ADJustManager.swift; sourceTree = "<group>"; };
+		50535B6C2EF8F2BB00D6549D /* AdRevenueManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AdRevenueManager.swift; sourceTree = "<group>"; };
 		50535B6D2EF8F2BB00D6549D /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		508D29422C6F2E5B005801DA /* ic_info.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ic_info.png; sourceTree = "<group>"; };
 		508D29442C6F3202005801DA /* stars_3_5.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = stars_3_5.png; sourceTree = "<group>"; };
@@ -189,7 +189,7 @@
 		042F527F27D8E09E008D5330 /* MobileAds */ = {
 			isa = PBXGroup;
 			children = (
-				50535B6E2EF8F2BB00D6549D /* ADJustManager */,
+				50535B6E2EF8F2BB00D6549D /* AdRevenue */,
 				50B1DC702EED62B40096DF8B /* FirebaseLogger */,
 				507981702EE813B9009B6C5D /* IAP */,
 				509F870F2EE124A400DAEACF /* Extension */,
@@ -238,13 +238,13 @@
 			path = SwiftUI;
 			sourceTree = "<group>";
 		};
-		50535B6E2EF8F2BB00D6549D /* ADJustManager */ = {
+		50535B6E2EF8F2BB00D6549D /* AdRevenue */ = {
 			isa = PBXGroup;
 			children = (
-				50535B6C2EF8F2BB00D6549D /* ADJustManager.swift */,
+				50535B6C2EF8F2BB00D6549D /* AdRevenueManager.swift */,
 				50535B6D2EF8F2BB00D6549D /* README.md */,
 			);
-			path = ADJustManager;
+			path = AdRevenue;
 			sourceTree = "<group>";
 		};
 		507981702EE813B9009B6C5D /* IAP */ = {
@@ -581,7 +581,7 @@
 				509F87132EE1251300DAEACF /* UIView+Extension.swift in Sources */,
 				509F870A2EE11DD500DAEACF /* GoogleMobileAdsConsentManager.swift in Sources */,
 				509F870B2EE11DD500DAEACF /* NativeAdSmallLoadingView.swift in Sources */,
-				50535B702EF8F2BB00D6549D /* ADJustManager.swift in Sources */,
+				50535B702EF8F2BB00D6549D /* AdRevenueManager.swift in Sources */,
 				768BF63F283F244D00737CEF /* RemoteConfigService.swift in Sources */,
 				042F528227D8E09E008D5330 /* MobileAds.docc in Sources */,
 				509F87112EE124DE00DAEACF /* CallBackDefine.swift in Sources */,

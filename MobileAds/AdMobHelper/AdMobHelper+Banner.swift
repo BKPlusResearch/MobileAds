@@ -108,7 +108,7 @@ import SnapKit
 //
 //        // Track ad revenue
 //        bannerView.paidEventHandler = { adValue in
-//            ADJustManager.shared.logRevenue(adType: .banner, adValue: adValue)
+//            AdRevenueManager.shared.logRevenue(adType: .banner, adValue: adValue)
 //        }
 //
 //        guard GoogleMobileAdsConsentManager.shared.canRequestAds else {

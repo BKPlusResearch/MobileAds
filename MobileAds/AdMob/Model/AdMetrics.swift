@@ -19,7 +19,7 @@ public struct AdMetrics {
     public let adUnit: String
 
     /// The ad type (interstitial, appOpen, native, banner, reward)
-    public let adType: ADJAdType
+    public let adType: AdType
 
     // MARK: - Counters
 
@@ -63,7 +63,7 @@ public struct AdMetrics {
 
     // MARK: - Init
 
-    public init(adUnit: String, adType: ADJAdType) {
+    public init(adUnit: String, adType: AdType) {
         self.adUnit = adUnit
         self.adType = adType
     }

@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "MobileAds"
-  spec.version      = "2.0.0"
+  spec.version      = "2.0.1"
   spec.summary      = "Google Mobile Ads + entitlements-first StoreKit 2 IAP for iOS; native small/medium templates with shared NativeAdConfiguration theming"
 
   # This description is used to generate tags and improve search results.
@@ -27,7 +27,9 @@ Pod::Spec.new do |spec|
   spec.description  = <<-DESC
   MobileAds is a Swift framework that supports all base display ad types from Google Mobile Ads SDK and In-App Purchase management, making it convenient to configure and use.
 
-  **2.0.0 is a breaking release.** The legacy `IAPService` layer has been removed. `EntitlementService` is now the only IAP layer. Apps on 1.x must migrate; see "Upgrading from 1.x to 2.0" in the README.
+  **2.0.1 removes the Adjust SDK integration.** `ADJustManager` is now `AdRevenueManager`, `ADJAdType` is now `AdType`, and `AppADJustConfig` is gone — source-breaking for apps that called them. Ad revenue still fans out to Firebase Analytics, TikTok Business SDK and Facebook SDK.
+
+  **2.0.0 was a breaking release.** The legacy `IAPService` layer was removed. `EntitlementService` is now the only IAP layer. Apps on 1.x must migrate; see "Upgrading from 1.x to 2.0" in the README.
 
   Features include:
   - Native **small** compact row (icon/media, headline, body, CTA) with `mainStackView`; styling via same `NativeAdConfiguration` as medium
@@ -166,7 +168,6 @@ Pod::Spec.new do |spec|
   spec.dependency "Google-Mobile-Ads-SDK", '~> 13.8.0'
   spec.dependency "GoogleUserMessagingPlatform", '~> 3.1.0'
   spec.dependency "SnapKit", '~> 5.7.1'
-  spec.dependency "Adjust", '~> 5.8.0'
   spec.dependency "SkeletonView", '~> 1.30.4'
   spec.dependency 'Toast-Swift', '~> 5.1.1'
   spec.dependency 'TikTokBusinessSDK', '~> 1.3.8'

@@ -239,11 +239,11 @@ TikTokManager.shared.trackEvent(.purchase, params: [
 
 ## Ad Revenue Tracking
 
-### Method 1: Simple Version (Auto via ADJustManager)
+### Method 1: Simple Version (Auto via AdRevenueManager)
 
 ```swift
-// Simple - sends basic info to TikTok, Adjust, and Firebase
-ADJustManager.shared.logRevenue(adType: .interstitial, adValue: adValue)
+// Simple - sends basic info to TikTok, Facebook, and Firebase
+AdRevenueManager.shared.logRevenue(adType: .interstitial, adValue: adValue)
 ```
 
 ### Method 2: Detailed Version (Recommended for TikTok Attribution)
@@ -256,7 +256,7 @@ interstitialAd.paidEventHandler = { [weak self] adValue in
     guard let self = self else { return }
 
     // Use detailed version with full response info
-    ADJustManager.shared.logRevenue(
+    AdRevenueManager.shared.logRevenue(
         adType: .interstitial,
         adValue: adValue,
         adUnitId: self.interstitialAd.adUnitID,
@@ -268,7 +268,7 @@ interstitialAd.paidEventHandler = { [weak self] adValue in
 rewardedAd.paidEventHandler = { [weak self] adValue in
     guard let self = self else { return }
 
-    ADJustManager.shared.logRevenue(
+    AdRevenueManager.shared.logRevenue(
         adType: .reward,
         adValue: adValue,
         adUnitId: self.rewardedAd.adUnitID,
@@ -280,7 +280,7 @@ rewardedAd.paidEventHandler = { [weak self] adValue in
 bannerView.paidEventHandler = { [weak self] adValue in
     guard let self = self else { return }
 
-    ADJustManager.shared.logRevenue(
+    AdRevenueManager.shared.logRevenue(
         adType: .banner,
         adValue: adValue,
         adUnitId: self.bannerView.adUnitID,
@@ -292,7 +292,7 @@ bannerView.paidEventHandler = { [weak self] adValue in
 nativeAd.paidEventHandler = { [weak self] adValue in
     guard let self = self, let nativeAd = self.nativeAd else { return }
 
-    ADJustManager.shared.logRevenue(
+    AdRevenueManager.shared.logRevenue(
         adType: .native,
         adValue: adValue,
         adUnitId: "your_native_ad_unit_id",
@@ -304,7 +304,7 @@ nativeAd.paidEventHandler = { [weak self] adValue in
 appOpenAd.paidEventHandler = { [weak self] adValue in
     guard let self = self else { return }
 
-    ADJustManager.shared.logRevenue(
+    AdRevenueManager.shared.logRevenue(
         adType: .appOpen,
         adValue: adValue,
         adUnitId: self.appOpenAd.adUnitID,
