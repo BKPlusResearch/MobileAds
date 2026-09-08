@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "MobileAds"
-  spec.version      = "2.0.3"
+  spec.version      = "2.0.2"
   spec.summary      = "Google Mobile Ads + entitlements-first StoreKit 2 IAP for iOS; native small/medium templates with shared NativeAdConfiguration theming"
 
   # This description is used to generate tags and improve search results.
