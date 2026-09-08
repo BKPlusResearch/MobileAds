@@ -303,12 +303,22 @@ public class AdMobHelper: NSObject {
     // MARK: - Cleanup
 
     /// Clear all loaded ads.
+    ///
+    /// An app open that is *on screen* is left alone. `adDidDismissFullScreenContent`
+    /// matches the dismissed ad by identity against `appOpenAd`, so clearing the
+    /// reference out from under a presented ad means no branch matches when the
+    /// user closes it: `appOpenAdStatusCallback` is never called, never nil'd, and
+    /// a caller awaiting the dismissal waits forever. Dropping it buys nothing in
+    /// any case — the ad has already been shown, and the delegate clears both the
+    /// reference and the flag on the way out.
     public func clearAllAds() {
         interstitialAd = nil
         rewardedAd = nil
         rewardedInterstitialAd = nil
-        appOpenAd = nil
-        appOpenLoadTime = nil
+        if !isAppOpenShowing {
+            appOpenAd = nil
+            appOpenLoadTime = nil
+        }
         bannerAd = nil
 
         isInterstitialLoading = false
@@ -318,7 +328,10 @@ public class AdMobHelper: NSObject {
         isRewardedInterstitialLoading = false
         isRewardedInterstitialShowing = false
         isAppOpenLoading = false
-        isAppOpenShowing = false
+        // `isAppOpenShowing` is deliberately not reset here. It is only ever true
+        // while an ad is on screen, and that ad is the one case above leaves
+        // standing — the delegate that ends it clears this flag itself. Forcing
+        // it false would let a second app open present over the first.
         isBannerLoading = false
 
         // Reset App Resume skip flags

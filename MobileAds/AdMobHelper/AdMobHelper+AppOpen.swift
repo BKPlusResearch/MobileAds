@@ -84,12 +84,17 @@ extension AdMobHelper {
 
     /// Show an app open ad if available.
     ///
-    /// `statusCallback` fires exactly once on every path, and every path that
-    /// does not end in a presented ad reports `.didFailToPresent`. That is the
-    /// contract `showInterstitialAd` already holds by throwing on each of its
-    /// own refusals; this one used to return silently instead, which left a
-    /// caller that awaits the callback — a splash screen gated on the ad, for
-    /// instance — waiting for an event that would never arrive.
+    /// `statusCallback` always reports a terminal event, exactly once:
+    /// `.didDismiss` if the ad was presented and the user closed it,
+    /// `.didFailToPresent` on every path that does not end in a presented ad.
+    /// A presented ad also reports the non-terminal `.didPresent` and
+    /// `.willDismiss` on the way there, so a caller awaiting the end must switch
+    /// on the case rather than resume on any call.
+    ///
+    /// That is the contract `showInterstitialAd` already holds by throwing on
+    /// each of its own refusals; this one used to return silently instead, which
+    /// left a caller that awaits the callback — a splash screen gated on the ad,
+    /// for instance — waiting for an event that would never arrive.
     ///
     /// - Parameters:
     ///   - viewController: The view controller to present the ad from (can be nil for app open).
@@ -162,8 +167,15 @@ extension AdMobHelper {
             showAppOpenAdLoadingView()
         }
 
-        appOpenAd.present(from: viewController)
+        // Before `present`, not after — the same order `showInterstitialAd`
+        // uses, and for the same reason. GMA can deliver
+        // `didFailToPresentFullScreenContentWithError` synchronously from inside
+        // `present` for a validation failure; the delegate clears this flag, and
+        // setting it afterwards would put it back. Nothing else resets it, so a
+        // single such failure would latch it true and make every later app open
+        // take the "already showing" early return for the rest of the process.
         isAppOpenShowing = true
+        appOpenAd.present(from: viewController)
     }
 }
 
