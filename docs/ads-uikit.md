@@ -240,6 +240,12 @@ NotificationCenter.default.addObserver(
   `AdMobHelperError.consentNotGranted` nếu UMP chưa cho phép request.
 - `showAppOpenAd(from:)` nhận `viewController` optional — bỏ trống thì pod tự tìm
   presenter.
+- `showAppOpenAd` **luôn gọi `statusCallback` đúng một lần**, và mọi nhánh không
+  present được đều báo `.didFailToPresent` — kể cả các nhánh từ chối đồng bộ
+  (đang có ad khác hiện, ad chưa sẵn sàng, app ở background). Nhờ vậy caller có
+  thể `await` callback này, ví dụ màn splash giữ màn hình tới khi ad đóng.
+- `shouldShowLoadingView: false` khi caller đã có UI loading của riêng mình —
+  màn splash chẳng hạn — để không chồng hai lớp loading.
 - Xử lý click ad rời app: delegate gọi `markAdClick()`. Handler
   `didEnterBackground` của app xác nhận bằng `isRecentAdClick(withinSeconds:)` rồi
   gọi `confirmSkipNextAppResume()`. Overlay in-app không rời app thì gọi

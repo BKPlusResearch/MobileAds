@@ -83,11 +83,19 @@ extension AdMobHelper {
     }
 
     /// Show an app open ad if available.
+    ///
+    /// `statusCallback` fires exactly once on every path, and every path that
+    /// does not end in a presented ad reports `.didFailToPresent`. That is the
+    /// contract `showInterstitialAd` already holds by throwing on each of its
+    /// own refusals; this one used to return silently instead, which left a
+    /// caller that awaits the callback — a splash screen gated on the ad, for
+    /// instance — waiting for an event that would never arrive.
+    ///
     /// - Parameters:
     ///   - viewController: The view controller to present the ad from (can be nil for app open).
-    ///   - statusCallback: Optional callback to receive ad status events (didPresent, didFailToPresent, didDismiss).
-    /// - Returns: True if ad was shown, false otherwise.
-
+    ///   - shouldShowLoadingView: Whether to show the loading overlay if it is not already up.
+    ///     Pass `false` when the caller is already displaying its own loading UI, such as a splash.
+    ///   - statusCallback: Callback receiving ad status events (didPresent, didFailToPresent, willDismiss, didDismiss).
     public func showAppOpenAd(
         from viewController: UIViewController? = nil,
         shouldShowLoadingView: Bool = true,
@@ -96,28 +104,33 @@ extension AdMobHelper {
         // If the app open ad is already showing, do not show the ad again.
         if isAppOpenShowing {
             debugPrint("App open ad is already showing.")
+            statusCallback?(.didFailToPresent)
             return
         }
 
         // If any other ad type is showing, skip app open ad
         if isInterstitialShowing {
             debugPrint("Interstitial ad is showing, skipping app open ad.")
+            statusCallback?(.didFailToPresent)
             return
         }
 
         if isRewardedShowing {
             debugPrint("Rewarded ad is showing, skipping app open ad.")
+            statusCallback?(.didFailToPresent)
             return
         }
 
         if isRewardedInterstitialShowing {
             debugPrint("Rewarded interstitial ad is showing, skipping app open ad.")
+            statusCallback?(.didFailToPresent)
             return
         }
 
         // If the app open ad is not available yet, return false.
         if !isAppOpenAdAvailable() {
             debugPrint("App open ad is not ready yet.")
+            statusCallback?(.didFailToPresent)
             return
         }
 
@@ -131,20 +144,26 @@ extension AdMobHelper {
             return
         }
 
-        if let appOpenAd = appOpenAd {
-            // Store callback for status events
-            appOpenAdStatusCallback = statusCallback
-            
-            // Loading view should already be showing from loadAppOpenAd
-            // Show loading view if enabled and not already showing
-            if shouldShowLoadingView && appOpenAdLoadingView == nil {
-                showAppOpenAdLoadingView()
-            }
-            
-            appOpenAd.present(from: viewController)
-            isAppOpenShowing = true
+        // `isAppOpenAdAvailable()` above already read this, so a nil here means
+        // it was cleared in between. Reported rather than dropped, for the same
+        // reason as every branch above.
+        guard let appOpenAd else {
+            debugPrint("App open ad went away before it could be presented.")
+            statusCallback?(.didFailToPresent)
             return
         }
+
+        // Store callback for status events
+        appOpenAdStatusCallback = statusCallback
+
+        // Loading view should already be showing from loadAppOpenAd
+        // Show loading view if enabled and not already showing
+        if shouldShowLoadingView && appOpenAdLoadingView == nil {
+            showAppOpenAdLoadingView()
+        }
+
+        appOpenAd.present(from: viewController)
+        isAppOpenShowing = true
     }
 }
 
