@@ -37,7 +37,7 @@ Banner (incl. collapsible + self-managed `BannerAdView`), Interstitial, Rewarded
 - **Consent-first init:** `AdMobHelper.configAds(from:)` → `GoogleMobileAdsConsentManager` (UMP) → SDK start only if `canRequestAds`.
 - **App-relative ad unit IDs:** consumer apps define an `AdUnitIdentifiable` enum (test vs production via `#if DEBUG`). The framework never hardcodes production IDs.
 - **Ad revenue → attribution/analytics:** `paidEventHandler` on ads → `AdRevenueManager.logRevenue()` → Firebase `ad_impression_ios`, Facebook `AD_IMPRESSION` and TikTok revenue events, plus `AdMetricsTracker`.
-- **Mediation:** 7 GoogleMobileAds mediation adapters (AppLovin, IronSource, Vungle, Facebook, Mintegral, Pangle, Unity) + `PremiumAdsGoogleAdapter`.
+- **Mediation:** 7 GoogleMobileAds mediation adapters (AppLovin, IronSource, Vungle, Facebook, Mintegral, Pangle, Unity).
 
 ## Companion Docs
 

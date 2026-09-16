@@ -27,7 +27,7 @@ Internal iOS app teams shipping ad-supported apps that need consistent monetizat
 | R3 | Native ads with reusable templates + global theming | ✅ `NativeAdService`, `NativeAdViewSmall/Medium`, `NativeAdConfiguration` |
 | R4 | Native ad preload cache for instant display | ✅ single-use cache, 1h expiry (`NATIVE_AD_CACHE.md`) |
 | R5 | Self-managed banner for multi-instance/list contexts | ✅ `BannerAdView` (+ collapsible) |
-| R6 | Mediation across major networks | ✅ 7 adapters + PremiumAdsGoogleAdapter |
+| R6 | Mediation across major networks | ✅ 7 adapters |
 | R7 | IAP + subscriptions (StoreKit 2), entitlement re-derived from StoreKit on every check | ✅ `EntitlementService` |
 | R8 | Ad revenue → Firebase + Facebook AD_IMPRESSION + TikTok | ✅ `AdRevenueManager`, `FacebookManager`, `TikTokManager` |
 | R9 | Typed analytics + remote config | ✅ `FirebaseLogger`, `RemoteConfigService` |
