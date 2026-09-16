@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "MobileAds"
-  spec.version      = "2.0.2"
+  spec.version      = "2.0.3"
   spec.summary      = "Google Mobile Ads + entitlements-first StoreKit 2 IAP for iOS; native small/medium templates with shared NativeAdConfiguration theming"
 
   # This description is used to generate tags and improve search results.
@@ -172,7 +172,6 @@ Pod::Spec.new do |spec|
   spec.dependency 'Toast-Swift', '~> 5.1.1'
   spec.dependency 'TikTokBusinessSDK', '~> 1.3.8'
   spec.dependency 'FBSDKCoreKit', '~> 18.1.0'
-  spec.dependency 'PremiumAdsGoogleAdapter'
   spec.dependency 'GoogleMobileAdsMediationAppLovin', '~> 13.6.3.0'
   spec.dependency 'GoogleMobileAdsMediationIronSource', '~> 9.5.0.0.0'
   spec.dependency 'GoogleMobileAdsMediationVungle', '~> 7.7.6.0'
