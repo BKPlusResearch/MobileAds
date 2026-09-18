@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "MobileAds"
-  spec.version      = "2.0.3"
+  spec.version      = "2.0.4"
   spec.summary      = "Google Mobile Ads + entitlements-first StoreKit 2 IAP for iOS; native small/medium templates with shared NativeAdConfiguration theming"
 
   # This description is used to generate tags and improve search results.
@@ -26,6 +26,8 @@ Pod::Spec.new do |spec|
   #   * Finally, don't worry about the indent, CocoaPods strips it!
   spec.description  = <<-DESC
   MobileAds is a Swift framework that supports all base display ad types from Google Mobile Ads SDK and In-App Purchase management, making it convenient to configure and use.
+
+  **2.0.4 drops the IronSource and Unity mediation adapters.** The bundled set is now AppLovin, Mintegral, Pangle, Vungle/Liftoff and Facebook/Meta. Apps that still monetize through IronSource or Unity must add `GoogleMobileAdsMediationIronSource` / `GoogleMobileAdsMediationUnity` to their own Podfile.
 
   **2.0.1 removes the Adjust SDK integration.** `ADJustManager` is now `AdRevenueManager`, `ADJAdType` is now `AdType`, and `AppADJustConfig` is gone — source-breaking for apps that called them. Ad revenue still fans out to Firebase Analytics, TikTok Business SDK and Facebook SDK.
 
@@ -170,15 +172,13 @@ Pod::Spec.new do |spec|
   spec.dependency "SnapKit", '~> 5.7.1'
   spec.dependency "SkeletonView", '~> 1.30.4'
   spec.dependency 'Toast-Swift', '~> 5.1.1'
-  spec.dependency 'TikTokBusinessSDK', '~> 1.3.8'
+  spec.dependency 'TikTokBusinessSDK', '~> 1.7.1'
   spec.dependency 'FBSDKCoreKit', '~> 18.1.0'
   spec.dependency 'GoogleMobileAdsMediationAppLovin', '~> 13.6.3.0'
-  spec.dependency 'GoogleMobileAdsMediationIronSource', '~> 9.5.0.0.0'
   spec.dependency 'GoogleMobileAdsMediationVungle', '~> 7.7.6.0'
   spec.dependency 'GoogleMobileAdsMediationFacebook', '~> 6.22.0.0'
   spec.dependency 'GoogleMobileAdsMediationMintegral', '~> 8.1.6.0'
-  spec.dependency 'GoogleMobileAdsMediationPangle', '~> 8.2.0.9.0'
-  spec.dependency 'GoogleMobileAdsMediationUnity', '~> 4.19.0.1'
+  spec.dependency 'GoogleMobileAdsMediationPangle', '~> 8.2.1.0.0'
 
 
 end

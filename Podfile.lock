@@ -123,18 +123,12 @@ PODS:
   - GoogleMobileAdsMediationFacebook (6.22.0.0):
     - FBAudienceNetwork (= 6.22.0)
     - Google-Mobile-Ads-SDK (~> 13.3)
-  - GoogleMobileAdsMediationIronSource (9.5.0.0.0):
-    - Google-Mobile-Ads-SDK (~> 13.3)
-    - IronSourceSDK (= 9.5.0.0)
   - GoogleMobileAdsMediationMintegral (8.1.6.0):
     - Google-Mobile-Ads-SDK (~> 13.3)
     - MintegralAdSDK/All (= 8.1.6)
   - GoogleMobileAdsMediationPangle (8.2.1.0.0):
     - Ads-Global (= 8.2.1.0)
     - Google-Mobile-Ads-SDK (~> 13.6)
-  - GoogleMobileAdsMediationUnity (4.19.0.1):
-    - Google-Mobile-Ads-SDK (~> 13.3)
-    - UnityAds (= 4.19.0)
   - GoogleMobileAdsMediationVungle (7.7.6.0):
     - Google-Mobile-Ads-SDK (~> 13.3)
     - VungleAds (= 7.7.6)
@@ -166,13 +160,6 @@ PODS:
   - GoogleUtilities/UserDefaults (8.1.2):
     - GoogleUtilities/Logger
     - GoogleUtilities/Privacy
-  - IronSourceAdQualitySDK (9.9.0)
-  - IronSourceSDK (9.5.0.0):
-    - IronSourceSDK/AdQuality (= 9.5.0.0)
-    - IronSourceSDK/Ads (= 9.5.0.0)
-  - IronSourceSDK/AdQuality (9.5.0.0):
-    - IronSourceAdQualitySDK (~> 9)
-  - IronSourceSDK/Ads (9.5.0.0)
   - MintegralAdSDK/All (8.1.6):
     - MintegralAdSDK/BannerAd
     - MintegralAdSDK/BidNativeAd
@@ -210,10 +197,6 @@ PODS:
   - SnapKit (5.7.1)
   - TikTokBusinessSDK (1.7.1)
   - Toast-Swift (5.1.1)
-  - UnityAds (4.19.0):
-    - IronSourceAdQualitySDK (< 10.0.0)
-    - UnityCoherenceLib (= 0.1.0)
-  - UnityCoherenceLib (0.1.0)
   - VungleAds (7.7.6)
 
 DEPENDENCIES:
@@ -225,10 +208,8 @@ DEPENDENCIES:
   - Google-Mobile-Ads-SDK
   - GoogleMobileAdsMediationAppLovin
   - GoogleMobileAdsMediationFacebook
-  - GoogleMobileAdsMediationIronSource
   - GoogleMobileAdsMediationMintegral
   - GoogleMobileAdsMediationPangle
-  - GoogleMobileAdsMediationUnity
   - GoogleMobileAdsMediationVungle
   - SkeletonView
   - SnapKit
@@ -261,15 +242,11 @@ SPEC REPOS:
     - GoogleDataTransport
     - GoogleMobileAdsMediationAppLovin
     - GoogleMobileAdsMediationFacebook
-    - GoogleMobileAdsMediationIronSource
     - GoogleMobileAdsMediationMintegral
     - GoogleMobileAdsMediationPangle
-    - GoogleMobileAdsMediationUnity
     - GoogleMobileAdsMediationVungle
     - GoogleUserMessagingPlatform
     - GoogleUtilities
-    - IronSourceAdQualitySDK
-    - IronSourceSDK
     - MintegralAdSDK
     - nanopb
     - PromisesObjC
@@ -278,8 +255,6 @@ SPEC REPOS:
     - SnapKit
     - TikTokBusinessSDK
     - Toast-Swift
-    - UnityAds
-    - UnityCoherenceLib
     - VungleAds
 
 SPEC CHECKSUMS:
@@ -307,15 +282,11 @@ SPEC CHECKSUMS:
   GoogleDataTransport: a24e58982ab3ba2f64d79613e027fe7f57e88539
   GoogleMobileAdsMediationAppLovin: 8929ef5280829acc3e1e4c41f9c6cfd3f99ee7cd
   GoogleMobileAdsMediationFacebook: 213c2a7cabd34f2e4115c3e7fa4780256043db42
-  GoogleMobileAdsMediationIronSource: f60a4fe22f727000996b773599397eccf16412cf
   GoogleMobileAdsMediationMintegral: d48168f90805dd508beea9230e39d0e24660a3d5
   GoogleMobileAdsMediationPangle: bfe8660a4c965503110050c73f01f44f1b0a4063
-  GoogleMobileAdsMediationUnity: 57fe41817b7d8b65385412d140ad51a5baf24468
   GoogleMobileAdsMediationVungle: 98d93abc120a7ef76b6f67840b7e1a854c8bc1f5
   GoogleUserMessagingPlatform: befe603da6501006420c206222acd449bba45a9c
   GoogleUtilities: 766ace00c6b10d8148408f329d10c4f051931850
-  IronSourceAdQualitySDK: 8797f78661d72fc2bef00e8c1055047132dc7249
-  IronSourceSDK: 49ea480ee16cebcdfb98f7cad08eef1eb17661ed
   MintegralAdSDK: b8fbfe18eacde1eb4f5c0e388c3769503ed5d4fa
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
@@ -324,10 +295,8 @@ SPEC CHECKSUMS:
   SnapKit: d612e99e678a2d3b95bf60b0705ed0a35c03484a
   TikTokBusinessSDK: c725de7374647343eef570a23ca7ce1ec8ab833c
   Toast-Swift: 7a03a532afe3a560d4044bc7c237e2864d295173
-  UnityAds: 40804188247edc15e4e173450a749dbb2fbc61c5
-  UnityCoherenceLib: d9be08c5b9c2880cb220c7ecd643f97ebda422b7
   VungleAds: 3b73c5e680c4c956ade61f3b0791e9b270914548
 
-PODFILE CHECKSUM: ca69941d08d66dd33ad2ea5042b9f91dd0eb1707
+PODFILE CHECKSUM: f5a86ae62b7c9328022b66d38237005a7a0168c0
 
 COCOAPODS: 1.17.0
