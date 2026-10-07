@@ -43,7 +43,6 @@
                                         <constraint firstItem="iNa-bH-h1m" firstAttribute="top" secondItem="mEd-Outer" secondAttribute="top" id="ico-T1"/>
                                         <constraint firstAttribute="trailing" secondItem="iNa-bH-h1m" secondAttribute="trailing" id="ico-R1"/>
                                         <constraint firstAttribute="bottom" secondItem="iNa-bH-h1m" secondAttribute="bottom" id="ico-B1"/>
-                                        <constraint firstAttribute="width" relation="lessThanOrEqual" secondItem="stk-MainH" secondAttribute="width" multiplier="0.25" id="mo-Wmax"/>
                                     </constraints>
                                 </view>
                                 <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fill" alignment="fill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="stk-MidV">
@@ -97,6 +96,7 @@
                     </subviews>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
+                        <constraint firstItem="mEd-Outer" firstAttribute="width" relation="lessThanOrEqual" secondItem="stk-MainH" secondAttribute="width" multiplier="0.25" id="mo-Wmax"/>
                         <constraint firstItem="stk-MainH" firstAttribute="leading" secondItem="ecC-QR-dix" secondAttribute="leading" constant="12" id="sk-L"/>
                         <constraint firstItem="stk-MainH" firstAttribute="top" secondItem="ecC-QR-dix" secondAttribute="top" constant="12" id="sk-T"/>
                         <constraint firstAttribute="trailing" secondItem="stk-MainH" secondAttribute="trailing" constant="12" id="sk-R"/>
