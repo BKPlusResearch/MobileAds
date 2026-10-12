@@ -88,12 +88,13 @@ extension AdMobHelper {
     private static var activeDummyVCs: [String: UIViewController] = [:]
 
     // Track which cache key is associated with currently showing native ad
-    // This allows us to clear cache on impression
-    private static var nativeAdCacheKeyMap: [NativeAd: String] = [:]
+    // This allows us to clear cache on impression. Weak keys: an ad never shown long enough
+    // for an impression must not be kept alive by its tag (`NativeAdWeakMap`).
+    private static let nativeAdCacheKeyMap = NativeAdWeakMap()
 
     // Track which ad unit ID is associated with a native ad (for metrics tracking)
-    // nonisolated(unsafe) because accessed from non-MainActor delegate callbacks (all on main thread)
-    nonisolated(unsafe) static var nativeAdUnitIDMap: [NativeAd: String] = [:]
+    // Read from non-MainActor delegate callbacks (all on main thread); weak keys as above
+    static let nativeAdUnitIDMap = NativeAdWeakMap()
 
     /// Get cached native ad for a specific key
     /// - Parameter cacheKey: The cache key to retrieve
