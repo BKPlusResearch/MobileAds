@@ -1,7 +1,7 @@
 ---
 title: "Remove Legacy IAP"
 description: "Sửa lỗ mất consumable trong base, dọn branch/:path, rồi xóa layer IAP cũ khỏi pod. 5 app CỐ Ý để vỡ — chủ repo tự migrate sau."
-status: in-progress
+status: completed
 priority: P1
 effort: "20h"
 tags: [iap, storekit, breaking-change]

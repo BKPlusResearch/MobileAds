@@ -1,7 +1,7 @@
 ---
 title: "Gộp SwiftUI về một nhánh phát hành"
 description: "Hợp nhất ver/swiftUI và new-MobileAds thành một dòng phát hành duy nhất, một pod phục vụ cả UIKit lẫn SwiftUI, cắt tag 2.0.0."
-status: awaiting-approval
+status: completed
 priority: P1
 effort: "4h"
 tags: [release, swiftui, cocoapods, merge]

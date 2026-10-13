@@ -1,7 +1,7 @@
 ---
 title: "SwiftUI Support Layer for MobileAds"
 description: "Add SwiftUI wrapper layer using UIViewRepresentable and ViewModifier patterns while keeping UIKit core intact"
-status: pending
+status: completed
 priority: P1
 effort: 7h
 branch: new-MobileAds
