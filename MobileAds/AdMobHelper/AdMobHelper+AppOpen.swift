@@ -18,6 +18,24 @@ extension AdMobHelper {
         && wasLoadTimeLessThanNHoursAgo(timeoutInterval: appOpenTimeoutInterval)
     }
 
+    /// Placement-aware readiness for hosts that use distinct splash/resume units.
+    public func isAppOpenAdReady(adUnitID: AdUnitIdentifiable) -> Bool {
+        guard !isAppOpenLoading, !isAppOpenShowing,
+              isAppOpenAdAvailable(), let ad = appOpenAd else { return false }
+        return fullScreenAdUnitIDs[ObjectIdentifier(ad)] == adUnitID.adUnitIDString
+    }
+
+    /// Never detach an on-screen ad or interfere with an in-flight load.
+    @discardableResult
+    public func discardCachedAppOpenAd() -> Bool {
+        guard !isAppOpenLoading, !isAppOpenShowing else { return false }
+        if let ad = appOpenAd { fullScreenAdUnitIDs.removeValue(forKey: ObjectIdentifier(ad)) }
+        appOpenAd = nil
+        appOpenLoadTime = nil
+        hideAppOpenAdLoadingView()
+        return true
+    }
+
     /// Load an app open ad.
     /// - Parameters:
     ///   - adUnitID: The ad unit identifier for app open ads.
@@ -31,10 +49,11 @@ extension AdMobHelper {
             debugPrint("AdMobHelper: Skipping app open ad load — another fullscreen ad is showing.")
             return
         }
-        // Do not load ad if there is an unused ad or one is already loading.
-        if isAppOpenLoading || isAppOpenAdAvailable() {
-            return
-        }
+        // A cached splash unit must not satisfy a request for the resume unit.
+        guard !isAppOpenLoading else { throw AdMobHelperError.adLoadInProgress }
+        guard !isAppOpenShowing else { throw AdMobHelperError.adAlreadyShowing }
+        if isAppOpenAdReady(adUnitID: adUnitID) { return }
+        discardCachedAppOpenAd()
 
         guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
             throw AdMobHelperError.consentNotGranted

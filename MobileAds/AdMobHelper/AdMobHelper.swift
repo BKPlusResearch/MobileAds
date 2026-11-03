@@ -196,9 +196,14 @@ public class AdMobHelper: NSObject {
 
     /// Configure ads by gathering consent and initializing SDK.
     /// This is the recommended entry point when importing the framework.
-    /// Call this method in your AppDelegate or SceneDelegate's didFinishLaunching.
+    /// Call from a live foreground presenter, after the view is attached.
     /// - Parameter viewController: Optional view controller to present consent form from. If nil, will use key window's root view controller.
-    public func configAds(from viewController: UIViewController? = nil, completion: (() -> Void)? = nil) {
+    /// - Parameter isEnabled: Rechecked before UMP, after UMP, and after ATT so
+    ///   a purchase/config change during consent can prevent SDK initialization.
+    public func configAds(from viewController: UIViewController? = nil,
+                          isEnabled: @escaping () -> Bool = { true },
+                          completion: (() -> Void)? = nil) {
+        guard isEnabled() else { completion?(); return }
         GoogleMobileAdsConsentManager.shared.gatherConsent(from: viewController) { [weak self] error in
             if let error {
                 debugPrint("Consent gathering error: \(error.localizedDescription)")
@@ -213,8 +218,9 @@ public class AdMobHelper: NSObject {
                     completion?()
                     return
                 }
+                guard isEnabled() else { completion?(); return }
                 await self.resolveTrackingAuthorization()
-                self.finishConfigAds(completion)
+                if isEnabled() { self.finishConfigAds(completion) } else { completion?() }
             }
         }
     }
@@ -420,6 +426,7 @@ public enum AdMobHelperError: Error {
     case consentNotGranted
     case adNotLoaded
     case adAlreadyShowing
+    case adLoadInProgress
     /// The app is backgrounded, so a full-screen ad must not be presented now.
     case appInBackground
 }
