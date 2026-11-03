@@ -218,7 +218,8 @@ public class AdMobHelper: NSObject {
                     completion?()
                     return
                 }
-                guard isEnabled() else { completion?(); return }
+                guard isEnabled(), GoogleMobileAdsConsentManager.shared.canRequestAds
+                else { completion?(); return }
                 await self.resolveTrackingAuthorization()
                 if isEnabled() { self.finishConfigAds(completion) } else { completion?() }
             }
