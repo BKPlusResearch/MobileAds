@@ -98,6 +98,32 @@ của từng surface nằm ở ba tài liệu bên dưới.
 
 ## Installation
 
+### Swift Package Manager
+
+`Package.swift` builds the same `MobileAds` module from this checkout. Add this
+directory as a local Swift package, or use a committed revision once available
+on your Git server, and link the `MobileAds` product. Native XIB templates and
+assets are included in the package resource bundle.
+
+The SPM product includes Google Mobile Ads 13.8.0, UMP 3.1.0, SnapKit 5.7.1,
+Meta Core 18.1.0, TikTok Business 1.7.1, and the Firebase Analytics/Crashlytics/
+Remote Config products. It shares the host's Firebase SPM graph (12.19.2 or
+compatible 12.x), rather than installing a second Firebase graph through Pods.
+Commit the host application's `Package.resolved` to pin the actual versions.
+SkeletonView and Toast are not imported by this library's current source and
+are not dependencies of the SPM product.
+
+Unlike the CocoaPods distribution, **SPM does not automatically bundle mediation
+adapters**. Add the adapters required by the host's AdMob mediation configuration
+separately and validate their supported SDK versions before release. Attribution
+SDK dependencies are linked but still require host configuration and consent
+handling. Do not initialize a second entitlement owner if the host already owns
+StoreKit purchases.
+
+Follow Google's [iOS setup guide](https://developers.google.com/admob/ios/quick-start)
+for application ID, SKAdNetwork entries, and initialization requirements. Use
+[demo inventory](https://developers.google.com/admob/ios/test-ads) during development.
+
 ### CocoaPods
 [CocoaPods](http://cocoapods.org) is a dependency manager for Cocoa projects. You can install it with the following command:
 

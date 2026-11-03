@@ -40,7 +40,11 @@ public class NativeAdViewSmall: NativeAdView {
     // MARK: - Factory Method
 
     static func loadFromXib() -> NativeAdViewSmall? {
+        #if SWIFT_PACKAGE
+        let bundle = Bundle.module
+        #else
         let bundle = Bundle(for: NativeAdViewSmall.self)
+        #endif
         return UINib(nibName: "NativeAdViewSmall", bundle: bundle)
             .instantiate(withOwner: nil, options: nil)
             .first as? NativeAdViewSmall

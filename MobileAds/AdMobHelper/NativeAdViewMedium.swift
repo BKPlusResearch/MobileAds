@@ -45,7 +45,11 @@ public class NativeAdViewMedium: NativeAdView {
     /// Load NativeAdViewMedium from XIB
     /// This is the recommended way to create an instance
     static func loadFromXib() -> NativeAdViewMedium? {
+        #if SWIFT_PACKAGE
+        let bundle = Bundle.module
+        #else
         let bundle = Bundle(for: NativeAdViewMedium.self)
+        #endif
         return UINib(nibName: "NativeAdViewMedium", bundle: bundle)
             .instantiate(withOwner: nil, options: nil)
             .first as? NativeAdViewMedium
