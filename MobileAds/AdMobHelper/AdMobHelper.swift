@@ -30,6 +30,7 @@ public class AdMobHelper: NSObject {
 
     /// The rewarded video ad.
     public internal(set) var rewardedAd: RewardedAd?
+    var rewardedLoadTime: Date?
 
     /// The rewarded interstitial ad.
     public internal(set) var rewardedInterstitialAd: RewardedInterstitialAd?
@@ -320,7 +321,7 @@ public class AdMobHelper: NSObject {
     /// reference and the flag on the way out.
     public func clearAllAds() {
         interstitialAd = nil
-        rewardedAd = nil
+        discardCachedRewardedAd()
         rewardedInterstitialAd = nil
         if !isAppOpenShowing {
             appOpenAd = nil
@@ -330,8 +331,8 @@ public class AdMobHelper: NSObject {
 
         isInterstitialLoading = false
         isInterstitialShowing = false
-        isRewardedLoading = false
-        isRewardedShowing = false
+        // An in-flight rewarded load owns its flag until its defer runs, and an
+        // on-screen reward must retain identity/callbacks through SDK dismissal.
         isRewardedInterstitialLoading = false
         isRewardedInterstitialShowing = false
         isAppOpenLoading = false

@@ -2,14 +2,28 @@
 import UIKit
 
 extension AdMobHelper {
+    /// Ready inventory must match the requested unit and be less than one hour old.
+    public func isRewardedAdReady(adUnitID: AdUnitIdentifiable) -> Bool {
+        guard !isRewardedShowing, let ad = rewardedAd, let loaded = rewardedLoadTime else { return false }
+        return fullScreenAdUnitIDs[ObjectIdentifier(ad)] == adUnitID.adUnitIDString
+            && Date().timeIntervalSince(loaded) >= 0 && Date().timeIntervalSince(loaded) < 3600
+    }
+
+    public func discardCachedRewardedAd() {
+        guard !isRewardedShowing else { return }
+        if let ad = rewardedAd { fullScreenAdUnitIDs.removeValue(forKey: ObjectIdentifier(ad)) }
+        rewardedAd = nil
+        rewardedLoadTime = nil
+    }
     // MARK: - Rewarded Video Ad
     
     /// Load a rewarded video ad.
     /// - Parameter adUnitID: The ad unit identifier for rewarded video ads.
     public func loadRewardedAd(adUnitID: AdUnitIdentifiable, showLoading: Bool = true) async throws {
-        guard !isRewardedLoading, rewardedAd == nil else {
-            return
-        }
+        guard !isRewardedLoading else { throw AdMobHelperError.adLoadInProgress }
+        guard !isRewardedShowing else { throw AdMobHelperError.adAlreadyShowing }
+        if isRewardedAdReady(adUnitID: adUnitID) { return }
+        discardCachedRewardedAd()
 
         guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
             throw AdMobHelperError.consentNotGranted
@@ -30,6 +44,7 @@ extension AdMobHelper {
         do {
             rewardedAd = try await RewardedAd.load(
                 with: adUnitID.adUnitIDString, request: Request())
+            rewardedLoadTime = Date()
             rewardedAd?.fullScreenContentDelegate = self
             if let ad = rewardedAd {
                 fullScreenAdUnitIDs[ObjectIdentifier(ad)] = adUnitID.adUnitIDString
@@ -64,17 +79,18 @@ extension AdMobHelper {
         from viewController: UIViewController,
         adUnitID: AdUnitIdentifiable,
         statusCallback: ((RewardedAdStatus) -> Void)? = nil,
+        cachedOnly: Bool = false,
+        showLoading: Bool = true,
         completion: @escaping (AdReward) -> Void
     ) async throws {
         guard !isRewardedShowing else {
             throw AdMobHelperError.adAlreadyShowing
         }
+        if cachedOnly && !isRewardedAdReady(adUnitID: adUnitID) { throw AdMobHelperError.adNotLoaded }
+        guard GoogleMobileAdsConsentManager.shared.canRequestAds else { throw AdMobHelperError.consentNotGranted }
 
-        // Store callback for status events
-        rewardedAdStatusCallback = statusCallback
-
-        if rewardedAd == nil {
-            try await loadRewardedAd(adUnitID: adUnitID, showLoading: true)
+        if !isRewardedAdReady(adUnitID: adUnitID) {
+            try await loadRewardedAd(adUnitID: adUnitID, showLoading: showLoading)
         }
 
         guard let rewardedAd = rewardedAd else {
@@ -84,7 +100,9 @@ extension AdMobHelper {
         // Never present while backgrounded — the ad would render half-presented
         // and its loading overlay would get stuck. Hide the overlay and keep the
         // loaded ad so it can present on the next attempt once foregrounded.
-        guard canPresentFullScreenAd else {
+        guard canPresentFullScreenAd,
+              viewController.viewIfLoaded?.window?.windowScene?.activationState == .foregroundActive,
+              viewController.presentedViewController == nil else {
             hideRewardedAdLoadingView()
             rewardedAdStatusCallback = nil
             throw AdMobHelperError.appInBackground
@@ -92,20 +110,21 @@ extension AdMobHelper {
 
         // Loading view should already be showing from loadRewardedAd
         // If not showing, show it now (in case ad was pre-loaded)
-        if rewardedAdLoadingView == nil {
+        if showLoading && rewardedAdLoadingView == nil {
             showRewardedAdLoadingView()
         }
 
         // Skip next app resume ad since rewarded ad is showing
         shouldSkipNextAppResume = true
 
+        rewardedAdStatusCallback = statusCallback
         isRewardedShowing = true
         didEarnRewardForCurrentAd = false  // Reset flag before showing
         rewardedAd.present(from: viewController) { [weak self] in
             let reward = rewardedAd.adReward
             debugPrint("Reward received with currency \(reward.type), amount \(reward.amount.doubleValue)")
             // Mark that reward was earned
-            self?.didEarnRewardForCurrentAd = true
+            if self?.rewardedAd === rewardedAd { self?.didEarnRewardForCurrentAd = true }
             // Notify that reward was earned
             statusCallback?(.didEarnReward)
             completion(reward)
