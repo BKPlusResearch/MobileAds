@@ -27,6 +27,7 @@ public class AdMobHelper: NSObject {
 
     /// The interstitial ad.
     public internal(set) var interstitialAd: InterstitialAd?
+    var interstitialLoadTime: Date?
 
     /// The rewarded video ad.
     public internal(set) var rewardedAd: RewardedAd?
@@ -320,7 +321,7 @@ public class AdMobHelper: NSObject {
     /// any case — the ad has already been shown, and the delegate clears both the
     /// reference and the flag on the way out.
     public func clearAllAds() {
-        interstitialAd = nil
+        discardCachedInterstitialAd()
         discardCachedRewardedAd()
         rewardedInterstitialAd = nil
         if !isAppOpenShowing {
@@ -329,8 +330,7 @@ public class AdMobHelper: NSObject {
         }
         bannerAd = nil
 
-        isInterstitialLoading = false
-        isInterstitialShowing = false
+        // Interstitial loaders and SDK terminal callbacks retain flag ownership.
         // An in-flight rewarded load owns its flag until its defer runs, and an
         // on-screen reward must retain identity/callbacks through SDK dismissal.
         isRewardedInterstitialLoading = false

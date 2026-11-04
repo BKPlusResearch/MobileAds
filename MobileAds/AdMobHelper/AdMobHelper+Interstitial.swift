@@ -2,6 +2,18 @@
 import UIKit
 
 extension AdMobHelper {
+    public func isInterstitialAdReady(adUnitID: AdUnitIdentifiable) -> Bool {
+        guard !isInterstitialShowing, let ad = interstitialAd, let loaded = interstitialLoadTime else { return false }
+        return fullScreenAdUnitIDs[ObjectIdentifier(ad)] == adUnitID.adUnitIDString
+            && Date().timeIntervalSince(loaded) >= 0 && Date().timeIntervalSince(loaded) < 3600
+    }
+
+    public func discardCachedInterstitialAd() {
+        guard !isInterstitialShowing else { return }
+        if let ad = interstitialAd { fullScreenAdUnitIDs.removeValue(forKey: ObjectIdentifier(ad)) }
+        interstitialAd = nil
+        interstitialLoadTime = nil
+    }
     // MARK: - Interstitial Ad
     
     /// Load an interstitial ad.
@@ -12,9 +24,10 @@ extension AdMobHelper {
         adUnitID: AdUnitIdentifiable,
         shouldShowLoadingView: Bool = true
     ) async throws {
-        guard !isInterstitialLoading, interstitialAd == nil else {
-            return
-        }
+        guard !isInterstitialLoading else { throw AdMobHelperError.adLoadInProgress }
+        guard !isInterstitialShowing else { throw AdMobHelperError.adAlreadyShowing }
+        if isInterstitialAdReady(adUnitID: adUnitID) { return }
+        discardCachedInterstitialAd()
 
         guard GoogleMobileAdsConsentManager.shared.canRequestAds else {
             throw AdMobHelperError.consentNotGranted
@@ -36,6 +49,7 @@ extension AdMobHelper {
         do {
             interstitialAd = try await InterstitialAd.load(
                 with: adUnitID.adUnitIDString, request: Request())
+            interstitialLoadTime = Date()
             interstitialAd?.fullScreenContentDelegate = self
             if let ad = interstitialAd {
                 fullScreenAdUnitIDs[ObjectIdentifier(ad)] = adUnitID.adUnitIDString
@@ -65,6 +79,7 @@ extension AdMobHelper {
     ///   - statusCallback: Optional callback to receive ad status events (didPresent, didFailToPresent, didDismiss).
     public func showInterstitialAd(
         from viewController: UIViewController,
+        adUnitID: AdUnitIdentifiable? = nil,
         shouldShowLoadingView: Bool = true,
         statusCallback: ((InterstitialAdStatus) -> Void)? = nil
     ) throws {
@@ -75,11 +90,15 @@ extension AdMobHelper {
         guard let interstitialAd = interstitialAd else {
             throw AdMobHelperError.adNotLoaded
         }
+        if let adUnitID, !isInterstitialAdReady(adUnitID: adUnitID) { throw AdMobHelperError.adNotLoaded }
+        guard GoogleMobileAdsConsentManager.shared.canRequestAds else { throw AdMobHelperError.consentNotGranted }
 
         // Never present while backgrounded — the ad would render half-presented
         // and its loading overlay would get stuck. Hide the overlay and keep the
         // loaded ad so it can present on the next attempt once foregrounded.
-        guard canPresentFullScreenAd else {
+        guard canPresentFullScreenAd,
+              viewController.viewIfLoaded?.window?.windowScene?.activationState == .foregroundActive,
+              viewController.presentedViewController == nil else {
             hideInterstitialAdLoadingView()
             throw AdMobHelperError.appInBackground
         }
