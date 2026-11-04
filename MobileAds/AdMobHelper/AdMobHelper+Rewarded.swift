@@ -90,6 +90,7 @@ extension AdMobHelper {
         guard GoogleMobileAdsConsentManager.shared.canRequestAds else { throw AdMobHelperError.consentNotGranted }
 
         if !isRewardedAdReady(adUnitID: adUnitID) {
+            guard !cachedOnly else { throw AdMobHelperError.adNotLoaded }
             try await loadRewardedAd(adUnitID: adUnitID, showLoading: showLoading)
         }
 
