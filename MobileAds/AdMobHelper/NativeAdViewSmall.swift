@@ -169,8 +169,15 @@ public class NativeAdViewSmall: NativeAdView {
         }
     }
 
-    func updateMediaVisibility(hasMedia: Bool) {
+    func updateMediaVisibility(hasMedia: Bool, hasVideo: Bool = false) {
         guard mediaContainerView != nil else { return }
+        // Video media must remain at least 120 × 120 points; the hosting slot
+        // measures the resulting row instead of clipping it to thumbnail height.
+        let side: CGFloat = hasMedia && hasVideo ? 120 : 56
+        for constraint in mediaContainerView.constraints where constraint.secondItem == nil
+            && (constraint.firstAttribute == .width || constraint.firstAttribute == .height) {
+            constraint.constant = side
+        }
         let iconSet = (iconView as? UIImageView)?.image != nil
         mediaView?.isHidden = !hasMedia
         if let iv = iconView as? UIImageView {

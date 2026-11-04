@@ -106,6 +106,32 @@ public class NativeAdService {
     
     /// Current ad loader to prevent deallocation
     private var currentAdLoader: AdLoader?
+    private var currentRequestID: UUID?
+    private weak var currentContainer: UIView?
+
+    /// Invalidate this service's request and view only. An SDK response already
+    /// queued for an older request cannot populate the container after cancellation.
+    public func cancel() {
+        currentRequestID = nil
+        releaseLoader()
+        if let container = currentContainer {
+            container.subviews.forEach { view in
+                (view as? NativeAdSmallLoadingView)?.stopAnimation()
+                (view as? NativeAdMediumLoadingView)?.stopAnimation()
+                (view as? NativeAdView)?.nativeAd = nil
+                view.removeFromSuperview()
+            }
+        }
+        currentContainer = nil
+    }
+
+    private func releaseLoader() {
+        currentAdLoader?.delegate = nil
+        currentDelegateHelper?.onAdLoaded = nil
+        currentDelegateHelper?.onAdFailed = nil
+        currentDelegateHelper = nil
+        currentAdLoader = nil
+    }
     
     // MARK: - Initialization
     
@@ -151,6 +177,8 @@ public class NativeAdService {
         rootViewController: UIViewController,
         viewType: NativeAdViewType,
         configuration: NativeAdConfiguration? = nil,
+        isEnabled: @escaping () -> Bool = { true },
+        showLoading: Bool = true,
         statusCallback: ((Bool) -> Void)? = nil
     ) {
         // Always loads from network (no caching)
@@ -160,6 +188,8 @@ public class NativeAdService {
             rootViewController: rootViewController,
             viewType: viewType,
             configuration: configuration,
+            isEnabled: isEnabled,
+            showLoading: showLoading,
             statusCallback: statusCallback
         )
     }
@@ -212,27 +242,34 @@ public class NativeAdService {
         viewType: NativeAdViewType,
         configuration: NativeAdConfiguration? = nil,
         cacheKey: String? = nil,
+        isEnabled: @escaping () -> Bool = { true },
+        showLoading: Bool = true,
         statusCallback: ((Bool) -> Void)? = nil
     ) {
+        cancel()
+        guard isEnabled(), GoogleMobileAdsConsentManager.shared.canRequestAds else {
+            statusCallback?(false)
+            return
+        }
+        let requestID = UUID()
+        currentRequestID = requestID
+        currentContainer = containerView
         // Clear existing subviews
         containerView.subviews.forEach { $0.removeFromSuperview() }
 
-        // Show loading view based on view type
-        let loadingView: UIView
-        switch viewType {
-        case .small:
-            let smallLoading = NativeAdSmallLoadingView()
-            loadingView = smallLoading
-        case .medium:
-            let mediumLoading = NativeAdMediumLoadingView()
-            // Apply configuration to loading view
-            mediumLoading.applyConfiguration(configuration ?? NativeAdConfiguration.shared)
-            loadingView = mediumLoading
-        }
-
-        containerView.addSubview(loadingView)
-        loadingView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+        if showLoading {
+            let loadingView: UIView
+            switch viewType {
+            case .small: loadingView = NativeAdSmallLoadingView()
+            case .medium:
+                let mediumLoading = NativeAdMediumLoadingView()
+                mediumLoading.applyConfiguration(configuration ?? NativeAdConfiguration.shared)
+                loadingView = mediumLoading
+            }
+            containerView.addSubview(loadingView)
+            loadingView.snp.makeConstraints { make in
+                make.edges.equalToSuperview()
+            }
         }
         
         // Clear previous delegate helper and ad loader
@@ -247,6 +284,13 @@ public class NativeAdService {
         
         // Setup success callback
         delegateHelper.onAdLoaded = { [weak containerView] nativeAd in
+            guard self.currentRequestID == requestID else { return }
+            defer { if self.currentRequestID == requestID { self.releaseLoader() } }
+            guard isEnabled(), GoogleMobileAdsConsentManager.shared.canRequestAds else {
+                self.cancel()
+                statusCallback?(false)
+                return
+            }
             guard let containerView = containerView else {
                 statusCallback?(false)
                 return
@@ -298,6 +342,8 @@ public class NativeAdService {
         
         // Setup failure callback
         delegateHelper.onAdFailed = { [weak containerView] error in
+            guard self.currentRequestID == requestID else { return }
+            defer { if self.currentRequestID == requestID { self.releaseLoader() } }
             debugPrint("NativeAdService: Native ad failed to load with error: \(error.localizedDescription)")
             
             // Remove loading view on failure
@@ -374,10 +420,11 @@ public class NativeAdService {
     ///   - nativeAd: The native ad data
     ///   - configuration: Optional configuration for customizing appearance (uses shared singleton if nil)
     private func setupNativeAdView(_ nativeAdView: NativeAdView, with nativeAd: NativeAd, configuration: NativeAdConfiguration? = nil) {
+        nativeAdView.mediaView?.mediaContent = nativeAd.mediaContent
+        nativeAdView.callToActionView?.isUserInteractionEnabled = false
         // Set native ad to view
         // In newer versions of Google Mobile Ads SDK, setting nativeAd property
         // automatically handles registration. The outlets connected in xib will be used.
-        nativeAdView.nativeAd = nativeAd
         
         // Set delegate to track native ad clicks
         nativeAd.delegate = AdMobHelper.shared
@@ -454,8 +501,10 @@ public class NativeAdService {
         if let small = nativeAdView as? NativeAdViewSmall {
             let hasMedia = nativeAd.mediaContent != nil &&
                 (nativeAd.mediaContent.hasVideoContent || nativeAd.mediaContent.mainImage != nil)
-            small.updateMediaVisibility(hasMedia: hasMedia)
+            small.updateMediaVisibility(hasMedia: hasMedia, hasVideo: nativeAd.mediaContent.hasVideoContent)
         }
+        // Register after all asset views have been populated.
+        nativeAdView.nativeAd = nativeAd
     }
     
     /// Apply configuration manually for views that don't have custom applyConfiguration method

@@ -27,8 +27,8 @@ extension AdMobHelper: NativeAdDelegate {
             // Use ad unit ID for metrics (matches request/loaded tracking key)
             if let adUnitID = AdMobHelper.nativeAdUnitIDMap[nativeAd] {
                 AdMetricsTracker.shared.trackImpression(adUnit: adUnitID)
-                // Clean up mapping
-                AdMobHelper.nativeAdUnitIDMap.removeValue(forKey: nativeAd)
+                // Weak keys already release this mapping with the ad. Keep the
+                // unit available for clicks that occur after its impression.
             }
             if let cacheKey = getNativeAdCacheKey(for: nativeAd) {
                 clearCachedNativeAd(for: cacheKey)
