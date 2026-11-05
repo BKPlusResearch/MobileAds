@@ -98,6 +98,13 @@ public class NativeAdConfiguration {
 /// Service to manage native ads loading and display
 @MainActor
 public class NativeAdService {
+    /// Actual SDK load callbacks, separate from the view's Boolean delivery status.
+    /// Loaded is not an impression; errors expose only a numeric SDK code.
+    public enum LoadEvent {
+        case loaded(adUnitID: String)
+        case failed(code: Int)
+    }
+
     
     // MARK: - Properties
     
@@ -179,6 +186,7 @@ public class NativeAdService {
         configuration: NativeAdConfiguration? = nil,
         isEnabled: @escaping () -> Bool = { true },
         showLoading: Bool = true,
+        loadEvent: ((LoadEvent) -> Void)? = nil,
         statusCallback: ((Bool) -> Void)? = nil
     ) {
         // Always loads from network (no caching)
@@ -190,6 +198,7 @@ public class NativeAdService {
             configuration: configuration,
             isEnabled: isEnabled,
             showLoading: showLoading,
+            loadEvent: loadEvent,
             statusCallback: statusCallback
         )
     }
@@ -244,6 +253,7 @@ public class NativeAdService {
         cacheKey: String? = nil,
         isEnabled: @escaping () -> Bool = { true },
         showLoading: Bool = true,
+        loadEvent: ((LoadEvent) -> Void)? = nil,
         statusCallback: ((Bool) -> Void)? = nil
     ) {
         cancel()
@@ -286,6 +296,8 @@ public class NativeAdService {
         delegateHelper.onAdLoaded = { [weak containerView] nativeAd in
             guard self.currentRequestID == requestID else { return }
             defer { if self.currentRequestID == requestID { self.releaseLoader() } }
+            if let unit = AdMobHelper.nativeAdUnitIDMap[nativeAd] { loadEvent?(.loaded(adUnitID: unit)) }
+            guard self.currentRequestID == requestID else { return }
             guard isEnabled(), GoogleMobileAdsConsentManager.shared.canRequestAds else {
                 self.cancel()
                 statusCallback?(false)
@@ -344,6 +356,8 @@ public class NativeAdService {
         delegateHelper.onAdFailed = { [weak containerView] error in
             guard self.currentRequestID == requestID else { return }
             defer { if self.currentRequestID == requestID { self.releaseLoader() } }
+            loadEvent?(.failed(code: (error as NSError).code))
+            guard self.currentRequestID == requestID else { return }
             debugPrint("NativeAdService: Native ad failed to load with error: \(error.localizedDescription)")
             
             // Remove loading view on failure
