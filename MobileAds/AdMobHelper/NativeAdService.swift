@@ -115,11 +115,14 @@ public class NativeAdService {
     private var currentAdLoader: AdLoader?
     private var currentRequestID: UUID?
     private weak var currentContainer: UIView?
+    private weak var clickAd: NativeAd?
 
     /// Invalidate this service's request and view only. An SDK response already
     /// queued for an older request cannot populate the container after cancellation.
     public func cancel() {
         currentRequestID = nil
+        if let clickAd { NativeAdClickRegistry.shared.remove(clickAd) }
+        clickAd = nil
         releaseLoader()
         if let container = currentContainer {
             container.subviews.forEach { view in
@@ -187,6 +190,7 @@ public class NativeAdService {
         isEnabled: @escaping () -> Bool = { true },
         showLoading: Bool = true,
         loadEvent: ((LoadEvent) -> Void)? = nil,
+        click: ((String?) -> Void)? = nil,
         statusCallback: ((Bool) -> Void)? = nil
     ) {
         // Always loads from network (no caching)
@@ -199,6 +203,7 @@ public class NativeAdService {
             isEnabled: isEnabled,
             showLoading: showLoading,
             loadEvent: loadEvent,
+            click: click,
             statusCallback: statusCallback
         )
     }
@@ -254,6 +259,7 @@ public class NativeAdService {
         isEnabled: @escaping () -> Bool = { true },
         showLoading: Bool = true,
         loadEvent: ((LoadEvent) -> Void)? = nil,
+        click: ((String?) -> Void)? = nil,
         statusCallback: ((Bool) -> Void)? = nil
     ) {
         cancel()
@@ -326,6 +332,15 @@ public class NativeAdService {
                 return
             }
             
+            // Attribute clicks to this exact SDK ad without replacing its delegate.
+            if let click {
+                self.clickAd = nativeAd
+                let unit = AdMobHelper.nativeAdUnitIDMap[nativeAd]
+                NativeAdClickRegistry.shared.register(nativeAd) { [weak self] in
+                    guard self?.currentRequestID == requestID else { return }
+                    click(unit)
+                }
+            }
             // Setup native ad data
             self.setupNativeAdView(loadedView, with: nativeAd, configuration: configuration)
             

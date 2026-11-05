@@ -15,6 +15,7 @@ extension AdMobHelper: NativeAdDelegate {
                 AdMetricsTracker.shared.trackClick(adUnit: adUnitID)
             }
             markAdClick()
+            NativeAdClickRegistry.shared.emit(nativeAd)
         }
     }
 
