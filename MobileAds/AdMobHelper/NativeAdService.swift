@@ -336,8 +336,8 @@ public class NativeAdService {
             if let click {
                 self.clickAd = nativeAd
                 let unit = AdMobHelper.nativeAdUnitIDMap[nativeAd]
-                NativeAdClickRegistry.shared.register(nativeAd) { [weak self] in
-                    guard self?.currentRequestID == requestID else { return }
+                NativeAdClickRegistry.shared.register(nativeAd) { [weak owner = self] in
+                    guard owner?.currentRequestID == requestID else { return }
                     click(unit)
                 }
             }
