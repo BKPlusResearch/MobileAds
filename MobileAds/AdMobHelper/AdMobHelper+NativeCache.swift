@@ -459,6 +459,7 @@ extension AdMobHelper {
 
         // Store cache key association for impression tracking
         associateNativeAdCacheKey(cacheKey, with: nativeAd)
+        NativeAdImpressionRouter.shared.bind(nativeAd, to: containerView)
         debugPrint("📦 [NATIVE_CACHE] Native ad displayed, waiting for impression to clear cache")
 
         // Track Show metric (ad served from cache and displayed)

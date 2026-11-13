@@ -9,24 +9,32 @@ import SwiftUI
 /// BannerAdSwiftUI(
 ///     adUnitID: AppAdUnit.banner,
 ///     isCollapsible: true,
-///     collapsiblePlacement: .bottom
+///     collapsiblePlacement: .bottom,
+///     onEvent: { event in
+///         if event == .didRecordImpression { /* log banner impression */ }
+///     }
 /// )
 /// .frame(height: 60)
 /// ```
+///
+/// `onEvent` is optional and reports this banner's events only (see `BannerAdEvent`).
 @available(iOS 15.0, *)
 public struct BannerAdSwiftUI: UIViewRepresentable {
     let adUnitID: AdUnitIdentifiable
     var isCollapsible: Bool = false
     var collapsiblePlacement: BannerCollapsiblePlacement = .bottom
+    var onEvent: ((BannerAdEvent) -> Void)?
 
     public init(
         adUnitID: AdUnitIdentifiable,
         isCollapsible: Bool = false,
-        collapsiblePlacement: BannerCollapsiblePlacement = .bottom
+        collapsiblePlacement: BannerCollapsiblePlacement = .bottom,
+        onEvent: ((BannerAdEvent) -> Void)? = nil
     ) {
         self.adUnitID = adUnitID
         self.isCollapsible = isCollapsible
         self.collapsiblePlacement = collapsiblePlacement
+        self.onEvent = onEvent
     }
 
     public func makeCoordinator() -> Coordinator {
@@ -35,6 +43,7 @@ public struct BannerAdSwiftUI: UIViewRepresentable {
 
     public func makeUIView(context: Context) -> BannerAdView {
         let view = BannerAdView()
+        view.onEvent = onEvent
         // Store config in coordinator
         context.coordinator.adUnitID = adUnitID
         context.coordinator.isCollapsible = isCollapsible
@@ -57,6 +66,8 @@ public struct BannerAdSwiftUI: UIViewRepresentable {
     }
 
     public func updateUIView(_ uiView: BannerAdView, context: Context) {
+        // Always take the latest handler: it may capture state that changed since creation.
+        uiView.onEvent = onEvent
         // Only reload if adUnitID actually changed
         let currentID = adUnitID.adUnitIDString
         if context.coordinator.loadedAdUnitID != currentID {

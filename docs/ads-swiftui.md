@@ -77,10 +77,36 @@ UIKit rồi gọi `configAds` từ đó như ở [đường UIKit](../README.md#
 BannerAdSwiftUI(
     adUnitID: AppAdUnitID.banner,
     isCollapsible: false,                 // true -> banner thu gọn
-    collapsiblePlacement: .bottom
+    collapsiblePlacement: .bottom,
+    onEvent: { event in                   // tuỳ chọn, chỉ sự kiện của banner này
+        switch event {
+        case .didRecordImpression: log("banner_impression")
+        case .didRecordClick: log("banner_click")
+        case .didShowCollapsibleExpanded: log("banner_expand")
+        case .didFailToLoad(let error): log("banner_load_fail", error.code)
+        default: break
+        }
+    }
 )
 .frame(height: 50)
 ```
+
+`onEvent` (`BannerAdEvent`, main thread) cũng có trên UIKit: `BannerAdView.onEvent`, gán
+trước `loadAd`. Mỗi case lấy từ một callback thật của Google Mobile Ads:
+
+| `BannerAdEvent` | Nguồn SDK |
+|---|---|
+| `.didLoad` | `bannerViewDidReceiveAd`, hoặc banner lấy từ cache 1 giờ |
+| `.didFailToLoad(NSError)` | `bannerView(_:didFailToReceiveAdWithError:)` |
+| `.didRecordImpression` / `.didRecordClick` | `bannerViewDidRecordImpression` / `bannerViewDidRecordClick` |
+| `.didShowCollapsibleExpanded` | request có `collapsible` và ad trả về `isCollapsible == true` |
+| `.willPresentScreen` / `.willDismissScreen` / `.didDismissScreen` | callback cùng tên |
+
+Collapsible: SDK **không** có callback mở rộng hay thu gọn. Nó chỉ có `isCollapsible` và
+tài liệu Google ghi rằng ad collapsible hiện overlay mở rộng ngay khi nằm trong view
+hierarchy — `.didShowCollapsibleExpanded` dựa đúng vào đó. Không có tín hiệu nào cho "user
+bấm thu gọn"; ba callback `*Screen` là cho nội dung full-screen do ad mở, không phải nút
+thu gọn.
 
 ## 3. Native
 
@@ -89,10 +115,17 @@ NativeAdSwiftUI(
     adUnitID: AppAdUnitID.nativeFeed,
     viewType: .medium,                    // .small | .medium
     configuration: nil,                   // nil -> NativeAdConfiguration.shared
-    enableCache: true
+    enableCache: true,
+    onLoaded: { ok in },                  // tuỳ chọn: load xong (true) / lỗi (false)
+    onImpression: { log("native_impression", placement) }   // tuỳ chọn
 )
 .frame(height: 300)
 ```
+
+`onImpression` chỉ chạy khi ad do **chính view này** hiển thị ghi nhận impression
+(`nativeAdDidRecordImpression`), nên host gắn được impression vào placement — kể cả khi
+nhiều placement dùng chung một ad unit. `AdMobHelper.shared.nativeAdStatusCallback` vẫn
+chạy cho mọi native ad như trước.
 
 Cache dùng chung cơ chế với đường UIKit: single-use, xoá khi ad ghi nhận
 impression, hết hạn sau 1 giờ. Xem

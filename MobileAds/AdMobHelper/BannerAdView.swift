@@ -32,6 +32,11 @@ public class BannerAdView: UIView {
     private var adDelegate: BannerAdViewDelegate?
     private let loadingView = BannerAdLoadingView()
 
+    /// Receives this view's ad events (impression, click, load result, collapsible expanded,
+    /// full-screen present/dismiss) on the main thread. Optional; set it before `loadAd` to see
+    /// the load result. See `BannerAdEvent` for what each case is built from.
+    public var onEvent: ((BannerAdEvent) -> Void)?
+
     // MARK: - Init
 
     public override init(frame: CGRect) {
@@ -88,6 +93,7 @@ public class BannerAdView: UIView {
             debugPrint("✅ [BannerAdView] Cache hit for '\(cacheKey)'")
             displayCached(entry.bannerView, cacheKey: cacheKey)
             AdMetricsTracker.shared.trackShow(adUnit: cacheKey)
+            onEvent?(.didLoad)
             return
         }
 
@@ -117,7 +123,8 @@ public class BannerAdView: UIView {
         banner.adUnitID = cacheKey
         banner.rootViewController = rootViewController
 
-        let delegate = BannerAdViewDelegate(container: self, cacheKey: cacheKey)
+        let delegate = BannerAdViewDelegate(container: self, cacheKey: cacheKey,
+                                            requestedCollapsible: isCollapsible)
         banner.delegate = delegate
         adDelegate = delegate
 
@@ -166,7 +173,8 @@ public class BannerAdView: UIView {
         bannerView = nil
 
         // Setup delegate để vẫn track impression → clear cache
-        let delegate = BannerAdViewDelegate(container: self, cacheKey: cacheKey)
+        let delegate = BannerAdViewDelegate(container: self, cacheKey: cacheKey,
+                                            requestedCollapsible: false)
         cached.delegate = delegate
         adDelegate = delegate
         bannerView = cached
@@ -191,10 +199,13 @@ public class BannerAdView: UIView {
 private class BannerAdViewDelegate: NSObject, BannerViewDelegate {
     weak var container: BannerAdView?
     let cacheKey: String
+    /// Only a request sent with the `collapsible` extra can come back expanded.
+    let requestedCollapsible: Bool
 
-    init(container: BannerAdView, cacheKey: String) {
+    init(container: BannerAdView, cacheKey: String, requestedCollapsible: Bool) {
         self.container = container
         self.cacheKey = cacheKey
+        self.requestedCollapsible = requestedCollapsible
     }
 
     func bannerViewDidReceiveAd(_ bannerView: BannerView) {
@@ -208,6 +219,12 @@ private class BannerAdViewDelegate: NSObject, BannerViewDelegate {
         debugPrint("📦 [BannerAdView] Cached banner for '\(cacheKey)' — waiting for impression")
         container?.hideLoading()
         container?.isHidden = false
+        container?.onEvent?(.didLoad)
+        // The SDK shows a collapsible ad's expanded overlay as soon as it is in the hierarchy,
+        // and this banner already is (added before `load`).
+        if requestedCollapsible && bannerView.isCollapsible {
+            container?.onEvent?(.didShowCollapsibleExpanded)
+        }
     }
 
     func bannerView(_ bannerView: BannerView, didFailToReceiveAdWithError error: Error) {
@@ -216,6 +233,7 @@ private class BannerAdViewDelegate: NSObject, BannerViewDelegate {
         BannerAdView.cache.removeValue(forKey: cacheKey)
         container?.hideLoading()
         container?.isHidden = true
+        container?.onEvent?(.didFailToLoad(error as NSError))
     }
 
     func bannerViewDidRecordImpression(_ bannerView: BannerView) {
@@ -223,9 +241,26 @@ private class BannerAdViewDelegate: NSObject, BannerViewDelegate {
         AdMetricsTracker.shared.trackImpression(adUnit: cacheKey)
         BannerAdView.cache.removeValue(forKey: cacheKey)
         debugPrint("🗑️ [BannerAdView] Cache cleared after impression for '\(cacheKey)'")
+        container?.onEvent?(.didRecordImpression)
     }
 
     func bannerViewDidRecordClick(_ bannerView: BannerView) {
         AdMetricsTracker.shared.trackClick(adUnit: cacheKey)
+        container?.onEvent?(.didRecordClick)
+    }
+
+    func bannerViewWillPresentScreen(_ bannerView: BannerView) {
+        debugPrint("🪟 [BannerAdView] willPresentScreen for '\(cacheKey)'")
+        container?.onEvent?(.willPresentScreen)
+    }
+
+    func bannerViewWillDismissScreen(_ bannerView: BannerView) {
+        debugPrint("🪟 [BannerAdView] willDismissScreen for '\(cacheKey)'")
+        container?.onEvent?(.willDismissScreen)
+    }
+
+    func bannerViewDidDismissScreen(_ bannerView: BannerView) {
+        debugPrint("🪟 [BannerAdView] didDismissScreen for '\(cacheKey)'")
+        container?.onEvent?(.didDismissScreen)
     }
 }
