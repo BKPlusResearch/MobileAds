@@ -316,6 +316,9 @@ public final class EntitlementService: ObservableObject {
             // Runs either way. A failed delivery must not also freeze entitlement state —
             // that would turn one undelivered coin pack into a stale `isEntitled`.
             await refresh(force: true)
+            EntitlementTransactionObservers.notify {
+                await $0.entitlementService(didReceiveUpdate: transaction)
+            }
 
         case .unverified(let transaction, let error):
             #if DEBUG
@@ -443,6 +446,9 @@ public final class EntitlementService: ObservableObject {
                 }
                 // Updates entitlement state; not used to judge this purchase.
                 await refresh(force: true)
+                EntitlementTransactionObservers.notify {
+                    await $0.entitlementService(didPurchase: transaction, product: product)
+                }
                 // `.purchased` regardless: the customer was charged and the receipt is
                 // real. An undelivered consumable stays unfinished and comes back through
                 // the listener — that is recovery, not failure of this purchase.
@@ -482,6 +488,9 @@ public final class EntitlementService: ObservableObject {
             // reading `isEntitled` here can report a value from before the sync and tell
             // a user who just restored successfully that there was nothing to restore.
             let active = await verify()
+            if active {
+                EntitlementTransactionObservers.notify { await $0.entitlementServiceDidRestore() }
+            }
             return active ? .restored : .nothingToRestore
         } catch {
             let failure = mapFailure(error)
