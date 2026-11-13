@@ -321,16 +321,18 @@ public final class EntitlementService: ObservableObject {
             #if DEBUG
             print("⚠️ [EntitlementService] Transaction failed verification — \(error)")
             #endif
-            // Finished on purpose. Entitlement comes from `currentEntitlements`, which is
-            // independent of this queue, so an unverified transaction grants nothing by
-            // either route. If verification failed only transiently, the entitlement is
-            // still in `currentEntitlements` and verifies normally later. Finishing it
-            // only stops StoreKit redelivering a transaction that will never be honored.
+            // Never delivered: goods on unverifiable evidence would be a giveaway.
             //
-            // - Note: This reasoning covers subscriptions and non-consumables, where the
-            //   entitlement is re-derivable. A host selling **consumables** should not
-            //   adopt it unqualified: finishing an unverified consumable discards the
-            //   only delivery record, so a charged purchase is never credited.
+            // A consumable is left unfinished. It never enters `currentEntitlements`, so
+            // this queue entry is its only delivery record; finishing it would turn a
+            // charged purchase into one that can never be credited. Unfinished, StoreKit
+            // redelivers it each launch (`drainUnfinished`), and if the failure was
+            // transient it arrives verified and goes through `onUnfinished`. A forged one
+            // just stays pending and grants nothing.
+            guard transaction.productType != .consumable else { return }
+            // Subscriptions and non-consumables re-derive entitlement from
+            // `currentEntitlements`, which is independent of this queue, so finishing
+            // loses nothing and stops StoreKit redelivering a transaction never honored.
             await transaction.finish()
         }
     }
