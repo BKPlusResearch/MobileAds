@@ -10,6 +10,15 @@ import GoogleMobileAds
 /// `NativeAdSwiftUI` uses one so its `onImpression` fires for its own ad only.
 final class NativeAdImpressionHostView: UIView {
     var onImpression: (() -> Void)?
+    /// Called each time the view lands in a window. `UIView.window` is not key-value observable
+    /// (an observation never fires), so this override is how `NativeAdSwiftUI` learns it can load.
+    var onMoveToWindow: ((UIView) -> Void)?
+
+    override func didMoveToWindow() {
+        super.didMoveToWindow()
+        guard window != nil else { return }
+        onMoveToWindow?(self)
+    }
 }
 
 /// Ties each displayed `NativeAd` to the container that shows it, so the shared

@@ -59,12 +59,10 @@ public struct NativeAdSwiftUI: UIViewRepresentable {
         context.coordinator.enableCache = enableCache
         context.coordinator.onLoaded = onLoaded
 
-        // KVO observe window attachment
-        context.coordinator.observation = container.observe(
-            \.window, options: [.new]
-        ) { view, _ in
-            guard view.window != nil else { return }
-            context.coordinator.loadAdIfNeeded(in: view)
+        // Load once the container is in a window: `updateUIView` runs before that on a fresh
+        // mount (e.g. a new `.id`), so without this a new placement would stay empty.
+        container.onMoveToWindow = { [weak coordinator = context.coordinator] view in
+            coordinator?.loadAdIfNeeded(in: view)
         }
 
         return container
@@ -95,7 +93,6 @@ public struct NativeAdSwiftUI: UIViewRepresentable {
         var enableCache: Bool = true
         var onLoaded: ((Bool) -> Void)?
         var loadedKey: String?
-        var observation: NSKeyValueObservation?
 
         func loadAdIfNeeded(in containerView: UIView) {
             guard let adUnitID = adUnitID,
@@ -117,10 +114,6 @@ public struct NativeAdSwiftUI: UIViewRepresentable {
                     statusCallback: onLoaded
                 )
             }
-        }
-
-        deinit {
-            observation?.invalidate()
         }
     }
 }
