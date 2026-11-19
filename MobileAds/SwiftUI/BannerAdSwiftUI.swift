@@ -24,17 +24,21 @@ public struct BannerAdSwiftUI: UIViewRepresentable {
     var isCollapsible: Bool = false
     var collapsiblePlacement: BannerCollapsiblePlacement = .bottom
     var onEvent: ((BannerAdEvent) -> Void)?
+    /// Fixed ad height; `nil` requests a large anchored adaptive banner (see `BannerAdView.loadAd`).
+    var adHeight: CGFloat?
 
     public init(
         adUnitID: AdUnitIdentifiable,
         isCollapsible: Bool = false,
         collapsiblePlacement: BannerCollapsiblePlacement = .bottom,
-        onEvent: ((BannerAdEvent) -> Void)? = nil
+        onEvent: ((BannerAdEvent) -> Void)? = nil,
+        adHeight: CGFloat? = nil
     ) {
         self.adUnitID = adUnitID
         self.isCollapsible = isCollapsible
         self.collapsiblePlacement = collapsiblePlacement
         self.onEvent = onEvent
+        self.adHeight = adHeight
     }
 
     public func makeCoordinator() -> Coordinator {
@@ -48,6 +52,7 @@ public struct BannerAdSwiftUI: UIViewRepresentable {
         context.coordinator.adUnitID = adUnitID
         context.coordinator.isCollapsible = isCollapsible
         context.coordinator.collapsiblePlacement = collapsiblePlacement
+        context.coordinator.adHeight = adHeight
 
         // KVO observe \.window — fires when view enters the window hierarchy
         context.coordinator.observation = view.observe(
@@ -74,6 +79,7 @@ public struct BannerAdSwiftUI: UIViewRepresentable {
             context.coordinator.adUnitID = adUnitID
             context.coordinator.isCollapsible = isCollapsible
             context.coordinator.collapsiblePlacement = collapsiblePlacement
+            context.coordinator.adHeight = adHeight
             context.coordinator.loadedAdUnitID = nil // Reset to allow reload
             context.coordinator.loadAdIfNeeded(in: uiView)
         }
@@ -85,6 +91,7 @@ public struct BannerAdSwiftUI: UIViewRepresentable {
         var adUnitID: AdUnitIdentifiable?
         var isCollapsible: Bool = false
         var collapsiblePlacement: BannerCollapsiblePlacement = .bottom
+        var adHeight: CGFloat?
         var loadedAdUnitID: String?
         var observation: NSKeyValueObservation?
 
@@ -99,7 +106,8 @@ public struct BannerAdSwiftUI: UIViewRepresentable {
                 adUnitID: adUnitID,
                 rootViewController: vc,
                 isCollapsible: isCollapsible,
-                collapsiblePlacement: collapsiblePlacement
+                collapsiblePlacement: collapsiblePlacement,
+                adHeight: adHeight
             )
         }
 

@@ -64,11 +64,14 @@ public class BannerAdView: UIView {
     /// - Serve từ cache nếu banner đã load trong vòng 1 giờ và chưa bắn impression.
     /// - Hiển thị shimmer loading khi cần load từ network.
     /// - isPurchase check phải được xử lý ở app layer trước khi gọi hàm này.
+    /// - `adHeight`: a fixed ad height (full width x `adHeight`, a custom size). `nil` keeps the
+    ///   large anchored adaptive size, whose height varies by device.
     public func loadAd(
         adUnitID: AdUnitIdentifiable,
         rootViewController: UIViewController,
         isCollapsible: Bool = false,
-        collapsiblePlacement: BannerCollapsiblePlacement = .bottom
+        collapsiblePlacement: BannerCollapsiblePlacement = .bottom,
+        adHeight: CGFloat? = nil
     ) {
         let cacheKey = adUnitID.adUnitIDString
 
@@ -117,7 +120,8 @@ public class BannerAdView: UIView {
         bringSubviewToFront(loadingView)
 
         let width = bounds.width > 0 ? bounds.width : UIScreen.main.bounds.width
-        let adSize = largeAnchoredAdaptiveBanner(width: width)
+        let adSize = adHeight.map { adSizeFor(cgSize: CGSize(width: width, height: $0)) }
+            ?? largeAnchoredAdaptiveBanner(width: width)
 
         let banner = BannerView(adSize: adSize)
         banner.adUnitID = cacheKey
