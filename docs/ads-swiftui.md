@@ -87,14 +87,15 @@ BannerAdSwiftUI(
         default: break
         }
     },
-    adHeight: nil                         // tuỳ chọn: chiều cao cố định, nil = adaptive
+    adSize: .small                        // tuỳ chọn: .small 320×50 (mặc định), .large 320×100
 )
-.frame(height: 50)
+.frame(height: BannerAdSize.small.height)
 ```
 
-`adHeight` = `nil` request large anchored adaptive (cao khác nhau theo máy). Đặt một giá trị
-thì banner là size custom full width × `adHeight` — khi đó `.frame(height:)` phải bằng đúng
-giá trị đó.
+`adSize` là size chuẩn của AdMob (`BannerAdSize.small` = `AdSizeBanner` 320×50,
+`.large` = `AdSizeLargeBanner` 320×100). Creative được làm đúng size đó nên không bị kéo giãn
+hay crop; trên máy rộng hơn 320pt ad nằm giữa, hai bên là nền của view. `.frame(height:)` phải
+bằng `adSize.height`.
 
 `onEvent` (`BannerAdEvent`, main thread) cũng có trên UIKit: `BannerAdView.onEvent`, gán
 trước `loadAd`. Mỗi case lấy từ một callback thật của Google Mobile Ads:

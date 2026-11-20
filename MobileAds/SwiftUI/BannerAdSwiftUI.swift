@@ -14,7 +14,7 @@ import SwiftUI
 ///         if event == .didRecordImpression { /* log banner impression */ }
 ///     }
 /// )
-/// .frame(height: 60)
+/// .frame(height: BannerAdSize.small.height)
 /// ```
 ///
 /// `onEvent` is optional and reports this banner's events only (see `BannerAdEvent`).
@@ -24,21 +24,21 @@ public struct BannerAdSwiftUI: UIViewRepresentable {
     var isCollapsible: Bool = false
     var collapsiblePlacement: BannerCollapsiblePlacement = .bottom
     var onEvent: ((BannerAdEvent) -> Void)?
-    /// Fixed ad height; `nil` requests a large anchored adaptive banner (see `BannerAdView.loadAd`).
-    var adHeight: CGFloat?
+    /// Standard size requested (320 x 50 by default); give the view `adSize.height`.
+    var adSize: BannerAdSize = .small
 
     public init(
         adUnitID: AdUnitIdentifiable,
         isCollapsible: Bool = false,
         collapsiblePlacement: BannerCollapsiblePlacement = .bottom,
         onEvent: ((BannerAdEvent) -> Void)? = nil,
-        adHeight: CGFloat? = nil
+        adSize: BannerAdSize = .small
     ) {
         self.adUnitID = adUnitID
         self.isCollapsible = isCollapsible
         self.collapsiblePlacement = collapsiblePlacement
         self.onEvent = onEvent
-        self.adHeight = adHeight
+        self.adSize = adSize
     }
 
     public func makeCoordinator() -> Coordinator {
@@ -52,7 +52,7 @@ public struct BannerAdSwiftUI: UIViewRepresentable {
         context.coordinator.adUnitID = adUnitID
         context.coordinator.isCollapsible = isCollapsible
         context.coordinator.collapsiblePlacement = collapsiblePlacement
-        context.coordinator.adHeight = adHeight
+        context.coordinator.adSize = adSize
 
         // KVO observe \.window — fires when view enters the window hierarchy
         context.coordinator.observation = view.observe(
@@ -79,7 +79,7 @@ public struct BannerAdSwiftUI: UIViewRepresentable {
             context.coordinator.adUnitID = adUnitID
             context.coordinator.isCollapsible = isCollapsible
             context.coordinator.collapsiblePlacement = collapsiblePlacement
-            context.coordinator.adHeight = adHeight
+            context.coordinator.adSize = adSize
             context.coordinator.loadedAdUnitID = nil // Reset to allow reload
             context.coordinator.loadAdIfNeeded(in: uiView)
         }
@@ -91,7 +91,7 @@ public struct BannerAdSwiftUI: UIViewRepresentable {
         var adUnitID: AdUnitIdentifiable?
         var isCollapsible: Bool = false
         var collapsiblePlacement: BannerCollapsiblePlacement = .bottom
-        var adHeight: CGFloat?
+        var adSize: BannerAdSize = .small
         var loadedAdUnitID: String?
         var observation: NSKeyValueObservation?
 
@@ -107,7 +107,7 @@ public struct BannerAdSwiftUI: UIViewRepresentable {
                 rootViewController: vc,
                 isCollapsible: isCollapsible,
                 collapsiblePlacement: collapsiblePlacement,
-                adHeight: adHeight
+                adSize: adSize
             )
         }
 

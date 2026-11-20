@@ -64,14 +64,14 @@ public class BannerAdView: UIView {
     /// - Serve từ cache nếu banner đã load trong vòng 1 giờ và chưa bắn impression.
     /// - Hiển thị shimmer loading khi cần load từ network.
     /// - isPurchase check phải được xử lý ở app layer trước khi gọi hàm này.
-    /// - `adHeight`: a fixed ad height (full width x `adHeight`, a custom size). `nil` keeps the
-    ///   large anchored adaptive size, whose height varies by device.
+    /// - `adSize`: the standard size requested (`BannerAdSize`, 320 x 50 by default). The ad is
+    ///   centered in this view; give the view `adSize.height`.
     public func loadAd(
         adUnitID: AdUnitIdentifiable,
         rootViewController: UIViewController,
         isCollapsible: Bool = false,
         collapsiblePlacement: BannerCollapsiblePlacement = .bottom,
-        adHeight: CGFloat? = nil
+        adSize: BannerAdSize = .small
     ) {
         let cacheKey = adUnitID.adUnitIDString
 
@@ -119,11 +119,7 @@ public class BannerAdView: UIView {
         loadingView.startAnimation()
         bringSubviewToFront(loadingView)
 
-        let width = bounds.width > 0 ? bounds.width : UIScreen.main.bounds.width
-        let adSize = adHeight.map { adSizeFor(cgSize: CGSize(width: width, height: $0)) }
-            ?? largeAnchoredAdaptiveBanner(width: width)
-
-        let banner = BannerView(adSize: adSize)
+        let banner = BannerView(adSize: adSize.adSize)
         banner.adUnitID = cacheKey
         banner.rootViewController = rootViewController
 
@@ -140,9 +136,7 @@ public class BannerAdView: UIView {
         }
 
         addSubview(banner)
-        banner.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+        Self.center(banner, size: adSize.adSize.size)
 
         let request = Request()
         if isCollapsible {
@@ -184,12 +178,19 @@ public class BannerAdView: UIView {
         bannerView = cached
 
         addSubview(cached)
-        cached.snp.remakeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+        Self.center(cached, size: cached.adSize.size)
 
         // Cached banner không cần shimmer
         hideLoading()
+    }
+
+    /// Pins a banner at its own standard size, centered: a standard creative fills exactly that box,
+    /// and the rest of a wider view stays empty instead of stretching the ad.
+    private static func center(_ banner: BannerView, size: CGSize) {
+        banner.snp.remakeConstraints { make in
+            make.center.equalToSuperview()
+            make.size.equalTo(size)
+        }
     }
 
     fileprivate func hideLoading() {

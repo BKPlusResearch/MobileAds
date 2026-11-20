@@ -67,12 +67,13 @@ bannerAdView.loadAd(
 )
 ```
 
-**Chiều cao cố định:** mặc định banner dùng large anchored adaptive, chiều cao đổi theo máy.
-Truyền `adHeight` khi layout cần giữ đúng một chiều cao — banner được request với size
-custom full width × `adHeight`. Constraint chiều cao của view phải bằng đúng giá trị đó.
+**Size:** banner request size chuẩn `BannerAdSize` — `.small` 320×50 (mặc định) hoặc
+`.large` 320×100 — và nằm giữa `BannerAdView`. Constraint chiều cao của view phải bằng
+`adSize.height`.
 
 ```swift
-bannerAdView.loadAd(adUnitID: AppAdUnitID.bannerHome, rootViewController: self, adHeight: 60)
+bannerAdView.loadAd(adUnitID: AppAdUnitID.bannerHome, rootViewController: self, adSize: .large)
+// bannerAdView height = BannerAdSize.large.height (100)
 ```
 
 **Dùng trong UICollectionViewCell (IGListKit / UICollectionView):**

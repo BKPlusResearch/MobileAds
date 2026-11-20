@@ -107,7 +107,7 @@ To integrate MobileAds into your Xcode project using CocoaPods, specify it in yo
 Pin theo tag để build lặp lại được. Một tag phục vụ cả UIKit lẫn SwiftUI:
 
 ```
-pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '2.2.0'
+pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '2.2.1'
 ```
 
 | Tag | Nội dung |
