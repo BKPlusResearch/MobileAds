@@ -223,10 +223,14 @@ public final class EntitlementService: ObservableObject {
             // purchases. Do not "fix" it into something that trusts a backward clock.
             if let expiration = transaction.expirationDate, expiration <= Date() { continue }
 
+            // Several entitlements can be active at once (a subscription still running after
+            // the user bought Lifetime), and StoreKit doesn't order them. Report the strongest,
+            // so `activeProductID` doesn't depend on that order: one that never expires wins,
+            // otherwise the one that lasts longest.
+            if active, !Self.outranks(transaction.expirationDate, expiry) { continue }
             active = true
             product = transaction.productID
             expiry = transaction.expirationDate
-            break
         }
 
         // `@MainActor` does not serialize across `await`. Without this check, a stale
@@ -248,6 +252,14 @@ public final class EntitlementService: ObservableObject {
         publish(active: active, productID: product, expiry: expiry)
         await refreshIntroEligibility(generation: mine)
         return active
+    }
+
+    /// Whether an entitlement expiring at `candidate` beats the current pick expiring at
+    /// `current` (`nil` = never expires, e.g. a lifetime non-consumable).
+    nonisolated static func outranks(_ candidate: Date?, _ current: Date?) -> Bool {
+        guard let current else { return false }      // nothing beats "never expires"
+        guard let candidate else { return true }     // never expires beats any date
+        return candidate > current
     }
 
     /// The only place `verification` is set to `.verified`.

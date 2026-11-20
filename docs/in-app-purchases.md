@@ -99,7 +99,7 @@ if entitlements.verification == .verified && entitlements.isEntitled {
 |---|---|
 | `verification` | `.pending` / `.verified` / `.timedOut` — StoreKit đã trả lời chưa? |
 | `isEntitled` | Đang giữ một product đã configure. Chỉ có nghĩa khi đã `.verified` |
-| `activeProductID` | Product nào đang cấp quyền |
+| `activeProductID` | Product nào đang cấp quyền. Nếu nhiều gói cùng còn hiệu lực (vd. sub chưa hết hạn + Lifetime): gói không hết hạn được ưu tiên, sau đó là gói còn hạn lâu nhất |
 | `expiryDate` | `nil` với lifetime/non-consumable — **`nil` không phải là "đã hết hạn"** |
 | `isIntroOfferEligible` | `false` cho tới khi catalog load xong và eligibility có kết quả. Vẫn phải check `introductoryOffer` của đúng product trước khi in chữ về trial |
 | `products` | `Product` đã load, key theo ID; `displayPrice(for:)` để lấy giá đã localize |
