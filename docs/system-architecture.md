@@ -1,6 +1,6 @@
 # System Architecture
 
-**Last updated:** 2026-08-25
+**Last updated:** 2026-11-20
 
 ## Overview
 
@@ -53,6 +53,7 @@ MobileAds is a **library/framework**, not an app. It exposes a thin, singleton-d
 3. **Consumer-supplied identifiers.** Consumers supply `AdUnitIdentifiable` (ad unit IDs), `RemoteKeyIdentifiable` (remote config keys), and `EntitlementConfig.productIDs` (IAP product IDs) — the framework ships no app-specific IDs.
 4. **No IAP persistence.** `EntitlementService` stores no entitlement at all; it re-derives from `Transaction.currentEntitlements` on every check, so reinstalls, device changes, refunds and Family Sharing are handled by StoreKit. Its only `UserDefaults` key records whether a restore has been proactively suggested.
 5. **Escape-hatch, not singleton, for multi-instance banners.** `BannerAdView` is a self-contained `UIView` subclass that does *not* touch `AdMobHelper.shared`, avoiding singleton conflicts when many banners coexist (e.g., in collection views).
+6. **Optional SDKs plug in through internal observers.** AppsFlyer and Qonversion are opt-in subspecs; `Core` (the default) defines `AdRevenueObserver` and `EntitlementTransactionObserver` and the subspec registers itself when configured. Core therefore never links an attribution SDK, and existing Podfiles install exactly what they did before. Details: `docs/attribution.md`.
 
 ## Core Data Flows
 
@@ -71,6 +72,7 @@ Ad paidEventHandler fires (any format)
      → FirebaseLogger logs ad_impression_ios
      → FacebookManager logs AD_IMPRESSION
      → TikTokManager reports ad revenue
+     → AdRevenueObservers (AppsFlyer subspec, when installed + configured)
   → AdMetricsTracker records (visible via AdMetricsWindow overlay in debug)
 ```
 

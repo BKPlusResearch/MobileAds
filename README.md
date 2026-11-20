@@ -107,12 +107,13 @@ To integrate MobileAds into your Xcode project using CocoaPods, specify it in yo
 Pin theo tag để build lặp lại được. Một tag phục vụ cả UIKit lẫn SwiftUI:
 
 ```
-pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '2.0.1'
+pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag => '2.2.0'
 ```
 
 | Tag | Nội dung |
 |---|---|
-| `2.0.1` | Bản hiện tại trong `MobileAds.podspec` — gỡ Adjust SDK, đổi tên `ADJustManager` → `AdRevenueManager`. **Tag chỉ có sau khi release được cắt.** |
+| `2.1.0` | AppsFlyer và Qonversion thành subspec tuỳ chọn (xem dưới). |
+| `2.0.1` | Gỡ Adjust SDK, đổi tên `ADJustManager` → `AdRevenueManager`. |
 | `2.0.0` | Còn Adjust; `EntitlementService` là layer IAP duy nhất. |
 | `1.4.0` | Bản cuối còn layer `IAPService` cũ. |
 

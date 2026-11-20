@@ -86,10 +86,15 @@ BannerAdSwiftUI(
         case .didFailToLoad(let error): log("banner_load_fail", error.code)
         default: break
         }
-    }
+    },
+    adHeight: nil                         // tuỳ chọn: chiều cao cố định, nil = adaptive
 )
 .frame(height: 50)
 ```
+
+`adHeight` = `nil` request large anchored adaptive (cao khác nhau theo máy). Đặt một giá trị
+thì banner là size custom full width × `adHeight` — khi đó `.frame(height:)` phải bằng đúng
+giá trị đó.
 
 `onEvent` (`BannerAdEvent`, main thread) cũng có trên UIKit: `BannerAdView.onEvent`, gán
 trước `loadAd`. Mỗi case lấy từ một callback thật của Google Mobile Ads:

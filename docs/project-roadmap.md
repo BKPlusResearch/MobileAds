@@ -1,11 +1,12 @@
 # Project Roadmap
 
-**Last updated:** 2026-08-25 · **Branch:** new-MobileAds
+**Last updated:** 2026-11-20 · **Branch:** new-MobileAds
 
 ## Recently Shipped (from git history)
 
 - **Mediation & SDK upgrade** — the adapter set is now 5 networks (AppLovin, Mintegral, Pangle, Vungle/Liftoff, Facebook/Meta). IronSource and Unity were dropped in 2.0.4, and the vendored `PremiumAdsGoogleAdapter` pod in 2.0.3; apps needing any of them add the pod themselves. Exact SDK versions live in `MobileAds.podspec` and `Podfile.lock`; the podspec pins match the lockfile.
-- **Adjust SDK removed (2.0.1 in podspec, not yet tagged — source-breaking)** — the pod no longer depends on Adjust. `ADJustManager` became `AdRevenueManager`, `ADJAdType` became `AdType`, and revenue now fans out to Firebase, TikTok and Facebook only. Apps still using Adjust must add the pod themselves; migration table in `MobileAds/AdRevenue/README.md`.
+- **Optional attribution subspecs (2.1.0)** — AppsFlyer and Qonversion ship as opt-in subspecs; `pod 'MobileAds'` installs `Core` only. Setup in `docs/attribution.md`.
+- **Adjust SDK removed (2.0.1, source-breaking)** — the pod no longer depends on Adjust. `ADJustManager` became `AdRevenueManager`, `ADJAdType` became `AdType`, and revenue now fans out to Firebase, TikTok and Facebook only. Apps still using Adjust must add the pod themselves; migration table in `MobileAds/AdRevenue/README.md`.
 - **Facebook AD_IMPRESSION tracking** — auto ad-revenue events to Meta via `AdRevenueManager.logRevenue()`.
 - **Native ad cache** — single-use preload cache with metrics tracking; fixed dummy VC retention.
 - **Banner revenue** — `paidEventHandler` on banners; `BannerAdView` collapsible support.

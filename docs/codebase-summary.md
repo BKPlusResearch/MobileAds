@@ -1,6 +1,6 @@
 # Codebase Summary
 
-**Last updated:** 2026-08-25 · **Version:** `spec.version` in `MobileAds.podspec` · **Branch:** new-MobileAds
+**Last updated:** 2026-11-20 · **Version:** `spec.version` in `MobileAds.podspec` · **Branch:** new-MobileAds
 
 ## What This Is
 
@@ -20,6 +20,7 @@ Source root: `MobileAds/`
 | `AdMob/` | Ad revenue metrics tracking + in-app debug overlay. | `AdMetrics`, `AdMetricsTracker`, `AdMetricsWindow`, `AdMetricsMonitorView` |
 | `IAP/` | StoreKit 2 entitlements-first IAP. Entitlement is derived from `Transaction.currentEntitlements` on every check and never persisted. | `EntitlementService` (singleton, `@MainActor`, `ObservableObject`), `EntitlementConfig`, `EntitlementPurchaseOutcome` / `EntitlementRestoreOutcome` / `EntitlementPurchaseReceipt` |
 | `AdRevenue/` | Ad-revenue fan-out to Firebase Analytics, TikTok and Facebook. | `AdRevenueManager` (singleton), `AdType` |
+| `AppsFlyer/`, `Qonversion/` | Optional subspecs (not in the default `Core`). Hook into Core through internal observer protocols, so Core never links their SDKs. | `AppsFlyerManager`, `QonversionManager` — see `docs/attribution.md` |
 | `FacebookManager/` | Facebook SDK `AD_IMPRESSION` revenue events. | `FacebookManager` (singleton) |
 | `TikTokManager/` | TikTok Business SDK events + ad-revenue reporting. | `TikTokManager` (singleton), `TikTokAppConfig`, `TikTokEventType` |
 | `FirebaseLogger/` | Typed Firebase Analytics event logging. | `FirebaseLogger` (singleton), `AnalyticsEvent`, `LogParameter` |
@@ -36,7 +37,7 @@ Banner (incl. collapsible + self-managed `BannerAdView`), Interstitial, Rewarded
 
 - **Consent-first init:** `AdMobHelper.configAds(from:)` → `GoogleMobileAdsConsentManager` (UMP) → SDK start only if `canRequestAds`.
 - **App-relative ad unit IDs:** consumer apps define an `AdUnitIdentifiable` enum (test vs production via `#if DEBUG`). The framework never hardcodes production IDs.
-- **Ad revenue → attribution/analytics:** `paidEventHandler` on ads → `AdRevenueManager.logRevenue()` → Firebase `ad_impression_ios`, Facebook `AD_IMPRESSION` and TikTok revenue events, plus `AdMetricsTracker`.
+- **Ad revenue → attribution/analytics:** `paidEventHandler` on ads → `AdRevenueManager.logRevenue()` → Firebase `ad_impression_ios`, Facebook `AD_IMPRESSION` and TikTok revenue events, plus `AdMetricsTracker`. Registered `AdRevenueObserver`s (the AppsFlyer subspec) get the same event.
 - **Mediation:** 5 GoogleMobileAds mediation adapters (AppLovin, Mintegral, Pangle, Vungle/Liftoff, Facebook/Meta). IronSource and Unity were removed in 2.0.4.
 
 ## Companion Docs
@@ -44,6 +45,7 @@ Banner (incl. collapsible + self-managed `BannerAdView`), Interstitial, Rewarded
 - `README.md` — consumer-facing entry point: install + everything UIKit and SwiftUI share.
 - `docs/ads-uikit.md` — UIKit ad call sites.
 - `docs/ads-swiftui.md` — SwiftUI views and modifiers.
+- `docs/attribution.md` — optional AppsFlyer / Qonversion subspecs.
 - `docs/in-app-purchases.md` — `EntitlementService`, consumables, 1.x → 2.0 migration.
 - `NATIVE_AD_CACHE.md` — native ad preload/cache system deep dive.
 - `docs/system-architecture.md` — layer diagram + data flows.
