@@ -17,6 +17,7 @@ Destinations (see the methods each name points at):
 | Firebase Analytics | `FirebaseLogger.logEvent(.adImpression, ...)` |
 | TikTok Business SDK | `TikTokManager.trackAdRevenue` / `trackAdRevenueEvent` |
 | Facebook SDK `AD_IMPRESSION` | `FacebookManager.logAdImpression` |
+| AppsFlyer `af_ad_view` (chỉ khi cài subspec `MobileAds/AppsFlyer` và đã `configure`) | `AppsFlyerManager` qua `AdRevenueObservers` — in-app event kèm `af_revenue`, `af_currency` |
 
 Nothing here is configured. Each destination SDK is initialized by its own manager, so the pod has
 no attribution tokens and no init order to get wrong.

@@ -21,7 +21,8 @@ public enum AdType: String {
 // MARK: - Ad Revenue Manager
 
 /// Fans a single AdMob paid event out to every analytics/attribution surface
-/// the pod integrates: Firebase Analytics, TikTok Business SDK and Facebook SDK.
+/// the pod integrates: Firebase Analytics, TikTok Business SDK and Facebook SDK, plus
+/// AppsFlyer when the `MobileAds/AppsFlyer` subspec is installed and configured.
 /// Each destination SDK is initialized by its own manager, so there is nothing
 /// to configure here.
 public final class AdRevenueManager {
@@ -51,6 +52,9 @@ public final class AdRevenueManager {
 
         // Track to Facebook SDK (AD_IMPRESSION)
         FacebookManager.shared.logAdImpression(adType: adType, revenueUSD: revenueUSD, currency: currency)
+
+        // Optional subspecs (AppsFlyer af_ad_view)
+        AdRevenueObservers.notify(revenue: revenueUSD, currency: currency, adType: adType)
     }
 
     /// Log ad impression with revenue tracking (detailed version for TikTok)
@@ -93,6 +97,9 @@ public final class AdRevenueManager {
 
         // Track to Facebook SDK (AD_IMPRESSION)
         FacebookManager.shared.logAdImpression(adType: adType, revenueUSD: revenueUSD, currency: currency)
+
+        // Optional subspecs (AppsFlyer af_ad_view)
+        AdRevenueObservers.notify(revenue: revenueUSD, currency: currency, adType: adType)
     }
 
     // MARK: - Private Methods

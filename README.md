@@ -21,6 +21,7 @@ của từng surface nằm ở ba tài liệu bên dưới.
 | [docs/ads-uikit.md](docs/ads-uikit.md) | `BannerAdView`, Interstitial, Rewarded, Rewarded Interstitial, native call site UIKit, App Open (app tự nối dây) |
 | [docs/ads-swiftui.md](docs/ads-swiftui.md) | Cầu nối `configAds`, `BannerAdSwiftUI`, `NativeAdSwiftUI`, 3 modifier full-screen, `.appOpenAd` |
 | [docs/in-app-purchases.md](docs/in-app-purchases.md) | `EntitlementService`, consumables, checklist sandbox, nâng cấp 1.x → 2.0 |
+| [docs/attribution.md](docs/attribution.md) | Subspec tuỳ chọn `AppsFlyer` / `Qonversion`: cài qua Podfile, khởi tạo, hành vi `af_purchase` |
 | [NATIVE_AD_CACHE.md](NATIVE_AD_CACHE.md) | Chi tiết cơ chế cache native ad |
 | [MobileAds/AdRevenue/README.md](MobileAds/AdRevenue/README.md) | Ad revenue fan-out (Firebase / TikTok / Facebook), migration 2.0.0 → 2.0.1 |
 
@@ -140,6 +141,9 @@ pod 'MobileAds', :git => "https://github.com/BKPlusResearch/MobileAds.git", :tag
 | `2.0.1` | Bản hiện tại trong `MobileAds.podspec` — gỡ Adjust SDK, đổi tên `ADJustManager` → `AdRevenueManager`. **Tag chỉ có sau khi release được cắt.** |
 | `2.0.0` | Còn Adjust; `EntitlementService` là layer IAP duy nhất. |
 | `1.4.0` | Bản cuối còn layer `IAPService` cũ. |
+
+AppsFlyer và Qonversion (từ `2.1.0`) là subspec tuỳ chọn — `pod 'MobileAds'` không cài chúng.
+Thêm `:subspecs => ['Core', 'AppsFlyer', 'Qonversion']` để cài; xem [docs/attribution.md](docs/attribution.md).
 
 Danh sách tag thực tế: `git ls-remote --tags https://github.com/BKPlusResearch/MobileAds.git`.
 

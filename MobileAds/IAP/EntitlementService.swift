@@ -223,10 +223,14 @@ public final class EntitlementService: ObservableObject {
             // purchases. Do not "fix" it into something that trusts a backward clock.
             if let expiration = transaction.expirationDate, expiration <= Date() { continue }
 
+            // Several entitlements can be active at once (a subscription still running after
+            // the user bought Lifetime), and StoreKit doesn't order them. Report the strongest,
+            // so `activeProductID` doesn't depend on that order: one that never expires wins,
+            // otherwise the one that lasts longest.
+            if active, !Self.outranks(transaction.expirationDate, expiry) { continue }
             active = true
             product = transaction.productID
             expiry = transaction.expirationDate
-            break
         }
 
         // `@MainActor` does not serialize across `await`. Without this check, a stale
@@ -248,6 +252,14 @@ public final class EntitlementService: ObservableObject {
         publish(active: active, productID: product, expiry: expiry)
         await refreshIntroEligibility(generation: mine)
         return active
+    }
+
+    /// Whether an entitlement expiring at `candidate` beats the current pick expiring at
+    /// `current` (`nil` = never expires, e.g. a lifetime non-consumable).
+    nonisolated static func outranks(_ candidate: Date?, _ current: Date?) -> Bool {
+        guard let current else { return false }      // nothing beats "never expires"
+        guard let candidate else { return true }     // never expires beats any date
+        return candidate > current
     }
 
     /// The only place `verification` is set to `.verified`.
@@ -316,21 +328,26 @@ public final class EntitlementService: ObservableObject {
             // Runs either way. A failed delivery must not also freeze entitlement state —
             // that would turn one undelivered coin pack into a stale `isEntitled`.
             await refresh(force: true)
+            EntitlementTransactionObservers.notify {
+                await $0.entitlementService(didReceiveUpdate: transaction)
+            }
 
         case .unverified(let transaction, let error):
             #if DEBUG
             print("⚠️ [EntitlementService] Transaction failed verification — \(error)")
             #endif
-            // Finished on purpose. Entitlement comes from `currentEntitlements`, which is
-            // independent of this queue, so an unverified transaction grants nothing by
-            // either route. If verification failed only transiently, the entitlement is
-            // still in `currentEntitlements` and verifies normally later. Finishing it
-            // only stops StoreKit redelivering a transaction that will never be honored.
+            // Never delivered: goods on unverifiable evidence would be a giveaway.
             //
-            // - Note: This reasoning covers subscriptions and non-consumables, where the
-            //   entitlement is re-derivable. A host selling **consumables** should not
-            //   adopt it unqualified: finishing an unverified consumable discards the
-            //   only delivery record, so a charged purchase is never credited.
+            // A consumable is left unfinished. It never enters `currentEntitlements`, so
+            // this queue entry is its only delivery record; finishing it would turn a
+            // charged purchase into one that can never be credited. Unfinished, StoreKit
+            // redelivers it each launch (`drainUnfinished`), and if the failure was
+            // transient it arrives verified and goes through `onUnfinished`. A forged one
+            // just stays pending and grants nothing.
+            guard transaction.productType != .consumable else { return }
+            // Subscriptions and non-consumables re-derive entitlement from
+            // `currentEntitlements`, which is independent of this queue, so finishing
+            // loses nothing and stops StoreKit redelivering a transaction never honored.
             await transaction.finish()
         }
     }
@@ -441,6 +458,9 @@ public final class EntitlementService: ObservableObject {
                 }
                 // Updates entitlement state; not used to judge this purchase.
                 await refresh(force: true)
+                EntitlementTransactionObservers.notify {
+                    await $0.entitlementService(didPurchase: transaction, product: product)
+                }
                 // `.purchased` regardless: the customer was charged and the receipt is
                 // real. An undelivered consumable stays unfinished and comes back through
                 // the listener — that is recovery, not failure of this purchase.
@@ -480,6 +500,9 @@ public final class EntitlementService: ObservableObject {
             // reading `isEntitled` here can report a value from before the sync and tell
             // a user who just restored successfully that there was nothing to restore.
             let active = await verify()
+            if active {
+                EntitlementTransactionObservers.notify { await $0.entitlementServiceDidRestore() }
+            }
             return active ? .restored : .nothingToRestore
         } catch {
             let failure = mapFailure(error)

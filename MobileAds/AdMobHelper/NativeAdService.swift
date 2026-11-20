@@ -346,7 +346,8 @@ public class NativeAdService {
             
             // Add view to container
             containerView.addSubview(loadedView)
-            
+            NativeAdImpressionRouter.shared.bind(nativeAd, to: containerView)
+
             loadedView.snp.makeConstraints { make in
                 make.edges.equalToSuperview()
             }
@@ -627,6 +628,7 @@ public class NativeAdService {
 
         // Add native ad view to container
         containerView.addSubview(nativeAdView)
+        NativeAdImpressionRouter.shared.bind(nativeAd, to: containerView)
         nativeAdView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }

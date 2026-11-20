@@ -99,7 +99,7 @@ if entitlements.verification == .verified && entitlements.isEntitled {
 |---|---|
 | `verification` | `.pending` / `.verified` / `.timedOut` — StoreKit đã trả lời chưa? |
 | `isEntitled` | Đang giữ một product đã configure. Chỉ có nghĩa khi đã `.verified` |
-| `activeProductID` | Product nào đang cấp quyền |
+| `activeProductID` | Product nào đang cấp quyền. Nếu nhiều gói cùng còn hiệu lực (vd. sub chưa hết hạn + Lifetime): gói không hết hạn được ưu tiên, sau đó là gói còn hạn lâu nhất |
 | `expiryDate` | `nil` với lifetime/non-consumable — **`nil` không phải là "đã hết hạn"** |
 | `isIntroOfferEligible` | `false` cho tới khi catalog load xong và eligibility có kết quả. Vẫn phải check `introductoryOffer` của đúng product trước khi in chữ về trial |
 | `products` | `Product` đã load, key theo ID; `displayPrice(for:)` để lấy giá đã localize |
@@ -183,7 +183,9 @@ Hook cố ý **không** được gọi cho:
 | Transaction đã revoke / refund | Giao hàng cho một đơn đã hoàn tiền là cho không. `refresh()` vẫn chạy nên entitlement vẫn rớt đúng |
 | Transaction verify thất bại | Chấp nhận chúng là giao hàng dựa trên bằng chứng không kiểm chứng được |
 
-**Lỗ hổng đã biết:** vì dòng cuối bảng trên, một consumable đã bị tính tiền nhưng không verify được thì vẫn mất. Bịt đúng chỗ này cần server-side receipt validation, thứ library không làm.
+**Consumable verify thất bại được để nguyên chưa finish**, không bị vứt. Consumable không bao giờ vào `currentEntitlements`, nên transaction chưa finish là bản ghi giao hàng duy nhất của nó. StoreKit giao lại mỗi lần mở app; nếu lỗi verify chỉ thoáng qua, lần sau nó đến dưới dạng verified và đi qua `onUnfinished` như bình thường. Transaction giả thì cứ nằm chờ và không cấp gì. Subscription và non-consumable verify thất bại vẫn được finish, vì entitlement suy lại được từ `currentEntitlements`.
+
+**Giới hạn còn lại:** một consumable bị tính tiền nhưng **không bao giờ** verify được trên máy thì vẫn chưa được credit, chỉ là không bị xoá. Xử lý tiếp trường hợp đó cần server-side receipt validation, thứ library không làm.
 
 Hai hành vi nên biết:
 

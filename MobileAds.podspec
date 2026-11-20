@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "MobileAds"
-  spec.version      = "2.0.6"
+  spec.version      = "2.2.0"
   spec.summary      = "Google Mobile Ads + entitlements-first StoreKit 2 IAP for iOS; native small/medium templates with shared NativeAdConfiguration theming"
 
   # This description is used to generate tags and improve search results.
@@ -109,8 +109,6 @@ Pod::Spec.new do |spec|
   #  Not including the public_header_files will make all headers public.
   #
   # spec.source_files  = "MobileAds", "MobileAds/**/*.{h,swift,xib,modulemap}"
-  spec.source_files  = "MobileAds", "MobileAds/**/*.{h,swift,modulemap}"
-  spec.exclude_files = "MobileAds/Exclude"
   # spec.resources     = "MobileAds/**/*.xcassets"
 
   # spec.subspec  'AllResources' do |subspec|
@@ -121,7 +119,6 @@ Pod::Spec.new do |spec|
   #   }
   # end
   # s.resources  = "ImageDemoLib/**/*.xcassets"
-  spec.resources     = 'MobileAds/**/*.{xcassets,pdf,png,jpeg,jpg,storyboard,xib}'
 # spec.resources     = "MobileAds/**/*.{png,jpeg,jpg,storyboard,xib,xcassets,plist}"
   # spec.public_header_files = "Classes/**/*.h"
 
@@ -163,22 +160,47 @@ Pod::Spec.new do |spec|
   spec.requires_arc = true
 
   # spec.xcconfig = { "HEADER_SEARCH_PATHS" => "$(SDKROOT)/usr/include/libxml2" }
-  spec.dependency 'Firebase', '~> 12.18.0'
-  spec.dependency 'FirebaseCrashlytics', '~> 12.18.0'
-  spec.dependency 'FirebaseAnalytics', '~> 12.18.0'
-  spec.dependency 'Firebase/RemoteConfig', '~> 12.18.0'
-  spec.dependency "Google-Mobile-Ads-SDK", '~> 13.8.0'
-  spec.dependency "GoogleUserMessagingPlatform", '~> 3.1.0'
-  spec.dependency "SnapKit", '~> 5.7.1'
-  spec.dependency "SkeletonView", '~> 1.30.4'
-  spec.dependency 'Toast-Swift', '~> 5.1.1'
-  spec.dependency 'TikTokBusinessSDK', '~> 1.7.1'
-  spec.dependency 'FBSDKCoreKit', '~> 18.1.0'
-  spec.dependency 'GoogleMobileAdsMediationAppLovin', '~> 13.6.3.0'
-  spec.dependency 'GoogleMobileAdsMediationVungle', '~> 7.7.6.0'
-  spec.dependency 'GoogleMobileAdsMediationFacebook', '~> 6.22.0.0'
-  spec.dependency 'GoogleMobileAdsMediationMintegral', '~> 8.1.6.0'
-  spec.dependency 'GoogleMobileAdsMediationPangle', '~> 8.2.1.0.0'
 
 
+  # Subspecs. `pod 'MobileAds'` installs Core only, exactly what it installed before
+  # subspecs existed. Add an attribution SDK by naming its subspec:
+  #   pod 'MobileAds', :git => ..., :tag => ..., :subspecs => ['Core', 'AppsFlyer', 'Qonversion']
+  # Every subspec compiles into the single `MobileAds` module.
+  spec.default_subspecs = 'Core'
+
+  spec.subspec 'Core' do |core|
+    core.source_files  = "MobileAds", "MobileAds/**/*.{h,swift,modulemap}"
+    core.exclude_files = "MobileAds/Exclude", "MobileAds/AppsFlyer/**/*", "MobileAds/Qonversion/**/*"
+    core.resources     = 'MobileAds/**/*.{xcassets,pdf,png,jpeg,jpg,storyboard,xib}'
+    core.dependency 'Firebase', '~> 12.18.0'
+    core.dependency 'FirebaseCrashlytics', '~> 12.18.0'
+    core.dependency 'FirebaseAnalytics', '~> 12.18.0'
+    core.dependency 'Firebase/RemoteConfig', '~> 12.18.0'
+    core.dependency "Google-Mobile-Ads-SDK", '~> 13.8.0'
+    core.dependency "GoogleUserMessagingPlatform", '~> 3.1.0'
+    core.dependency "SnapKit", '~> 5.7.1'
+    core.dependency "SkeletonView", '~> 1.30.4'
+    core.dependency 'Toast-Swift', '~> 5.1.1'
+    core.dependency 'TikTokBusinessSDK', '~> 1.7.1'
+    core.dependency 'FBSDKCoreKit', '~> 18.1.0'
+    core.dependency 'GoogleMobileAdsMediationAppLovin', '~> 13.6.3.0'
+    core.dependency 'GoogleMobileAdsMediationVungle', '~> 7.7.6.0'
+    core.dependency 'GoogleMobileAdsMediationFacebook', '~> 6.22.0.0'
+    core.dependency 'GoogleMobileAdsMediationMintegral', '~> 8.1.6.0'
+    core.dependency 'GoogleMobileAdsMediationPangle', '~> 8.2.1.0.0'
+  end
+
+  # Install attribution + `af_purchase` for purchases made through EntitlementService.
+  spec.subspec 'AppsFlyer' do |af|
+    af.source_files = "MobileAds/AppsFlyer/**/*.swift"
+    af.dependency 'MobileAds/Core'
+    af.dependency 'AppsFlyerFramework', '~> 7.0.4'
+  end
+
+  # Subscription analytics in `.analytics` mode; EntitlementService keeps owning transactions.
+  spec.subspec 'Qonversion' do |qon|
+    qon.source_files = "MobileAds/Qonversion/**/*.swift"
+    qon.dependency 'MobileAds/Core'
+    qon.dependency 'Qonversion', '~> 6.18.0'
+  end
 end

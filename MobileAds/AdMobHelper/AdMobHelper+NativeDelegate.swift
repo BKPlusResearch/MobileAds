@@ -25,6 +25,8 @@ extension AdMobHelper: NativeAdDelegate {
         // Track metrics + Clear cache AFTER impression fires
         Task { @MainActor in
             AdMobHelper.shared.nativeAdStatusCallback?(.didRecordImpression)
+            // Per-container handler (`NativeAdSwiftUI.onImpression`), for the ad's own placement
+            NativeAdImpressionRouter.shared.routeImpression(of: nativeAd)
             // Use ad unit ID for metrics (matches request/loaded tracking key)
             if let adUnitID = AdMobHelper.nativeAdUnitIDMap[nativeAd] {
                 AdMetricsTracker.shared.trackImpression(adUnit: adUnitID)
