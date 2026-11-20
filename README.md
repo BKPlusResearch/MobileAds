@@ -121,6 +121,9 @@ SDK dependencies are linked but still require host configuration and consent
 handling. Do not initialize a second entitlement owner if the host already owns
 StoreKit purchases.
 
+The optional AppsFlyer and Qonversion integrations are CocoaPods subspecs only;
+the SPM product does not include them.
+
 Follow Google's [iOS setup guide](https://developers.google.com/admob/ios/quick-start)
 for application ID, SKAdNetwork entries, and initialization requirements. Use
 [demo inventory](https://developers.google.com/admob/ios/test-ads) during development.
