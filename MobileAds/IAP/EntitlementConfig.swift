@@ -32,6 +32,14 @@ public struct EntitlementConfig {
     /// everything would let a coin pack grant permanent premium access.
     public let productIDs: Set<String>
 
+    /// Subset of `productIDs` that grant full Premium (`isEntitled == true`).
+    /// When `nil`, defaults to `productIDs` for backwards compatibility.
+    public let premiumProductIDs: Set<String>?
+
+    public var effectivePremiumProductIDs: Set<String> {
+        premiumProductIDs ?? productIDs
+    }
+
     /// Scopes the intro-offer eligibility question to a single subscription group.
     ///
     /// `nil` means every subscription in the loaded catalog is a candidate. Set this
@@ -90,6 +98,7 @@ public struct EntitlementConfig {
     ///   - onUnfinished: Delivery hook for consumable purchases. Required for consumable
     ///     sellers; leave `nil` otherwise.
     public init(productIDs: Set<String>,
+                premiumProductIDs: Set<String>? = nil,
                 subscriptionGroupID: String? = nil,
                 onUnfinished: (@MainActor @Sendable (EntitlementPurchaseReceipt) async -> Bool)? = nil) {
         #if DEBUG
@@ -98,6 +107,7 @@ public struct EntitlementConfig {
         }
         #endif
         self.productIDs = productIDs
+        self.premiumProductIDs = premiumProductIDs
         self.subscriptionGroupID = subscriptionGroupID
         self.onUnfinished = onUnfinished
     }

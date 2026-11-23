@@ -50,6 +50,9 @@ public final class EntitlementService: ObservableObject {
     /// never expire — `nil` must not be read as "expired".
     @Published public private(set) var expiryDate: Date?
 
+    /// All configured non-consumable and subscription product IDs currently entitled.
+    @Published public private(set) var entitledProductIDs: Set<String> = []
+
     /// Whether an introductory offer can still be claimed. Defaults to `false`:
     /// a missing trial badge costs one impression, a promised trial that bills
     /// immediately costs a complaint.
@@ -206,9 +209,12 @@ public final class EntitlementService: ObservableObject {
         generation += 1
         let mine = generation
 
+        let premiumIDs = config.effectivePremiumProductIDs
         var active = false
         var product: String?
         var expiry: Date?
+        var hasLifetimePremium = false
+        var entitled: Set<String> = []
 
         for await result in Transaction.currentEntitlements {
             guard case .verified(let transaction) = result else { continue }
@@ -223,10 +229,23 @@ public final class EntitlementService: ObservableObject {
             // purchases. Do not "fix" it into something that trusts a backward clock.
             if let expiration = transaction.expirationDate, expiration <= Date() { continue }
 
-            active = true
-            product = transaction.productID
-            expiry = transaction.expirationDate
-            break
+            entitled.insert(transaction.productID)
+
+            guard premiumIDs.contains(transaction.productID) else { continue }
+            if transaction.expirationDate == nil {
+                // Lifetime non-consumable in premiumProductIDs: never expires, highest priority
+                active = true
+                hasLifetimePremium = true
+                product = transaction.productID
+                expiry = nil
+            } else if !hasLifetimePremium,
+                      let txExpiry = transaction.expirationDate,
+                      (expiry == nil || txExpiry > expiry!) {
+                // Auto-renewable subscription: keep the latest expiration date
+                active = true
+                product = transaction.productID
+                expiry = txExpiry
+            }
         }
 
         // `@MainActor` does not serialize across `await`. Without this check, a stale
@@ -245,22 +264,23 @@ public final class EntitlementService: ObservableObject {
         // answer available and is what a caller should judge from.
         guard mine == generation else { return isEntitled }
 
-        publish(active: active, productID: product, expiry: expiry)
+        publish(active: active, productID: product, expiry: expiry, entitled: entitled)
         await refreshIntroEligibility(generation: mine)
         return active
     }
 
     /// The only place `verification` is set to `.verified`.
-    private func publish(active: Bool, productID: String?, expiry: Date?) {
+    private func publish(active: Bool, productID: String?, expiry: Date?, entitled: Set<String>) {
         isEntitled = active
         activeProductID = productID
         expiryDate = expiry
+        entitledProductIDs = entitled
         verification = .verified
         lastVerifyUptime = ProcessInfo.processInfo.systemUptime
         // Clear the live flag only. Burning the *persisted* one here would record a
         // prompt that was never shown, so a later lapse on the same install would never
         // offer restore again.
-        if active { shouldProactivelyPromptRestore = false }
+        if active || !entitled.isEmpty { shouldProactivelyPromptRestore = false }
     }
 
     /// Builds the receipt the host sees for `transaction`.
@@ -488,10 +508,11 @@ public final class EntitlementService: ObservableObject {
             // reading `isEntitled` here can report a value from before the sync and tell
             // a user who just restored successfully that there was nothing to restore.
             let active = await verify()
-            if active {
+            let hasAnyEntitlement = active || !entitledProductIDs.isEmpty
+            if hasAnyEntitlement {
                 EntitlementTransactionObservers.notify { await $0.entitlementServiceDidRestore() }
             }
-            return active ? .restored : .nothingToRestore
+            return hasAnyEntitlement ? .restored : .nothingToRestore
         } catch {
             let failure = mapFailure(error)
             if failure == .cancelled { return .cancelled }
