@@ -126,6 +126,17 @@ case .failed(let why):   showError(why)
 }
 ```
 
+`EntitlementPurchaseReceipt` còn mang thông tin offer và giá thực thu (chỉ có khi mua ở foreground qua `purchase()`):
+
+| Field | Ý nghĩa |
+|---|---|
+| `offerKind` | `.freeTrial` (`"free_trial"`), `.introDiscount` (`"intro_discount"`), `.promotional` (`"promotional"`: promo offer, offer code, win-back), `.none` (`"none"`) |
+| `isFreeTrial` | `offerKind == .freeTrial`; chỉ áp dụng cho intro trial. Offer code / promo offer miễn phí là `.promotional`, không tính là trial |
+| `chargedPrice` | 0 nếu intro free trial, giá intro nếu intro trả tiền, ngược lại giá store (gồm promo / offer code / win-back, giữ nguyên như AppsFlyer trước 2.2.2). `nil` = không biết (receipt từ listener / background, không có `Product`), không phải "giá thường"; khi đó `offerKind` cũng là `.none` và không được hiểu là "không có offer" |
+| `currencyCode` | Mã tiền tệ của `chargedPrice`; `nil` = không biết, cùng trường hợp |
+
+Cùng logic này được mở public qua `EntitlementPricing.offerKind(_:product:)` và `EntitlementPricing.chargedPrice(_:product:)` (AppsFlyer dùng chung), nên host có `Transaction` + `Product` trong tay (vd `EntitlementTransactionObserver`) có thể tự gọi.
+
 ## Năm cái bẫy
 
 1. **Chỉ mở khoá khi `verification == .verified`.** `.pending` nghĩa là *chưa biết*; `.timedOut` nghĩa là StoreKit không trả lời trong 5s. **Mặc định khuyến nghị khi `.timedOut`: coi user là free và hiện quảng cáo.** Cách này ưu tiên doanh thu; cái giá là người đã mua đang ở mạng kém sẽ thấy quảng cáo vài giây cho tới khi `verify()` trả lời, rồi quảng cáo biến mất. Chỉ chọn khác nếu có lý do.

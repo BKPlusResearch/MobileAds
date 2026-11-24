@@ -36,15 +36,37 @@ public struct EntitlementPurchaseReceipt: Equatable, Sendable {
     /// shape of a product ID — a naming convention is not evidence of a product's type,
     /// and guessing wrong here means crediting the wrong thing.
     public let productType: Product.ProductType
+    /// Offer the transaction was bought under. `.freeTrial` and `.introDiscount` are
+    /// introductory offers only; a free offer code or free promotional offer is
+    /// `.promotional`. `.none` means a regular-price purchase, but also appears when the
+    /// receipt came from a path without a `Product` (listener / background delivery), where
+    /// it must not be read as "no offer".
+    public let offerKind: EntitlementOfferKind
+    /// Amount charged (0 for an introductory free trial; the store price for promo, offer
+    /// code and win-back). `nil` means unknown: the receipt came from a path without a
+    /// `Product` (listener / background delivery), not "regular price".
+    public let chargedPrice: Decimal?
+    /// ISO currency code of `chargedPrice`. `nil` under the same condition.
+    public let currencyCode: String?
+
+    /// `true` when the purchase started an introductory free trial. A free offer code or
+    /// free promotional offer is `.promotional` and is not flagged.
+    public var isFreeTrial: Bool { offerKind == .freeTrial }
 
     public init(transactionID: String,
                 productID: String,
                 purchaseDate: Date,
-                productType: Product.ProductType) {
+                productType: Product.ProductType,
+                offerKind: EntitlementOfferKind = .none,
+                chargedPrice: Decimal? = nil,
+                currencyCode: String? = nil) {
         self.transactionID = transactionID
         self.productID = productID
         self.purchaseDate = purchaseDate
         self.productType = productType
+        self.offerKind = offerKind
+        self.chargedPrice = chargedPrice
+        self.currencyCode = currencyCode
     }
 }
 

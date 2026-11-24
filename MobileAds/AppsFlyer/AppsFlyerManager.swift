@@ -119,20 +119,9 @@ extension AppsFlyerManager: EntitlementTransactionObserver {
         logEvent(AFEventPurchase, values: [
             AFEventParamContentId: product.id,
             AFEventParamOrderId: String(transaction.id),
-            AFEventParamRevenue: NSDecimalNumber(decimal: Self.chargedPrice(transaction, product: product)),
+            AFEventParamRevenue: NSDecimalNumber(decimal: EntitlementPricing.chargedPrice(transaction, product: product)),
             AFEventParamCurrency: product.priceFormatStyle.currencyCode
         ])
-    }
-
-    /// What this transaction actually charged: 0 for a free trial, the intro price for a
-    /// paid intro offer, otherwise the store price. Reporting the full price for a trial
-    /// would book revenue that was never collected.
-    static func chargedPrice(_ transaction: Transaction, product: Product) -> Decimal {
-        guard transaction.offerType == .introductory,
-              let intro = product.subscription?.introductoryOffer else {
-            return product.price
-        }
-        return intro.paymentMode == .freeTrial ? 0 : intro.price
     }
 }
 

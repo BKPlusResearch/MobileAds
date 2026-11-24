@@ -264,12 +264,26 @@ public final class EntitlementService: ObservableObject {
     }
 
     /// Builds the receipt the host sees for `transaction`.
-    private func receipt(for transaction: Transaction) -> EntitlementPurchaseReceipt {
-        EntitlementPurchaseReceipt(
+    ///
+    /// Pass `product` when it is known (foreground purchase) to fill the offer and
+    /// charged-price fields; without it they keep their defaults.
+    private func receipt(for transaction: Transaction, product: Product? = nil) -> EntitlementPurchaseReceipt {
+        guard let product else {
+            return EntitlementPurchaseReceipt(
+                transactionID: String(transaction.id),
+                productID: transaction.productID,
+                purchaseDate: transaction.purchaseDate,
+                productType: transaction.productType
+            )
+        }
+        return EntitlementPurchaseReceipt(
             transactionID: String(transaction.id),
             productID: transaction.productID,
             purchaseDate: transaction.purchaseDate,
-            productType: transaction.productType
+            productType: transaction.productType,
+            offerKind: EntitlementPricing.offerKind(transaction, product: product),
+            chargedPrice: EntitlementPricing.chargedPrice(transaction, product: product),
+            currencyCode: product.priceFormatStyle.currencyCode
         )
     }
 
@@ -283,7 +297,7 @@ public final class EntitlementService: ObservableObject {
     /// Returns `true` (finish it) for everything that is not an undelivered consumable:
     /// non-consumables and subscriptions re-derive their entitlement from
     /// `currentEntitlements`, and a revoked transaction must never be delivered at all.
-    private func deliverIfNeeded(_ transaction: Transaction) async -> Bool {
+    private func deliverIfNeeded(_ transaction: Transaction, product: Product? = nil) async -> Bool {
         guard let deliver = config?.onUnfinished else { return true }
         // Refunded or family-revoked. Delivering goods here is a giveaway; the caller
         // still refreshes, so the entitlement itself drops through the normal path.
@@ -293,7 +307,7 @@ public final class EntitlementService: ObservableObject {
         // in permanent redelivery.
         guard transaction.productType == .consumable else { return true }
 
-        return await deliver(receipt(for: transaction))
+        return await deliver(receipt(for: transaction, product: product))
     }
 
     private func handle(_ result: VerificationResult<Transaction>) async {
@@ -436,12 +450,12 @@ public final class EntitlementService: ObservableObject {
                 }
                 // Built before `finish()`: afterwards the transaction is closed and these
                 // fields are no longer a dependable record of what was bought.
-                let receipt = self.receipt(for: transaction)
+                let receipt = self.receipt(for: transaction, product: product)
                 // Same delivery path as the listener, so a consumable bought in the
                 // foreground is credited by the same hook that catches the ones arriving
                 // out of band. Without this the most common purchase path would be the one
                 // path the hook never covered.
-                if await deliverIfNeeded(transaction) {
+                if await deliverIfNeeded(transaction, product: product) {
                     await transaction.finish()
                 }
                 // Updates entitlement state; not used to judge this purchase.
