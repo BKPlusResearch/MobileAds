@@ -22,6 +22,7 @@ của từng surface nằm ở ba tài liệu bên dưới.
 | [docs/ads-swiftui.md](docs/ads-swiftui.md) | Cầu nối `configAds`, `BannerAdSwiftUI`, `NativeAdSwiftUI`, 3 modifier full-screen, `.appOpenAd` |
 | [docs/in-app-purchases.md](docs/in-app-purchases.md) | `EntitlementService`, consumables, checklist sandbox, nâng cấp 1.x → 2.0 |
 | [docs/attribution.md](docs/attribution.md) | Subspec tuỳ chọn `AppsFlyer` / `Qonversion`: cài qua Podfile, khởi tạo, hành vi `af_purchase` |
+| [docs/tracking-standard.md](docs/tracking-standard.md) | Chuẩn tên event, param, user property Firebase Analytics cho mọi app BKPlus; checklist release |
 | [NATIVE_AD_CACHE.md](NATIVE_AD_CACHE.md) | Chi tiết cơ chế cache native ad |
 | [MobileAds/AdRevenue/README.md](MobileAds/AdRevenue/README.md) | Ad revenue fan-out (Firebase / TikTok / Facebook), migration 2.0.0 → 2.0.1 |
 
