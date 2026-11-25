@@ -68,6 +68,10 @@
 		B54DB5CEF90DDC36EA1D9748 /* ViewControllerResolver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 616D8E23CB74BDB8673FF4F3 /* ViewControllerResolver.swift */; };
 		B82A037AB16483E6202C759B /* AdMetricsMonitorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BECBF1604C6E579D9E7E399 /* AdMetricsMonitorView.swift */; };
 		E4EF760F4EC281112078EBEA /* AppOpenModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 655B0611C2E4F7E0D8C8A72D /* AppOpenModifier.swift */; };
+		A10C0001B01DB01D00000000 /* AnalyticsConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10C0001F11EAF11E0000000 /* AnalyticsConfig.swift */; };
+		A10C0002B01DB01D00000000 /* ScreenTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10C0002F11EAF11E0000000 /* ScreenTracker.swift */; };
+		A10C0003B01DB01D00000000 /* AnalyticsNameValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10C0003F11EAF11E0000000 /* AnalyticsNameValidator.swift */; };
+		A10C0004B01DB01D00000000 /* TrackScreenModifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10C0004F11EAF11E0000000 /* TrackScreenModifier.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -138,6 +142,10 @@
 		E4D91E64429E11BA3D41DE93 /* AdMetricsWindow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = AdMetricsWindow.swift; path = /Users/shjn/work_space/BKPlus/MobileAds/MobileAds/AdMob/Service/AdMetricsWindow.swift; sourceTree = "<absolute>"; };
 		F0B4B9011829054C5E4B1A68 /* BannerAdSwiftUI.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BannerAdSwiftUI.swift; sourceTree = "<group>"; };
 		FFE743E376CB14D2A0860362 /* InterstitialModifier.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = InterstitialModifier.swift; sourceTree = "<group>"; };
+		A10C0001F11EAF11E0000000 /* AnalyticsConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsConfig.swift; sourceTree = "<group>"; };
+		A10C0002F11EAF11E0000000 /* ScreenTracker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenTracker.swift; sourceTree = "<group>"; };
+		A10C0003F11EAF11E0000000 /* AnalyticsNameValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsNameValidator.swift; sourceTree = "<group>"; };
+		A10C0004F11EAF11E0000000 /* TrackScreenModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackScreenModifier.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -233,6 +241,7 @@
 				7F7BADBC2625FE3627FF3770 /* RewardedModifier.swift */,
 				6B576D5D65245D84ED2E529B /* RewardedInterstitialModifier.swift */,
 				655B0611C2E4F7E0D8C8A72D /* AppOpenModifier.swift */,
+				A10C0004F11EAF11E0000000 /* TrackScreenModifier.swift */,
 			);
 			name = SwiftUI;
 			path = SwiftUI;
@@ -304,6 +313,9 @@
 			children = (
 				50B1DC6C2EED62B40096DF8B /* AnalyticsEvent.swift */,
 				50B1DC6D2EED62B40096DF8B /* FirebaseLogger.swift */,
+				A10C0003F11EAF11E0000000 /* AnalyticsNameValidator.swift */,
+				A10C0002F11EAF11E0000000 /* ScreenTracker.swift */,
+				A10C0001F11EAF11E0000000 /* AnalyticsConfig.swift */,
 				50B1DC6E2EED62B40096DF8B /* LogParameter.swift */,
 				50B1DC6F2EED62B40096DF8B /* README.md */,
 			);
@@ -603,6 +615,10 @@
 				880421A2CB7D2B059C25B846 /* RewardedModifier.swift in Sources */,
 				49FB3F663B30312E0281BFCC /* RewardedInterstitialModifier.swift in Sources */,
 				E4EF760F4EC281112078EBEA /* AppOpenModifier.swift in Sources */,
+				A10C0004B01DB01D00000000 /* TrackScreenModifier.swift in Sources */,
+				A10C0003B01DB01D00000000 /* AnalyticsNameValidator.swift in Sources */,
+				A10C0002B01DB01D00000000 /* ScreenTracker.swift in Sources */,
+				A10C0001B01DB01D00000000 /* AnalyticsConfig.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

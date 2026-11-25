@@ -29,10 +29,12 @@ extension AdMobHelper: FullScreenContentDelegate {
         
         // Hide loading view when ad is about to be presented (success case)
         if ad === appOpenAd {
+            trackFullScreenAd(kind: "aoa", action: "show", screen: appOpenTrackingScreen, params: appOpenTrackingParams)
             hideAppOpenAdLoadingView()
             // Notify that ad was presented successfully
             appOpenAdStatusCallback?(.didPresent)
         } else if ad === interstitialAd {
+            trackFullScreenAd(kind: "inter", action: "show", screen: interstitialTrackingScreen, params: interstitialTrackingParams)
             hideInterstitialAdLoadingView()
             // Notify that ad was presented successfully
             interstitialAdStatusCallback?(.didPresent)
@@ -65,9 +67,13 @@ extension AdMobHelper: FullScreenContentDelegate {
 
         // Clean up ad unit ID mapping
         fullScreenAdUnitIDs.removeValue(forKey: ObjectIdentifier(ad))
+        ScreenTracker.endFullScreenAd()
 
         // Clear the ad and reset showing state
         if ad === interstitialAd {
+            trackFullScreenAd(kind: "inter", action: "close", screen: interstitialTrackingScreen, params: interstitialTrackingParams)
+            interstitialTrackingScreen = nil
+            interstitialTrackingParams = nil
             // Notify that ad was dismissed
             interstitialAdStatusCallback?(.didDismiss)
             interstitialAdStatusCallback = nil
@@ -92,6 +98,9 @@ extension AdMobHelper: FullScreenContentDelegate {
             rewardedInterstitialAd = nil
             isRewardedInterstitialShowing = false
         } else if ad === appOpenAd {
+            trackFullScreenAd(kind: "aoa", action: "close", screen: appOpenTrackingScreen, params: appOpenTrackingParams)
+            appOpenTrackingScreen = nil
+            appOpenTrackingParams = nil
             // Notify that ad was dismissed
             appOpenAdStatusCallback?(.didDismiss)
             appOpenAdStatusCallback = nil
@@ -110,9 +119,14 @@ extension AdMobHelper: FullScreenContentDelegate {
 
         // Clean up ad unit ID mapping
         fullScreenAdUnitIDs.removeValue(forKey: ObjectIdentifier(ad))
+        ScreenTracker.endFullScreenAd()
 
         // Clear the ad and reset showing state
         if ad === interstitialAd {
+            trackFullScreenAd(kind: "inter", action: "show_fail", screen: interstitialTrackingScreen,
+                              params: interstitialTrackingParams, error: error)
+            interstitialTrackingScreen = nil
+            interstitialTrackingParams = nil
             // Hide loading view
             hideInterstitialAdLoadingView()
             
@@ -139,6 +153,10 @@ extension AdMobHelper: FullScreenContentDelegate {
             rewardedInterstitialAd = nil
             isRewardedInterstitialShowing = false
         } else if ad === appOpenAd {
+            trackFullScreenAd(kind: "aoa", action: "show_fail", screen: appOpenTrackingScreen,
+                              params: appOpenTrackingParams, error: error)
+            appOpenTrackingScreen = nil
+            appOpenTrackingParams = nil
             // Hide loading view
             hideAppOpenAdLoadingView()
             
@@ -153,4 +171,26 @@ extension AdMobHelper: FullScreenContentDelegate {
     }
 }
 
+// MARK: - Standard tracking
 
+extension AdMobHelper {
+    /// Logs `{app}_{screen}_{aoa|inter}_{show|close|show_fail}`. The screen was captured at show
+    /// time; it falls back to the current screen only if a presentation callback arrives without one.
+    fileprivate func trackFullScreenAd(
+        kind: String,
+        action: String,
+        screen: String?,
+        params: [String: Any]?,
+        error: Error? = nil
+    ) {
+        var eventParams = params ?? [:]
+        if let error {
+            eventParams["error_code"] = (error as NSError).code
+        }
+        ScreenTracker.trackFromPod(
+            screen: screen ?? ScreenTracker.current,
+            action: "\(kind)_\(action)",
+            params: eventParams.isEmpty ? nil : eventParams
+        )
+    }
+}

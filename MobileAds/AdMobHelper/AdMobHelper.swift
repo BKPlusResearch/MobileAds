@@ -37,6 +37,14 @@ public class AdMobHelper: NSObject {
     /// The app open ad.
     public internal(set) var appOpenAd: AppOpenAd?
 
+    /// Screen and extra params captured when an app open ad is presented, reused for its close / show_fail events.
+    var appOpenTrackingScreen: String?
+    var appOpenTrackingParams: [String: Any]?
+
+    /// Screen and extra params captured when an interstitial is presented, reused for its close / show_fail events.
+    var interstitialTrackingScreen: String?
+    var interstitialTrackingParams: [String: Any]?
+
     /// Loading view for app open ads.
     var appOpenAdLoadingView: AppOpenAdLoadingView?
     

@@ -100,10 +100,12 @@ extension AdMobHelper {
     ///   - viewController: The view controller to present the ad from (can be nil for app open).
     ///   - shouldShowLoadingView: Whether to show the loading overlay if it is not already up.
     ///     Pass `false` when the caller is already displaying its own loading UI, such as a splash.
+    ///   - placement: Optional placement (`splash` or `resume`), sent as `placement` on the show / close / show_fail events.
     ///   - statusCallback: Callback receiving ad status events (didPresent, didFailToPresent, willDismiss, didDismiss).
     public func showAppOpenAd(
         from viewController: UIViewController? = nil,
         shouldShowLoadingView: Bool = true,
+        placement: String? = nil,
         statusCallback: ((AppOpenAdStatus) -> Void)? = nil
     ) {
         // If the app open ad is already showing, do not show the ad again.
@@ -175,6 +177,11 @@ extension AdMobHelper {
         // single such failure would latch it true and make every later app open
         // take the "already showing" early return for the rest of the process.
         isAppOpenShowing = true
+        // Captured before `present` so a synchronous show_fail carries the screen too, and
+        // close reports the same screen even if navigation changed while the ad was up.
+        appOpenTrackingScreen = ScreenTracker.current
+        appOpenTrackingParams = placement.map { ["placement": $0] }
+        ScreenTracker.beginFullScreenAd()
         appOpenAd.present(from: viewController)
     }
 }

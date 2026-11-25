@@ -172,6 +172,12 @@ struct ContentView: View {
 }
 ```
 
+`.interstitialAd` nhận thêm `toScreen:` tuỳ chọn (màn đích, gửi thành param `to_screen`).
+Pod tự bắn `{app}_{screen}_inter_show|close|show_fail`; `{screen}` là `ScreenTracker.current`
+lúc show. Đánh dấu màn bằng `.trackedScreen("home")` (`onAppear` → `ScreenTracker.enter`,
+`onDisappear` → `ScreenTracker.leave`). Xem
+[chuẩn tracking](tracking-standard.md#api-tracking-trong-pod).
+
 Cả ba đều nhận thêm `onStatusChange:` tuỳ chọn nếu cần theo dõi vòng đời ad.
 
 ## 5. App Open — khác đường UIKit
@@ -189,6 +195,10 @@ ContentView()
 > Modifier SwiftUI thì **tự làm việc đó**: theo dõi `scenePhase`, preload ở lần
 > `.active` đầu, rồi show ở mỗi lần `.active` sau đó. Đừng nối thêm observer thủ
 > công bên cạnh modifier — sẽ thành hai lần show.
+
+Modifier chỉ show khi quay lại foreground nên luôn gửi `placement=resume`; pod tự bắn
+`{app}_{screen}_aoa_show|close|show_fail`. AOA ở splash (nếu app tự show) cần gọi
+`ScreenTracker.enter("splash")` trước khi show.
 
 Modifier tự lo trọn vòng đời, app không cần gọi gì thêm:
 

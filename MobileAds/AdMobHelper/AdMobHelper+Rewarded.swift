@@ -101,6 +101,7 @@ extension AdMobHelper {
 
         isRewardedShowing = true
         didEarnRewardForCurrentAd = false  // Reset flag before showing
+        ScreenTracker.beginFullScreenAd()
         rewardedAd.present(from: viewController) { [weak self] in
             let reward = rewardedAd.adReward
             debugPrint("Reward received with currency \(reward.type), amount \(reward.amount.doubleValue)")

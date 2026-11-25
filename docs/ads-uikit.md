@@ -121,6 +121,11 @@ func showExitInterstitial(from vc: UIViewController) async {
 }
 ```
 
+Tham số tuỳ chọn `toScreen:` (đặt trước closure cuối) là màn đích, gửi thành param
+`to_screen` trên các event `{app}_{screen}_inter_show|close|show_fail` mà pod tự bắn.
+Màn `{screen}` là `ScreenTracker.current` lúc gọi `showInterstitialAd`. Xem
+[chuẩn tracking](tracking-standard.md#6-ad-full-screen-aoa-inter).
+
 ## 3. Rewarded
 
 ```swift
@@ -240,6 +245,12 @@ NotificationCenter.default.addObserver(
     }
 }
 ```
+
+Tracking: pod tự bắn `{app}_{screen}_aoa_show|close|show_fail` (xem
+[chuẩn tracking](tracking-standard.md#6-ad-full-screen-aoa-inter)). Truyền
+`placement: "splash"` hoặc `"resume"` cho `showAppOpenAd` để gửi param `placement`.
+**Ở splash, gọi `ScreenTracker.enter("splash")` trước khi show AOA** (màn được chốt lúc show), nếu không
+event AOA mang màn `unknown`.
 
 Điểm cần biết:
 

@@ -62,10 +62,12 @@ extension AdMobHelper {
     /// - Parameters:
     ///   - viewController: The view controller to present the ad from.
     ///   - shouldShowLoadingView: Whether to show loading view if not already showing. Default is true.
+    ///   - toScreen: Optional destination screen code, sent as `to_screen` on the show / close / show_fail events.
     ///   - statusCallback: Optional callback to receive ad status events (didPresent, didFailToPresent, didDismiss).
     public func showInterstitialAd(
         from viewController: UIViewController,
         shouldShowLoadingView: Bool = true,
+        toScreen: String? = nil,
         statusCallback: ((InterstitialAdStatus) -> Void)? = nil
     ) throws {
         guard !isInterstitialShowing else {
@@ -97,6 +99,11 @@ extension AdMobHelper {
         shouldSkipNextAppResume = true
 
         isInterstitialShowing = true
+        // Captured before `present` so a synchronous show_fail carries the screen too, and
+        // close reports the same screen even if navigation changed while the ad was up.
+        interstitialTrackingScreen = ScreenTracker.current
+        interstitialTrackingParams = toScreen.map { ["to_screen": $0] }
+        ScreenTracker.beginFullScreenAd()
         interstitialAd.present(from: viewController)
     }
 }

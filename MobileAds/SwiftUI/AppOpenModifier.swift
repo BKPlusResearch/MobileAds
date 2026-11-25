@@ -56,7 +56,9 @@ public struct AppOpenModifier: ViewModifier {
                         return
                     }
 
+                    // This modifier only shows on a foreground return, so the placement is always resume.
                     AdMobHelper.shared.showAppOpenAd(
+                        placement: "resume",
                         statusCallback: onStatusChange
                     )
                 case .background:

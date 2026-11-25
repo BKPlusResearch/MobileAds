@@ -83,6 +83,44 @@ FirebaseLogger.shared.setUserPremiumStatus(true)
 FirebaseLogger.shared.setUserProperty(key: "user_level", value: "advanced")
 ```
 
+## Standard Tracking (`{app}_{screen}_{action}`)
+
+Spec: `docs/tracking-standard.md`.
+
+```swift
+// Once at launch. While unset, no standard event is sent and DEBUG asserts.
+AnalyticsConfig.appCode = "ios099"
+
+// UIKit (main thread)
+override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    ScreenTracker.enter("home")          // logs ios099_home_view
+}
+override func viewDidDisappear(_ animated: Bool) {
+    super.viewDidDisappear(animated)
+    ScreenTracker.leave("home")
+}
+
+// SwiftUI
+HomeView().trackedScreen("home")
+
+// Actions
+ScreenTracker.track("create_click")                       // ios099_{current}_create_click
+ScreenTracker.track(screen: "paywall", action: "buy_click", params: ["plan": "yearly"])
+
+// User properties: at launch and when premium or the A/B branch changes
+FirebaseLogger.shared.setStandardUserProperties(isPremium: false, abBranch: "b")
+```
+
+- `ScreenTracker.current` is the top of a screen stack (`"unknown"` when empty), so closing a sheet
+  returns it to the screen underneath.
+- Names are checked by an internal validator: `[a-z0-9_]`, at most 40 characters, action from the
+  allowed list. DEBUG hits `assertionFailure`; release still logs, truncated to 40 characters.
+- `setStandardUserProperties` also sets `first_open_version` once (guarded by a UserDefaults flag).
+- AOA and interstitial show / close / show_fail events are sent by the pod, using the screen that was
+  current when the ad was presented. On splash call `ScreenTracker.enter("splash")` before AOA.
+- `FirebaseLogger.shared.logEvent(name:params:)` sends a raw string-named event; the debug log is kept.
+
 ## Extending for Your App
 
 ### 1. Create App-Specific Events

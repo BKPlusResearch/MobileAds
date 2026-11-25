@@ -14,6 +14,7 @@ import SwiftUI
 public struct InterstitialModifier: ViewModifier {
     @Binding var isPresented: Bool
     let adUnitID: AdUnitIdentifiable
+    var toScreen: String?
     var onStatusChange: ((InterstitialAdStatus) -> Void)?
 
     public func body(content: Content) -> some View {
@@ -33,6 +34,7 @@ public struct InterstitialModifier: ViewModifier {
                             try AdMobHelper.shared.showInterstitialAd(
                                 from: vc,
                                 shouldShowLoadingView: true,
+                                toScreen: toScreen,
                                 statusCallback: { status in
                                     debugPrint("[vunt ads] InterstitialModifier status=\(status)")
                                     onStatusChange?(status)
@@ -56,14 +58,17 @@ public struct InterstitialModifier: ViewModifier {
 @available(iOS 15.0, *)
 public extension View {
     /// Show an interstitial ad when `isPresented` becomes true.
+    /// `toScreen` is the destination screen code, sent as `to_screen` on the ad events.
     func interstitialAd(
         isPresented: Binding<Bool>,
         adUnitID: AdUnitIdentifiable,
+        toScreen: String? = nil,
         onStatusChange: ((InterstitialAdStatus) -> Void)? = nil
     ) -> some View {
         modifier(InterstitialModifier(
             isPresented: isPresented,
             adUnitID: adUnitID,
+            toScreen: toScreen,
             onStatusChange: onStatusChange
         ))
     }

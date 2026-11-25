@@ -78,6 +78,7 @@ extension AdMobHelper {
         shouldSkipNextAppResume = true
 
         isRewardedInterstitialShowing = true
+        ScreenTracker.beginFullScreenAd()
         rewardedInterstitialAd.present(from: viewController) {
             let reward = rewardedInterstitialAd.adReward
             debugPrint(
